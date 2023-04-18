@@ -1,3 +1,5 @@
+import os.path
+
 import mss
 import mss.tools
 import win32gui
@@ -46,12 +48,18 @@ class Automator:
         print(self.client_xy0)
         print(self.client_size)
     def get_path(self, img_name:str):
-        return self.img_path + img_name + '.png'
+        img_path = self.img_path + img_name + '.png'
+        if os.path.exists(img_path) == False:
+            print(f"No such file: {img_path}")
+        return img_path
     def locate(self, img_name: str, trial_number=1):
         for count in range(int(trial_number)):
             img = self.sct.grab(self.rect)
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-            loc = pyautogui.locate(self.get_path(img_name), pil_img, confidence=self.confidence)
+            try:
+                loc = pyautogui.locate(self.get_path(img_name), pil_img, confidence=self.confidence)
+            except:
+                loc = None
             if loc != None:
                 print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
                 print("Saving sc.png")
@@ -70,8 +78,8 @@ class Automator:
         if self.click_on_device != None:
             x, y = win32gui.ScreenToClient(self.hwnd, xy)
             xy = (x-self.real_cli_x0, y-self.real_cli_y0)
+            print(f"clicking as device xy: {xy}")
             self.click_on_device(xy[0], xy[1])
-            print(f"clicking as dev xy: {xy}")
             time.sleep(self.clicking_time)
         else:
             pyautogui.click(xy)
