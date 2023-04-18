@@ -45,8 +45,8 @@ class Automator:
         self.client_xy0 = win32gui.ClientToScreen(self.hwnd, (0,0))
         self.client_size = (win32gui.GetClientRect(self.hwnd)[2], win32gui.GetClientRect(self.hwnd)[3])
         self.rect = (self.client_xy0[0], self.client_xy0[1], self.client_xy0[0]+self.client_size[0], self.client_xy0[1]+self.client_size[1])
-        print(self.client_xy0)
-        print(self.client_size)
+        # print(self.client_xy0)
+        # print(self.client_size)
     def get_path(self, img_name:str):
         img_path = self.img_path + img_name + '.png'
         if os.path.exists(img_path) == False:
@@ -61,9 +61,9 @@ class Automator:
             except:
                 loc = None
             if loc != None:
-                print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
-                print("Saving sc.png")
-                pil_img.save('sc.png')
+                # print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
+                # print("Saving sc.png")
+                # pil_img.save('sc.png')
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
         return None
     def locate_on_screen(self, img_name:str):
@@ -78,7 +78,7 @@ class Automator:
         if self.click_on_device != None:
             x, y = win32gui.ScreenToClient(self.hwnd, xy)
             xy = (x-self.real_cli_x0, y-self.real_cli_y0)
-            print(f"clicking as device xy: {xy}")
+            # print(f"clicking as device xy: {xy}")
             self.click_on_device(xy[0], xy[1])
             time.sleep(self.clicking_time)
         else:
