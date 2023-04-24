@@ -1,7 +1,4 @@
-[bluestack]
-dev_size = 1080, 1920
-real_cli_xy0 = 0,64
-[nox]
+[nox_1920_1080]
 dev_size = 1080, 1920
 real_cli_xy0 = 0,27
 [nox_1280_720]

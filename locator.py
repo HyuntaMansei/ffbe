@@ -8,7 +8,7 @@ import pyautogui
 import time
 import configparser
 
-class Automator:
+class Locator:
     def __init__(self, hwnd:str=None, path:str='./', confidence=0.95):
         self.sct = mss.mss()
         self.basic_init(path, confidence)
@@ -16,14 +16,15 @@ class Automator:
             self.size_init(hwnd)
     def basic_init(self, path, confidence=0.95, waiting_time=10):
         self.confidence = confidence
-        self.clicking_time = 0.5
+        self.sltime_before_click = 0.1
+        self.sltime_after_click = 0.1
         self.set_path(path)
+        self.read_coordinates(path + "coordinates.txt")
         self.trial_number = waiting_time
-        self.xys = {}
         self.click_on_device = None
     def load_conf(self, device_type:str):
         config = configparser.ConfigParser()
-        config.read('./config.ini')
+        config.read('./locator_config.txt')
         self.conf = config[device_type]
         # self.conf['dev_size']
         self.real_cli_x0, self.real_cli_y0 = (int(self.conf['real_cli_xy0'].split(',')[0]), int(self.conf['real_cli_xy0'].split(',')[1]))
@@ -74,16 +75,16 @@ class Automator:
             return None
     def click_on_screen(self, xy):
         prev_pos = pyautogui.position()
-        time.sleep(self.clicking_time)
+        time.sleep(self.sltime_before_click)
         if self.click_on_device != None:
             x, y = win32gui.ScreenToClient(self.hwnd, xy)
             xy = (x-self.real_cli_x0, y-self.real_cli_y0)
             # print(f"clicking as device xy: {xy}")
             self.click_on_device(xy[0], xy[1])
-            time.sleep(self.clicking_time)
+            time.sleep(self.sltime_after_click)
         else:
             pyautogui.click(xy)
-            time.sleep(self.clicking_time)
+            time.sleep(self.sltime_after_click)
             pyautogui.moveTo(prev_pos.x, prev_pos.y)
         return xy
     def click(self, xy):
@@ -92,11 +93,13 @@ class Automator:
         elif xy in self.xys.keys():
             xy = self.xys[xy]
         else:
-            self.read_coor()
+            self.read_coordinates()
             if xy in self.xys.keys():
                 xy = self.xys[xy]
             else:
-                return False
+                xy = win32gui.ScreenToClient(self.locate(xy))
+                if not xy:
+                    return False
         loc = win32gui.ClientToScreen(self.hwnd, xy)
         return self.click_on_screen(loc)
     def locate_and_click(self, img_name: str, xy=None, trial_number = 1):
@@ -114,7 +117,8 @@ class Automator:
         if trial_number == None:
             trial_number = self.trial_number
         return self.locate_and_click(img_name, xy=xy, trial_number=trial_number)
-    def read_coor(self, file_name:str=None):
+    def read_coordinates(self, file_name:str=None):
+        self.xys = {}
         if file_name != None:
             with open(file_name, 'r') as f:
                 lines = f.readlines()
@@ -122,6 +126,6 @@ class Automator:
                     self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
             self.coor_file_path = file_name
         elif self.coor_file_path != None:
-            self.read_coor(self.coor_file_path)
+            self.read_coordinates(self.coor_file_path)
         else:
             return False
