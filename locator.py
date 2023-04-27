@@ -1,4 +1,5 @@
 import os.path
+import threading
 
 import mss
 import mss.tools
@@ -10,11 +11,16 @@ import configparser
 
 class Locator:
     def __init__(self, hwnd:str=None, path:str='./', confidence=0.95):
+        print("---Initiating Locator---")
         self.sct = mss.mss()
         self.basic_init(path, confidence)
         if hwnd != None:
             self.size_init(hwnd)
+        th_rect_checker = threading.Thread(target=self.rect_checker)
+        th_rect_checker.start()
+        print("---End of Initializing Locator---")
     def basic_init(self, path, confidence=0.95, waiting_time=10):
+        print("In basic_init of Locator")
         self.confidence = confidence
         self.sltime_before_click = 0.1
         self.sltime_after_click = 0.1
@@ -24,7 +30,9 @@ class Locator:
         self.click_on_device = None
         self.debug_msg_list = []
         self.print_debug = print
+        print("End of basic_init of Locator")
     def load_conf(self, device_type:str):
+        print("In load_conf of Locator")
         config = configparser.ConfigParser()
         config.read('./locator_config.txt')
         self.conf = config[device_type]
@@ -37,6 +45,7 @@ class Locator:
         if self.img_path[-1] != ("/" or "\\"):
             self.img_path += "\\"
     def size_init(self, hwnd=None, window_text=None, rect=None):
+        print("In size_init")
         if rect != None:
             pass
         elif window_text != None:
@@ -45,15 +54,25 @@ class Locator:
             self.hwnd = hwnd
         else:
             return False
+        self.cur_rect = win32gui.GetWindowRect(self.hwnd)
         self.client_xy0 = win32gui.ClientToScreen(self.hwnd, (0,0))
         self.client_size = (win32gui.GetClientRect(self.hwnd)[2], win32gui.GetClientRect(self.hwnd)[3])
         self.rect = (self.client_xy0[0], self.client_xy0[1], self.client_xy0[0]+self.client_size[0], self.client_xy0[1]+self.client_size[1])
         # print(self.client_xy0)
         # print(self.client_size)
+        print("End of size_init")
+    def rect_checker(self):
+        while True:
+            new_rect = win32gui.GetWindowRect()
+            if self.cur_rect != new_rect:
+                self.debug("Resizing rect")
+                self.size_init(self.hwnd)
+            time.sleep(2)
     def get_path(self, img_name:str):
         img_path = self.img_path + img_name + '.png'
         if os.path.exists(img_path) == False:
             self.debug(f"No such file: {img_path}")
+            return False
         return img_path
     def locate(self, img_name: str, trial_number=1, confidence = None):
         if confidence == None:
@@ -62,7 +81,11 @@ class Locator:
             img = self.sct.grab(self.rect)
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
             try:
-                loc = pyautogui.locate(self.get_path(img_name), pil_img, confidence=confidence)
+                img_path = self.get_path(img_name)
+                if img_path:
+                    loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
+                else:
+                    loc = None
             except:
                 loc = None
             if loc != None:
@@ -126,12 +149,17 @@ class Locator:
             trial_number = self.trial_number
         return self.locate_and_click(img_name, xy=xy, trial_number=trial_number)
     def read_coordinates(self, file_name:str=None):
+        print(f"In read_coordinates, file_name:{file_name}")
         self.xys = {}
         if file_name != None:
             with open(file_name, 'r') as f:
                 lines = f.readlines()
                 for l in lines:
-                    self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
+                    print(f"reading coordinates: {l}")
+                    try:
+                        self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
+                    except:
+                        print(f"reading error")
             self.coor_file_path = file_name
         elif self.coor_file_path != None:
             self.read_coordinates(self.coor_file_path)
