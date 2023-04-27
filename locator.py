@@ -22,6 +22,8 @@ class Locator:
         self.read_coordinates(path + "coordinates.txt")
         self.trial_number = waiting_time
         self.click_on_device = None
+        self.debug_msg_list = []
+        self.print_debug = print
     def load_conf(self, device_type:str):
         config = configparser.ConfigParser()
         config.read('./locator_config.txt')
@@ -51,14 +53,16 @@ class Locator:
     def get_path(self, img_name:str):
         img_path = self.img_path + img_name + '.png'
         if os.path.exists(img_path) == False:
-            print(f"No such file: {img_path}")
+            self.debug(f"No such file: {img_path}")
         return img_path
-    def locate(self, img_name: str, trial_number=1):
+    def locate(self, img_name: str, trial_number=1, confidence = None):
+        if confidence == None:
+            confidence = self.confidence
         for count in range(int(trial_number)):
             img = self.sct.grab(self.rect)
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
             try:
-                loc = pyautogui.locate(self.get_path(img_name), pil_img, confidence=self.confidence)
+                loc = pyautogui.locate(self.get_path(img_name), pil_img, confidence=confidence)
             except:
                 loc = None
             if loc != None:
@@ -67,8 +71,10 @@ class Locator:
                 # pil_img.save('sc.png')
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
         return None
-    def locate_on_screen(self, img_name:str):
-        loc = self.locate(img_name)
+    def locate_on_screen(self, img_name:str, confidence = None):
+        if confidence == None:
+            confidence = self.confidence
+        loc = self.locate(img_name, confidence=confidence)
         try:
             return (self.client_xy0[0]+loc[0], self.client_xy0[1]+loc[1])
         except:
@@ -102,9 +108,11 @@ class Locator:
                     return False
         loc = win32gui.ClientToScreen(self.hwnd, xy)
         return self.click_on_screen(loc)
-    def locate_and_click(self, img_name: str, xy=None, trial_number = 1):
+    def locate_and_click(self, img_name: str, xy=None, trial_number = 1, confidence = None):
+        if confidence == None:
+            confidence = self.confidence
         for count in range(trial_number):
-            loc = self.locate_on_screen(img_name)
+            loc = self.locate_on_screen(img_name, confidence=confidence)
             if loc != None:
                 if xy == None:
                     return self.click_on_screen(loc)
@@ -129,3 +137,7 @@ class Locator:
             self.read_coordinates(self.coor_file_path)
         else:
             return False
+    def debug(self, msg:str):
+        if not msg in self.debug_msg_list:
+            self.debug_msg_list.append(msg)
+            self.print_debug(msg)

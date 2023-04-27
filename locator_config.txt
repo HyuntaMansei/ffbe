@@ -4,3 +4,6 @@ real_cli_xy0 = 0,27
 [nox_1280_720]
 dev_size = 720, 1280
 real_cli_xy0 = 0,27
+[android]
+dev_size = 720, 1280
+real_cli_xy0 = 0,0
