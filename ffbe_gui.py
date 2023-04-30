@@ -1,7 +1,8 @@
-import PyQt5.QtWidgets
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QScrollArea, QLabel, QTextEdit, QComboBox, QLineEdit
-from PyQt5.QtCore import Qt
-from PyQt5 import QtWidgets, uic
+import PyQt6.QtWidgets
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QScrollArea, QLabel, QTextEdit, QComboBox, QLineEdit, QPlainTextEdit, QTextBrowser
+from PyQt6.QtCore import Qt
+from PyQt6 import QtWidgets, uic
 import sys
 import ffbe_automator
 import threading
@@ -10,31 +11,32 @@ class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
+        self.log_list = []
+        self.debug_list = []
+
         # Load the UI file
-        uic.loadUi('ffbe_widget.ui', self)
+        uic.loadUi('ffbe_widget2.ui', self)
 
         # Connect any signals and slots
         btn_list = self.findChildren(QtWidgets.QPushButton)
         for b in btn_list:
             b.clicked.connect(self.on_button_clicked)
 
-        self.te_log = QTextEdit()
-        self.te_log.setReadOnly(True)
-        self.te_debug = QTextEdit()
-        self.te_debug.setReadOnly(True)
 
-        self.sa_log = self.findChild(QScrollArea, 'sa_log')
-        self.sa_log.setWidget(self.te_log)
-        self.sa_debug = self.findChild(QScrollArea, 'sa_debug')
-        self.sa_debug.setWidget(self.te_debug)
+        self.tb_log = self.findChild(QTextBrowser, 'tb_log')
+        self.tb_log.setReadOnly(True)
+        self.tb_debug = self.findChild(QTextBrowser, 'tb_debug')
+        self.tb_debug.setReadOnly(True)
 
         self.cb_device_type = self.findChild(QComboBox)
         self.cb_device_type.addItem("nox_1920_1080")
         self.cb_device_type.addItem("android")
+        self.cb_device_type.currentIndexChanged.connect(self.handle_device_type)
 
         self.le_window_name = self.findChild(QLineEdit, 'le_window_name')
         self.le_window_name.setText("facebook")
         # self.le_window_name.setText("hyuntamansei")
+        # self.le_window_name.setText("SM-N950N")
         self.le_rep = self.findChild(QLineEdit, 'le_rep')
         self.le_rep.setText("20")
         self.le_players = self.findChild(QLineEdit, 'le_players')
@@ -42,11 +44,14 @@ class MyWidget(QtWidgets.QWidget):
 
         self.show()
 
+    def handle_device_type(self):
+        cb_text = self.cb_device_type.currentText()
+        if cb_text == 'android':
+            self.le_window_name.setText("SM-N950N")
     def on_button_clicked(self):
         sender = self.sender().objectName()
         btn_text = self.sender().text()
         self.set_params()
-        msg = []
         if sender == 'pb_quest':
             if not 'on' in btn_text:
                 self.quest_thread = threading.Thread(target=self.start_quest)
@@ -54,9 +59,7 @@ class MyWidget(QtWidgets.QWidget):
                 self.sender().setText('Quest: on')
             else:
                 try:
-                    self.my_automator.running = False
-                    # self.quest_thread._stop()
-                # self.quest_thread._delete()
+                    self.my_automator.stop()
                 finally:
                     self.sender().setText('Quest: off')
         elif sender == 'pb_multi':
@@ -67,17 +70,10 @@ class MyWidget(QtWidgets.QWidget):
             else:
                 try:
                     self.my_automator.stop()
-                    # self.multi_thread._stop()
-                # self.multi_thread._delete()
                 finally:
                     self.sender().setText('Multi: off')
         else:
-            msg.append("wrong operation")
-        for m in msg:
-            self.te_log.append(m)
-            self.te_debug.append(m)
-    # def on_combobox_changed(self, index):
-    #     self.set_params(self.cb_device_type.itemText(index))
+            self.debug("wrong operation")
 
     def set_params(self):
         self.device_type = self.cb_device_type.currentText()
@@ -93,12 +89,39 @@ class MyWidget(QtWidgets.QWidget):
         self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi', self.debug, self.log)
         self.my_automator.play_multi(self.rep_time, self.num_of_players)
 
-    def debug(self, msg:str):
-        self.te_debug.append(msg)
-    def log(self, msg:str):
-        self.te_log.append(msg)
+    def log(self, msg:str, flag:str=None):
+        write = False
+        if flag == None:
+            write = True
+        elif (flag.lower() == "error") or (flag.lower() == 'e'):
+            if not msg in self.log_list:
+                write = True
+        else:
+            pass
+        if write == True:
+            self.log_list.append(msg)
+            self.tb_log.append(msg)
+            self.tb_log.verticalScrollBar().setValue(self.tb_log.verticalScrollBar().maximum() + 50)
+            self.tb_log.update()
+    def debug(self, msg:str, flag:str=None):
+        write = False
+        if flag == None:
+            write = True
+        elif (flag.lower() == "error") or (flag.lower() == 'e'):
+            if not msg in self.debug_list:
+                write = True
+        else:
+            pass
+        if write == True:
+            self.debug_list.append(msg)
+            self.tb_debug.append(msg)
+            # text = self.tb_debug.toPlainText() + msg + '\n'
+            # self.tb_debug.setText(text)
+            self.tb_debug.verticalScrollBar().setValue(self.tb_debug.verticalScrollBar().maximum() + 200)
+            self.tb_debug.update()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
+    # sys.exit(app.exec_())

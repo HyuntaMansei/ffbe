@@ -10,8 +10,10 @@ import time
 import configparser
 
 class Locator:
-    def __init__(self, hwnd:str=None, path:str='./', confidence=0.95):
+    def __init__(self, hwnd:str=None, path:str='./', confidence=0.95, debug=print, log=print):
         print("---Initiating Locator---")
+        self.debug = debug
+        self.log = log
         self.sct = mss.mss()
         self.basic_init(path, confidence)
         if hwnd != None:
@@ -63,7 +65,7 @@ class Locator:
         print("End of size_init")
     def rect_checker(self):
         while True:
-            new_rect = win32gui.GetWindowRect()
+            new_rect = win32gui.GetWindowRect(self.hwnd)
             if self.cur_rect != new_rect:
                 self.debug("Resizing rect")
                 self.size_init(self.hwnd)
@@ -71,7 +73,7 @@ class Locator:
     def get_path(self, img_name:str):
         img_path = self.img_path + img_name + '.png'
         if os.path.exists(img_path) == False:
-            self.debug(f"No such file: {img_path}")
+            self.debug(f"No such file: {img_path}", "e")
             return False
         return img_path
     def locate(self, img_name: str, trial_number=1, confidence = None):
@@ -165,7 +167,7 @@ class Locator:
             self.read_coordinates(self.coor_file_path)
         else:
             return False
-    def debug(self, msg:str):
-        if not msg in self.debug_msg_list:
-            self.debug_msg_list.append(msg)
-            self.print_debug(msg)
+    # def debug(self, msg:str):
+    #     if not msg in self.debug_msg_list:
+    #         self.debug_msg_list.append(msg)
+    #         self.print_debug(msg)
