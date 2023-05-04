@@ -6,13 +6,14 @@ import locator
 from ppadb.client import Client as AdbClient
 import threading
 class Automator:
-    def __init__(self, window_name:str, device_type:str, automation_name, debug, log):
+    def __init__(self, window_name:str, device_type:str, automation_name, debug=print, log=print):
         self.debug = debug
         self.log = log
         self.device_init(window_name)
         self.set_params(device_type, automation_name)
     def device_init(self, window_name:str):
         self.my_client = AdbClient()
+        print(self.debug)
         self.debug(f"devices: {self.my_client.devices()}")
         self.my_device = self.my_client.devices()[0]
         self.my_hwnd = win32gui.FindWindow(None, window_name)
@@ -93,13 +94,11 @@ class Automator:
     def play_multi(self, rep_time, num_of_players):
         self.running = True
         # multi auto play
-        before_battle_cnt_limit = 100 * num_of_players
         self.my_locator.confidence = 0.90
-
+        self.time_limit = 300
         self.log("Starting multi automation")
         for cnt in range(rep_time):
-            before_battle_cnt = 0
-            sortie_trial_cnt = 1
+            self.init_time()
             self.debug(f"Before battle stage.")
             while (not self.my_locator.locate('auto')) and self.running:
                 sortie_cond = False
@@ -115,37 +114,36 @@ class Automator:
                     if (self.my_locator.locate('four_people')):
                         sortie_cond = True
                 if sortie_cond:
-                    self.debug(f"Trying to click sortie, num of players: {num_of_players}, trial count: {sortie_trial_cnt},")
+                    self.debug(f"Trying to click sortie, num of players: {num_of_players}, e_time: {int(self.elasped_time())}")
                     self.my_locator.locate_and_click('sortie')
-                    sortie_trial_cnt += 1
                 self.my_locator.locate_and_click('sortie_confirm')
-                # self.my_locator.locate_and_click('not_auto')
                 # self.my_locator.locate_and_click('ok')
-                before_battle_cnt += 1
-                # if before_battle_cnt > 10:
-                #     while (self.my_locator.locate('checking_the_result')) and self.running:
-                #         self.my_locator.locate_and_click('checking_the_result')
-                #         self.my_locator.locate_and_click('expel')
-                # if before_battle_cnt > before_battle_cnt_limit:
-                #     self.debug("Kicking all out!")
-                #     while (not self.my_locator.locate('one_person')):
-                #         self.my_locator.locate_and_click('kick_out')
-                #         self.my_locator.locate_and_click('expel')
-                #     before_battle_cnt = 0
-                #     sortie_trial_cnt = 0
-            self.debug("\nAuto located. In battle stage")
+                if self.elasped_time() > 30:
+                     while (self.my_locator.locate('checking_the_result')) and self.running:
+                         self.debug("Kicking some checking the result!")
+                         if self.my_locator.locate_and_click('checking_the_result'):
+                            while not self.my_locator.locate('expel'):
+                                time.sleep(0.5)
+                                self.my_locator.locate_and_click('expel')
+                if self.elasped_time() > self.time_limit:
+                    self.debug("Kicking all out!")
+                    while (not self.my_locator.locate('one_person')) and self.running:
+                        self.my_locator.locate_and_click('kick_out')
+                        self.my_locator.locate_and_click('expel')
+                    self.init_time()
+            self.debug("\n'Auto' is located. In battle stage")
             start_time = time.time()
-            # while not self.my_locator.locate('after_battle_next'):
             while (not self.my_locator.locate('next')) and self.running:
                 self.my_locator.locate_and_click('ok')
+                self.my_locator.locate_and_click('ok2')
                 self.my_locator.locate_and_click('give_up')
                 if self.my_locator.locate_and_click('yes'):
                     break
                 time.sleep(1)
             # after battle stage
             self.debug("After battle stage")
-            elasped_time = time.time() - start_time
-            self.log(f"Elasped_time: {time.strftime('%M:%S', time.gmtime(elasped_time))}")
+            elapsed_time = time.time() - start_time
+            self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(elapsed_time))}")
             while (not self.my_locator.locate('organize')) and self.running:
                 self.my_locator.locate_and_click('next')
                 # self.my_locator.locate_and_click('ok')
@@ -161,4 +159,7 @@ class Automator:
         self.debug = debug
     def connect_log(self, log):
         self.log = log
-
+    def elasped_time(self):
+        return time.time() - self.start_time
+    def init_time(self):
+        self.start_time = time.time()

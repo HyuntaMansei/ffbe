@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1500</width>
-    <height>225</height>
+    <width>1900</width>
+    <height>228</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,9 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>1170</x>
+     <x>1200</x>
      <y>10</y>
-     <width>324</width>
+     <width>691</width>
      <height>211</height>
     </rect>
    </property>
@@ -30,39 +30,48 @@
    </property>
    <property name="font">
     <font>
-     <family>맑은 고딕</family>
-     <pointsize>13</pointsize>
+     <family>새굴림</family>
+     <pointsize>11</pointsize>
      <weight>50</weight>
      <bold>false</bold>
     </font>
    </property>
+   <property name="locale">
+    <locale language="English" country="UnitedStates"/>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QComboBox" name="cb_device_type">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>100</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>맑은 고딕</family>
-        <pointsize>13</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QComboBox" name="cb_device_type">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="placeholderText">
+         <string>Device Type</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QLabel" name="label_3">
         <property name="sizePolicy">
@@ -79,17 +88,21 @@
         </property>
         <property name="font">
          <font>
-          <family>맑은 고딕</family>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
         </property>
         <property name="text">
          <string>Name</string>
         </property>
        </widget>
       </item>
-      <item alignment="Qt::AlignVCenter">
+      <item>
        <widget class="QLineEdit" name="le_window_name">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -97,18 +110,16 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>25</height>
-         </size>
-        </property>
         <property name="font">
          <font>
-          <family>맑은 고딕</family>
-          <weight>75</weight>
-          <bold>true</bold>
+          <family>새굴림</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
          </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
         </property>
        </widget>
       </item>
@@ -135,11 +146,14 @@
         </property>
         <property name="font">
          <font>
-          <family>맑은 고딕</family>
-          <pointsize>13</pointsize>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
         </property>
         <property name="text">
          <string>Rep</string>
@@ -157,29 +171,25 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>25</height>
+          <height>100</height>
          </size>
         </property>
         <property name="font">
          <font>
-          <family>맑은 고딕</family>
-          <pointsize>13</pointsize>
+          <family>새굴림</family>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <property name="spacing">
-       <number>6</number>
-      </property>
       <item>
        <widget class="QLabel" name="label_2">
         <property name="sizePolicy">
@@ -196,11 +206,14 @@
         </property>
         <property name="font">
          <font>
-          <family>맑은 고딕</family>
-          <pointsize>13</pointsize>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
         </property>
         <property name="text">
          <string>players</string>
@@ -218,16 +231,19 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>25</height>
+          <height>100</height>
          </size>
         </property>
         <property name="font">
          <font>
-          <family>맑은 고딕</family>
-          <pointsize>13</pointsize>
+          <family>새굴림</family>
+          <pointsize>12</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -237,58 +253,92 @@
      </layout>
     </item>
     <item>
-     <widget class="QPushButton" name="pb_quest">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>100</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>맑은 고딕</family>
-        <pointsize>13</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Quest: off</string>
-      </property>
-     </widget>
-    </item>
-    <item alignment="Qt::AlignTop">
-     <widget class="QPushButton" name="pb_multi">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>100</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>맑은 고딕</family>
-        <pointsize>13</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Multi: off</string>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QPushButton" name="pb_quest">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="text">
+         <string>Quest: off</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pb_multi">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="text">
+         <string>Multi: off</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pb_update">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="text">
+         <string>Update</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -309,144 +359,41 @@
    </property>
    <property name="font">
     <font>
-     <family>맑은 고딕</family>
+     <family>새굴림</family>
      <pointsize>13</pointsize>
      <weight>50</weight>
      <bold>false</bold>
     </font>
+   </property>
+   <property name="locale">
+    <locale language="English" country="UnitedStates"/>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="bottomMargin">
      <number>6</number>
     </property>
     <item>
-     <widget class="QScrollArea" name="sa_log">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>244</height>
-       </size>
-      </property>
+     <widget class="QTextEdit" name="obj_log">
       <property name="font">
        <font>
-        <family>맑은 고딕</family>
-        <pointsize>13</pointsize>
+        <family>Calibri</family>
+        <pointsize>12</pointsize>
         <weight>50</weight>
         <bold>false</bold>
        </font>
       </property>
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContents</enum>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>548</width>
-         <height>202</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <widget class="QTextEdit" name="te_log">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>571</width>
-          <height>211</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-       </widget>
-      </widget>
      </widget>
     </item>
     <item>
-     <widget class="QScrollArea" name="sa_debug">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>244</height>
-       </size>
-      </property>
+     <widget class="QTextEdit" name="obj_debug">
       <property name="font">
        <font>
-        <family>맑은 고딕</family>
-        <pointsize>13</pointsize>
+        <family>Arial Narrow</family>
+        <pointsize>12</pointsize>
         <weight>50</weight>
         <bold>false</bold>
        </font>
       </property>
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContents</enum>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents_2">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>548</width>
-         <height>202</height>
-        </rect>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <widget class="QTextEdit" name="te_debug">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>571</width>
-          <height>211</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-       </widget>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -454,4 +401,21 @@
  </widget>
  <resources/>
  <connections/>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>10</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>10</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>true</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>true</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
 </ui>
