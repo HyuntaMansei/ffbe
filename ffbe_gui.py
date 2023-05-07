@@ -118,7 +118,6 @@ class MyWidget(QtWidgets.QWidget):
         self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_quest', self.debug, self.log)
         self.my_automator.play_quest(self.rep_time)
     def start_multi(self):
-        self.log("Startig multi automation")
         self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi', debug=self.debug, log=self.log)
         self.my_automator.play_multi(self.rep_time, self.num_of_players)
     def log(self, msg:str, flag:str=None):
