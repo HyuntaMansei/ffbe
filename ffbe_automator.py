@@ -122,9 +122,12 @@ class Automator:
                      while (self.my_locator.locate('checking_the_result')) and self.running:
                          self.debug("Kicking some checking the result!")
                          if self.my_locator.locate_and_click('checking_the_result'):
-                            while not self.my_locator.locate('expel'):
-                                time.sleep(0.5)
+                            while True:
+                                time.sleep(1)
                                 self.my_locator.locate_and_click('expel')
+                                time.sleep(1)
+                                if (not self.my_locator.locate('expel')) and (not self.my_locator.locate('checking_the_result')):
+                                    break
                 if self.elasped_time() > self.time_limit:
                     self.debug("Kicking all out!")
                     while (not self.my_locator.locate('one_person')) and self.running:
