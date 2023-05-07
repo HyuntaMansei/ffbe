@@ -1,12 +1,17 @@
+import time
+
 import PyQt5.QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QScrollArea, QLabel, QTextEdit, QComboBox, QLineEdit, QPlainTextEdit, QTextBrowser
-from PyQt5.QtCore import Qt, QObject
+from PyQt5.QtCore import Qt, QObject, QEvent, QCoreApplication
 from PyQt5 import QtWidgets, uic
 import sys
 import ffbe_automator
 import threading
 
+class MsgEvent(QEvent):
+    def __init__(self):
+        super().__init__(QEvent.User)
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -24,8 +29,8 @@ class MyWidget(QtWidgets.QWidget):
         self.pb_quest = self.findChild(QtWidgets.QPushButton, 'pb_quest')
         self.pb_multi = self.findChild(QtWidgets.QPushButton, 'pb_multi')
 
-        self.obj_log = self.findChild(QObject, 'obj_log')
-        self.obj_debug = self.findChild(QObject, 'obj_debug')
+        # self.obj_log = self.findChild(QObject, 'obj_log')
+        # self.obj_debug = self.findChild(QObject, 'obj_debug')
 
         self.cb_device_type = self.findChild(QComboBox)
         self.cb_device_type.addItem("nox_1920_1080")
@@ -38,12 +43,38 @@ class MyWidget(QtWidgets.QWidget):
         # self.le_window_name.setText("hyuntamansei")
         # self.le_window_name.setText("SM-N950N")
         self.le_rep = self.findChild(QLineEdit, 'le_rep')
-        self.le_rep.setText("50")
+        self.le_rep.setText("30")
         self.le_players = self.findChild(QLineEdit, 'le_players')
         self.le_players.setText("1")
 
         self.show()
 
+        self.log_widget = Output_Widget()
+        self.obj_log = self.log_widget.obj_output
+        self.log_widget.setWindowTitle("Log")
+        self.log_widget.show()
+
+        self.debug_widget = Output_Widget()
+        self.obj_debug = self.debug_widget.obj_output
+        self.debug_widget.setWindowTitle("Debug")
+        self.debug_widget.show()
+
+        self.debug_flag = False
+        # self.thread_loop = threading.Thread(target=self.startLoop)
+        # self.thread_loop.start()
+    def event(self, event: QEvent) -> bool:
+        # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
+        # if event.eventType() == MsgEvent.Type:
+        if event.type() == QEvent.User:
+            self.show_msg()
+            # print("User Event")
+            return True
+        else:
+            return super().event(event)
+    def startLoop(self):
+        while True:
+            self.show_msg()
+            time.sleep(0.5)
     def handle_device_type(self):
         cb_text = self.cb_device_type.currentText()
         if cb_text == 'android':
@@ -73,7 +104,7 @@ class MyWidget(QtWidgets.QWidget):
                 finally:
                     self.sender().setText('Multi: off')
         elif sender == 'pb_update':
-            self.update()
+            self.gui_update()
         else:
             self.debug("wrong operation")
 
@@ -87,48 +118,36 @@ class MyWidget(QtWidgets.QWidget):
         self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_quest', self.debug, self.log)
         self.my_automator.play_quest(self.rep_time)
     def start_multi(self):
-        print(self.debug)
-        self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi', debug=self.debug,log=self.log)
+        self.log("Startig multi automation")
+        self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi', debug=self.debug, log=self.log)
         self.my_automator.play_multi(self.rep_time, self.num_of_players)
     def log(self, msg:str, flag:str=None):
-        write = False
-        if flag == None:
-            write = True
-        elif (flag.lower() == "error") or (flag.lower() == 'e'):
-            if not msg in self.log_list:
-                write = True
-        else:
-            pass
-        if write == True:
-            self.log_list.append(msg)
-            self.obj_log.append(msg)
-            self.obj_log.verticalScrollBar().setValue(self.obj_log.verticalScrollBar().maximum() + 50)
-            self.obj_log.update()
-    def debug(self, msg:str, flag:str=None):
-        write = False
-        if flag == None:
-            write = True
-        elif (flag.lower() == "error") or (flag.lower() == 'e'):
-            if not msg in self.debug_list:
-                write = True
-        else:
-            pass
-        if write == True:
-            self.debug_list.append(msg)
-            self.obj_debug.append(msg)
-            # self.obj_debug.append(msg.strip())
-
-            # self.te_debug.append(msg)
-            # text = self.te_debug.toPlainText() + msg + '\n'
-            # self.te_debug.setText(text)
-            # self.obj_debug.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum() + 200)
-            # self.obj_debug.update()
-    def update(self):
-        # self.obj_log.verticalScrollBar().setValue(self.obj_log.verticalScrollBar().maximum() + 50)
-        # self.obj_log.update()
-        # self.obj_debug.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum() + 200)
-        # self.obj_debug.update()
+        self.log_list.append(msg)
+        msg_event = MsgEvent()
+        QCoreApplication.postEvent(self, msg_event)
+    def debug(self, msg:str):
+        self.debug_list.append(msg)
+        msg_event = MsgEvent()
+        QCoreApplication.postEvent(self, msg_event)
+    def show_msg(self):
+        msg = ''
+        for m in self.debug_list:
+            msg += m + '\n'
+        self.obj_debug.setText(msg)
+        msg = ''
+        for m in self.log_list:
+            msg += m + '\n'
+        self.obj_log.setText(msg)
+        self.gui_update()
+    def gui_update(self):
+        self.obj_log.verticalScrollBar().setValue(self.obj_log.verticalScrollBar().maximum() + 50)
+        self.obj_debug.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum() + 50)
         pass
+class Output_Widget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi('output_gui.ui', self)
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()

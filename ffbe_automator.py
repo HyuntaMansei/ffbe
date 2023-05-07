@@ -114,7 +114,7 @@ class Automator:
                     if (self.my_locator.locate('four_people')):
                         sortie_cond = True
                 if sortie_cond:
-                    self.debug(f"Trying to click sortie, num of players: {num_of_players}, e_time: {int(self.elasped_time())}")
+                    self.debug(f"Trying to click sortie, # of players: {num_of_players}, elap_time: {int(self.elasped_time())} sec")
                     self.my_locator.locate_and_click('sortie')
                 self.my_locator.locate_and_click('sortie_confirm')
                 # self.my_locator.locate_and_click('ok')
