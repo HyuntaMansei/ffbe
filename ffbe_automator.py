@@ -32,6 +32,8 @@ class Automator:
             self.automation_path += 'quest/'
         elif automation_name == 'play_multi':
             self.automation_path += 'multi/'
+        elif automation_name == 'summon':
+            self.automation_path += 'summon/'
         else:
             pass
         self.debug(f"my_hwnd:{self.my_hwnd}, path={self.automation_path}")
@@ -91,7 +93,7 @@ class Automator:
                 break
             self.log(f"Battle Completed {cnt+1} times")
         self.log("Automaiton completed")
-    def play_multi(self, rep_time, num_of_players):
+    def play_multi(self, rep_time, num_of_players, finish_button=None):
         self.running = True
         # multi auto play
         self.my_locator.confidence = 0.90
@@ -156,6 +158,29 @@ class Automator:
                 self.log("Quit automation")
                 break
             self.log(f"Completed: {cnt+1} times")
+        if (finish_button != None) and self.running:
+            finish_button.click()
+    def summon(self, rep_time, finish_button = None):
+        self.running = True
+        # multi auto play
+        self.my_locator.confidence = 0.95
+        self.time_limit = 300
+        self.log("Starting summon automation")
+        summon_cnt = 0
+        while self.running:
+            print(not self.my_locator.locate('confirm_summon'))
+            while (not self.my_locator.locate('confirm_summon')) and self.running:
+                print("In while loop")
+                self.my_locator.locate_and_click('ok')
+                self.my_locator.locate_and_click('once_again')
+                self.my_locator.locate_and_click('skip')
+            if self.my_locator.locate_and_click('confirm_summon'):
+                summon_cnt += 1
+                self.log(f"Summon: {summon_cnt} times, {rep_time-summon_cnt} times left.")
+            if summon_cnt >= rep_time:
+                break
+        if (finish_button != None) and self.running:
+            finish_button.click()
     def stop(self):
         self.running = False
     def connect_debug(self, debug):

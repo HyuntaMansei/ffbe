@@ -315,7 +315,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pb_update">
+       <widget class="QPushButton" name="pb_summon">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -334,7 +334,7 @@
          <locale language="English" country="UnitedStates"/>
         </property>
         <property name="text">
-         <string>Update</string>
+         <string>Summon: off</string>
         </property>
        </widget>
       </item>

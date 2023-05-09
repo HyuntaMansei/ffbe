@@ -28,6 +28,7 @@ class MyWidget(QtWidgets.QWidget):
             b.clicked.connect(self.on_button_clicked)
         self.pb_quest = self.findChild(QtWidgets.QPushButton, 'pb_quest')
         self.pb_multi = self.findChild(QtWidgets.QPushButton, 'pb_multi')
+        self.pb_summon = self.findChild(QtWidgets.QPushButton, 'pb_summon')
 
         # self.obj_log = self.findChild(QObject, 'obj_log')
         # self.obj_debug = self.findChild(QObject, 'obj_debug')
@@ -83,6 +84,7 @@ class MyWidget(QtWidgets.QWidget):
         sender = self.sender().objectName()
         btn_text = self.sender().text()
         self.set_params()
+        print(f"Btn clicked, sender: {sender}, text: {btn_text}")
         if sender == 'pb_quest':
             if not 'on' in btn_text:
                 self.quest_thread = threading.Thread(target=self.start_quest)
@@ -105,6 +107,17 @@ class MyWidget(QtWidgets.QWidget):
                     self.sender().setText('Multi: off')
         elif sender == 'pb_update':
             self.gui_update()
+        elif sender == 'pb_summon':
+            print(btn_text)
+            if 'off' == btn_text.split()[-1]:
+                print("AA")
+                self.summon_thread = threading.Thread(target=self.start_summon)
+                self.summon_thread.start()
+                self.sender().setText('Summon: on')
+            else:
+                print("BB")
+                self.summon_automator.stop()
+                self.sender().setText('Summon: off')
         else:
             self.debug("wrong operation")
 
@@ -113,13 +126,16 @@ class MyWidget(QtWidgets.QWidget):
         self.window_name = self.le_window_name.text()
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
-
     def start_quest(self):
         self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_quest', self.debug, self.log)
         self.my_automator.play_quest(self.rep_time)
     def start_multi(self):
         self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi', debug=self.debug, log=self.log)
-        self.my_automator.play_multi(self.rep_time, self.num_of_players)
+        self.my_automator.play_multi(self.rep_time, self.num_of_players, finish_button=self.pb_multi)
+    def start_summon(self):
+        print("Starting Summon")
+        self.summon_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'summon', debug=self.debug, log=self.log)
+        self.summon_automator.summon(self.rep_time, finish_button=self.pb_summon)
     def log(self, msg:str, flag:str=None):
         self.log_list.append(msg)
         msg_event = MsgEvent()
