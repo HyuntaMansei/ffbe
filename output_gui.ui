@@ -19,21 +19,29 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTextBrowser" name="obj_output">
+  <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1131</width>
-     <height>651</height>
+     <x>10</x>
+     <y>10</y>
+     <width>1101</width>
+     <height>631</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <family>Arial Black</family>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetNoConstraint</enum>
+    </property>
+    <item>
+     <widget class="QTextBrowser" name="obj_output">
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+       </font>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

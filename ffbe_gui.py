@@ -146,6 +146,11 @@ class Output_Widget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi('output_gui.ui', self)
+    # def resizeEvent(self, event) -> None:
+    #     super().resizeEvent(event)
+    #     # print("resizing")
+        # self.verticalLayout.resizeEvent(event)
+        # self.obj_output.resize(event.size())
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
