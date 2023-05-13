@@ -12,6 +12,7 @@ import configparser
 class Locator:
     def __init__(self, hwnd:str=None, path:str='./', confidence=0.95, debug=print, log=print):
         print("---Initiating Locator---")
+        print(hwnd, path, log, debug)
         self.debug = debug
         self.log = log
         self.sct = mss.mss()
@@ -76,6 +77,11 @@ class Locator:
             self.debug(f"No such file: {img_path}", "e")
             return False
         return img_path
+    def locate_by_folder(self, folder_name:str, confidence=None):
+        ret_value = None
+        if folder_name[-1] != '/' and folder_name[-1] != '\\':
+            prev_path = self.img_path
+            self.img_path = self.img_path + folder_name + '\\'
     def locate(self, img_name: str, trial_number=1, confidence = None):
         if confidence == None:
             confidence = self.confidence

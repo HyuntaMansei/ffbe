@@ -43,15 +43,19 @@ class Automator:
         self.my_locator.confidence = 0.85
         self.my_locator.connect_click_method(self.my_device.input_tap)
         self.debug("--End of set_param def--")
-    def play_quest(self, rep_time):
+    def play_quest(self, rep_time, finish_button = None, initial_img_name = None):
         self.running = True
         self.log(f"Starting quest automain.")
+        initial_img_names = [
+            "select_chapter", "an_alchemist_of_steel", "light_stone"
+        ]
         for cnt in range(rep_time):
             # 퀘스트 자동 진행
-
             self.debug("Before battle, trying to click sortie")
             while (not self.my_locator.locate('sortie')) and self.running:
-                self.my_locator.locate_and_click('select_chapter', xy='top_quest')
+                for img_name in initial_img_names:
+                    self.my_locator.locate_and_click(img_name, xy='top_quest')
+                # self.my_locator.locate_and_click(initial_img_name, xy='top_quest')
             ##skip 하기 누르기
             while (self.my_locator.locate('auto') == None) and self.running:
                 self.my_locator.locate_and_click('sortie')
@@ -93,6 +97,8 @@ class Automator:
                 break
             self.log(f"Battle Completed {cnt+1} times")
         self.log("Automaiton completed")
+        if (finish_button != None) and self.running:
+            finish_button.click()
     def play_multi(self, rep_time, num_of_players, finish_button=None):
         self.running = True
         # multi auto play
