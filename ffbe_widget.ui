@@ -43,36 +43,6 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
-       <widget class="QComboBox" name="cb_device_type">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>새굴림</family>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="locale">
-         <locale language="English" country="UnitedStates"/>
-        </property>
-        <property name="placeholderText">
-         <string>Device Type</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLabel" name="label_3">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -103,23 +73,42 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="le_window_name">
+       <widget class="QComboBox" name="cb_window_name">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>새굴림</family>
           <pointsize>12</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
+          <weight>75</weight>
+          <bold>true</bold>
          </font>
         </property>
         <property name="locale">
          <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="placeholderText">
+         <string>Device Type</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cb_device_type">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
@@ -255,9 +244,30 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
+       <widget class="QPushButton" name="pb_init">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Init</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="pb_quest">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -287,7 +297,7 @@
       <item>
        <widget class="QPushButton" name="pb_multi">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -317,7 +327,7 @@
       <item>
        <widget class="QPushButton" name="pb_summon">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -335,6 +345,94 @@
         </property>
         <property name="text">
          <string>Summon: off</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="pb_raid">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Raid: off</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>새굴림</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
         </property>
        </widget>
       </item>

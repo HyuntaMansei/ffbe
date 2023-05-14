@@ -15,7 +15,15 @@ class Automator:
         self.my_client = AdbClient()
         print(self.debug)
         self.debug(f"devices: {self.my_client.devices()}")
-        self.my_device = self.my_client.devices()[0]
+        self.my_device = None
+        for dev in self.my_client.devices():
+            # Get the device properties
+            properties = dev.get_properties()
+            # Retrieve the device name
+            device_name = properties["ro.product.model"]
+            if device_name == window_name:
+                self.my_device = dev
+                break
         self.my_hwnd = win32gui.FindWindow(None, window_name)
         self.debug(f"hwnd: {self.my_hwnd}")
     def set_params(self, device_type, automation_name):
@@ -34,28 +42,30 @@ class Automator:
             self.automation_path += 'multi/'
         elif automation_name == 'summon':
             self.automation_path += 'summon/'
+        elif automation_name == 'play_raid':
+            self.automation_path += 'raid/'
         else:
             pass
         self.debug(f"my_hwnd:{self.my_hwnd}, path={self.automation_path}")
         self.debug(f"my_device:{self.my_device}, device_type:{device_type}")
-        self.my_locator = locator.Locator(self.my_hwnd, self.automation_path, debug=self.debug, log=self.log)
+        self.my_locator = locator.Locator(self.my_hwnd, self.automation_path)
         self.my_locator.load_conf(device_type)
         self.my_locator.confidence = 0.85
         self.my_locator.connect_click_method(self.my_device.input_tap)
         self.debug("--End of set_param def--")
     def play_quest(self, rep_time, finish_button = None, initial_img_name = None):
         self.running = True
-        self.log(f"Starting quest automain.")
+        self.log(f"Starting quest automation.")
         initial_img_names = [
             "select_chapter", "an_alchemist_of_steel", "light_stone"
         ]
         for cnt in range(rep_time):
             # 퀘스트 자동 진행
             self.debug("Before battle, trying to click sortie")
-            while (not self.my_locator.locate('sortie')) and self.running:
-                for img_name in initial_img_names:
-                    self.my_locator.locate_and_click(img_name, xy='top_quest')
-                # self.my_locator.locate_and_click(initial_img_name, xy='top_quest')
+            while (self.my_locator.locate('sortie') == None) and self.running:
+                # for img_name in initial_img_names:
+                #     self.my_locator.locate_and_click(img_name, xy='top_quest')
+                self.my_locator.locate_and_click(initial_img_names, xy='top_quest')
             ##skip 하기 누르기
             while (self.my_locator.locate('auto') == None) and self.running:
                 self.my_locator.locate_and_click('sortie')
@@ -64,7 +74,7 @@ class Automator:
                 self.my_locator.click('story_skip2')
             self.debug("In battle stage")
             start_time = time.time()
-            while (not self.my_locator.locate('next') and self.running):
+            while (self.my_locator.locate('next') == None) and self.running:
                 time.sleep(1)
             self.debug("Mission complete")
             elasped_time = time.time() - start_time
@@ -80,7 +90,7 @@ class Automator:
             time.sleep(10)
             count = 0
             self.debug(f"after batlle, until 'select chapter', repeating, ... story skip, count={count}")
-            while (self.my_locator.locate('select_chapter', trial_number=2) == None) and self.running:
+            while (self.my_locator.locate(initial_img_names, trial_number=2) == None) and self.running:
                 self.my_locator.locate_and_click('end_of_quest')
                 self.my_locator.locate_and_click('ok')
                 self.my_locator.locate_and_click('later')
@@ -166,6 +176,28 @@ class Automator:
             self.log(f"Completed: {cnt+1} times")
         if (finish_button != None) and self.running:
             finish_button.click()
+    def play_raid(self, rep_time, num_of_players, finish_button=None):
+        self.running = True
+        # raid auto play
+        self.my_locator.confidence = 0.90
+        self.time_limit = 300
+        self.log("Starting raid automation")
+        self.log(f"path: {self.automation_path}")
+        cnt = 0
+        while self.running:
+            self.debug("In play_raid, location A")
+            # while not self.my_locator.locate('auto'):
+            while (self.my_locator.locate('auto') == None) and self.running:
+                self.my_locator.locate_and_click('sortie')
+                self.my_locator.locate_and_click('next_raid')
+                self.my_locator.locate_and_click('next')
+                self.my_locator.locate_and_click('end_of_quest')
+                self.my_locator.locate_and_click('try')
+                self.my_locator.locate_and_click('ok')
+            self.log("In battle stage.")
+            while (not self.my_locator.locate('end_of_quest')) and self.running:
+                cnt += 1
+                self.log(f"Completed {cnt} times. {rep_time-cnt} times left.")
     def summon(self, rep_time, finish_button = None):
         self.running = True
         # multi auto play

@@ -82,7 +82,17 @@ class Locator:
         if folder_name[-1] != '/' and folder_name[-1] != '\\':
             prev_path = self.img_path
             self.img_path = self.img_path + folder_name + '\\'
-    def locate(self, img_name: str, trial_number=1, confidence = None):
+    def locate(self, img_name, trial_number=1, confidence = None):
+        # especially for list of images
+        if type(img_name) == list:
+            for i in img_name:
+                res = self.locate(i, trial_number, confidence)
+                if res != None:
+                    self.debug(f"'{img_name}' successfully located. {res}")
+                    return res
+            self.debug(f"'{img_name}' failed to locate.")
+            return None
+        self.debug(f"One image locating: {img_name}.")
         if confidence == None:
             confidence = self.confidence
         for count in range(int(trial_number)):
@@ -100,9 +110,11 @@ class Locator:
                 # print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
                 # print("Saving sc.png")
                 # pil_img.save('sc.png')
+                self.debug(f"'{img_name}' successfully located.")
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
+        self.debug(f"'{img_name}' failed to locate.")
         return None
-    def locate_on_screen(self, img_name:str, confidence = None):
+    def locate_on_screen(self, img_name, confidence = None):
         if confidence == None:
             confidence = self.confidence
         loc = self.locate(img_name, confidence=confidence)
@@ -116,7 +128,7 @@ class Locator:
         if self.click_on_device != None:
             x, y = win32gui.ScreenToClient(self.hwnd, xy)
             xy = (x-self.real_cli_x0, y-self.real_cli_y0)
-            # print(f"clicking as device xy: {xy}")
+            print(f"clicking as device xy: {xy}")
             self.click_on_device(xy[0], xy[1])
             time.sleep(self.sltime_after_click)
         else:
@@ -139,15 +151,17 @@ class Locator:
                     return False
         loc = win32gui.ClientToScreen(self.hwnd, xy)
         return self.click_on_screen(loc)
-    def locate_and_click(self, img_name: str, xy=None, trial_number = 1, confidence = None):
+    def locate_and_click(self, img_name, xy=None, trial_number = 1, confidence = None):
         if confidence == None:
             confidence = self.confidence
         for count in range(trial_number):
             loc = self.locate_on_screen(img_name, confidence=confidence)
             if loc != None:
                 if xy == None:
+                    self.debug(f"Clicking {img_name} & Loc:{loc}, ")
                     return self.click_on_screen(loc)
                 else:
+                    self.debug(f"Clicking coordinate: {xy}")
                     self.click(xy)
                     return loc
             time.sleep(1)
