@@ -35,6 +35,7 @@ class MyWidget(QtWidgets.QWidget):
         self.pb_multi = self.findChild(QtWidgets.QPushButton, 'pb_multi')
         self.pb_summon = self.findChild(QtWidgets.QPushButton, 'pb_summon')
         self.pb_raid = self.findChild(QtWidgets.QPushButton, 'pb_raid')
+        self.pb_multi_client = self.findChild(QtWidgets.QPushButton, 'pb_multi_client')
 
         self.cb_device_type = self.findChild(QObject, 'cb_device_type')
         for t in self.device_types:
@@ -119,7 +120,7 @@ class MyWidget(QtWidgets.QWidget):
                 self.sender().setText('Quest: on')
             else:
                 try:
-                    self.my_automator.stop()
+                    self.automator.stop()
                 finally:
                     self.sender().setText('Quest: off')
         elif sender == 'pb_multi':
@@ -129,9 +130,19 @@ class MyWidget(QtWidgets.QWidget):
                 self.sender().setText('Multi: on')
             else:
                 try:
-                    self.my_automator.stop()
+                    self.automator.stop()
                 finally:
                     self.sender().setText('Multi: off')
+        elif sender == 'pb_multi_client':
+            if not 'on' in btn_text:
+                self.multi_client_thread = threading.Thread(target=self.start_multi_client)
+                self.multi_client_thread.start()
+                self.sender().setText('Multi(c): on')
+            else:
+                try:
+                    self.automator.stop()
+                finally:
+                    self.sender().setText('Multi(c): off')
         elif sender == 'pb_update':
             self.gui_update()
         elif sender == 'pb_summon':
@@ -140,7 +151,7 @@ class MyWidget(QtWidgets.QWidget):
                 self.summon_thread.start()
                 self.sender().setText('Summon: on')
             else:
-                self.summon_automator.stop()
+                self.automator.stop()
                 self.sender().setText('Summon: off')
         elif sender == 'pb_raid':
             if 'off' == btn_text.split()[-1]:
@@ -148,28 +159,72 @@ class MyWidget(QtWidgets.QWidget):
                 self.raid_thread.start()
                 self.sender().setText('Raid: on')
             else:
-                self.raid_automator.stop()
+                self.automator.stop()
                 self.sender().setText('Raid: off')
+        elif sender == 'pb_raid_host2':
+            self.pb_raid_host2_clicked(sender, btn_text)
+        elif sender == 'pb_raid_host4':
+            self.pb_raid_host4_clicked(sender, btn_text)
+        elif sender == 'pb_raid_client':
+            self.pb_raid_host2_clicked(sender, btn_text)
         else:
             self.debug("wrong operation")
+    def pb_raid_host2_clicked(self, sender, btn_text):
+        if 'off' == btn_text.split()[-1]:
+            self.automator_thread = threading.Thread(target=self.start_raid_client)
+            self.automator_thread.start()
+            self.sender().setText('R host2: on')
+        else:
+            self.automator.stop()
+            self.sender().setText('R host2: off')
+    def pb_raid_host4_clicked(self, sender, btn_text):
+        target=self.start_raid_host4
+        if 'off' == btn_text.split()[-1]:
+            print("aa")
+            self.automator_thread = threading.Thread(target=target)
+            self.automator_thread.start()
+            self.sender().setText('R host4: on')
+        else:
+            print("bb")
+            self.automator.stop()
+            self.sender().setText('R host4: off')
     def set_params(self):
         self.device_type = self.cb_device_type.currentText()
         self.window_name = self.cb_window_name.currentText()
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
     def start_quest(self):
-        self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_quest', self.debug, self.log)
-        self.my_automator.play_quest(self.rep_time, finish_button=self.pb_quest)
+        self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_quest', self.debug, self.log)
+        self.automator.play_quest(self.rep_time, finish_button=self.pb_quest)
     def start_multi(self):
         print(self.window_name, self.device_type)
-        self.my_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi', debug=self.debug, log=self.log)
-        self.my_automator.play_multi(self.rep_time, self.num_of_players, finish_button=self.pb_multi)
+        self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi', debug=self.debug, log=self.log)
+        self.automator.play_multi(self.rep_time, self.num_of_players, finish_button=self.pb_multi)
+    def start_multi_client(self):
+        print(self.window_name, self.device_type)
+        self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi_client', debug=self.debug, log=self.log)
+        self.automator.play_multi_client(self.rep_time, finish_button=self.pb_multi_client)
     def start_summon(self):
-        self.summon_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'summon', debug=self.debug, log=self.log)
-        self.summon_automator.summon(self.rep_time, finish_button=self.pb_summon)
+        self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'summon', debug=self.debug, log=self.log)
+        self.automator.summon(self.rep_time, finish_button=self.pb_summon)
     def start_raid(self):
-        self.raid_automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_raid', debug=self.debug, log=self.log)
-        self.raid_automator.play_raid(self.rep_time, self.num_of_players, finish_button=self.pb_raid)
+        self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_raid', debug=self.debug, log=self.log)
+        self.automator.play_raid(self.rep_time, self.num_of_players, finish_button=self.pb_raid)
+    def start_raid_host2(self):
+        self.automator = ffbe_automator.Automator(self.window_name, device_type=self.device_type, debug=self.debug, log=self.log)
+        self.automator.play_raid(self.rep_time, self.num_of_players, finish_button=self.pb_raid_host2)
+    def start_raid_host4(self):
+        finish_button = self.pb_raid_host4
+        job = "play_raid_host4"
+        self.automator = ffbe_automator.Automator(self.window_name, device_type=self.device_type, debug=self.debug, log=self.log)
+        self.automator.set_user_param(rep_time=self.rep_time, num_of_players=self.num_of_players, finish_button=finish_button)
+        self.automator.start_automation(job=job)
+    def start_raid_client(self):
+        finish_button = self.pb_raid_client
+        job = "play_raid_client"
+        self.automator = ffbe_automator.Automator(self.window_name, device_type=self.device_type, debug=self.debug, log=self.log)
+        self.automator.set_user_param(rep_time=self.rep_time, num_of_players=self.num_of_players, finish_button=finish_button)
+        self.automator.start_automation(job=job)
     def log(self, msg:str):
         self.log_list.append(msg)
         msg_event = MsgEvent()

@@ -174,14 +174,17 @@ class Locator:
         print(f"In read_coordinates, file_name:{file_name}")
         self.xys = {}
         if file_name != None:
-            with open(file_name, 'r') as f:
-                lines = f.readlines()
-                for l in lines:
-                    print(f"reading coordinates: {l}")
-                    try:
-                        self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
-                    except:
-                        print(f"reading error")
+            try:
+                with open(file_name, 'r') as f:
+                    lines = f.readlines()
+                    for l in lines:
+                        print(f"reading coordinates: {l}")
+                        try:
+                            self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
+                        except:
+                            print(f"reading error")
+            except:
+                self.debug(f"no such file: {file_name}")
             self.coor_file_path = file_name
         elif self.coor_file_path != None:
             self.read_coordinates(self.coor_file_path)
