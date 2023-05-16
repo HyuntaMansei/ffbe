@@ -303,7 +303,7 @@ class Automator:
             elap_time = time.time() - start_time
             self.log(f"Completed {cnt} times. {self.rep_time - cnt} remains.")
             self.log(f"Elasped_time: {time.strftime('%M:%S', time.gmtime(elap_time))}")
-            targets = ["end_of_quest", "next", "next_raid", "ok", "try", "cancel"]
+            targets = ["end_of_quest", "next", "next_raid", "ok", 'ok2', "try", "cancel"]
             while (not self.locator.locate("ready")) and self.running:
                 self.locator.locate_and_click(targets)
     def summon(self, rep_time, finish_button = None):
