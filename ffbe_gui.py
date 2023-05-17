@@ -30,17 +30,16 @@ class MyWidget(QtWidgets.QWidget):
         btn_list = self.findChildren(QtWidgets.QPushButton)
         for b in btn_list:
             b.clicked.connect(self.on_button_clicked)
-        self.pb_init = self.findChild(QtWidgets.QPushButton, 'pb_init')
-        self.pb_quest = self.findChild(QtWidgets.QPushButton, 'pb_quest')
-        self.pb_multi = self.findChild(QtWidgets.QPushButton, 'pb_multi')
-        self.pb_summon = self.findChild(QtWidgets.QPushButton, 'pb_summon')
-        self.pb_raid = self.findChild(QtWidgets.QPushButton, 'pb_raid')
-        self.pb_multi_client = self.findChild(QtWidgets.QPushButton, 'pb_multi_client')
+        # self.pb_init = self.findChild(QtWidgets.QPushButton, 'pb_init')
+        # self.pb_quest = self.findChild(QtWidgets.QPushButton, 'pb_quest')
+        # self.pb_multi = self.findChild(QtWidgets.QPushButton, 'pb_multi')
+        # self.pb_summon = self.findChild(QtWidgets.QPushButton, 'pb_summon')
+        # self.pb_raid = self.findChild(QtWidgets.QPushButton, 'pb_raid')
+        # self.pb_multi_client = self.findChild(QtWidgets.QPushButton, 'pb_multi_client')
 
         self.cb_device_type = self.findChild(QObject, 'cb_device_type')
         for t in self.device_types:
             self.cb_device_type.addItem(t)
-        # self.cb_device_type.currentIndexChanged.connect(self.handle_device_type)
         self.cb_window_name = self.findChild(QObject, 'cb_window_name')
         for n in self.device_names:
             self.cb_window_name.addItem(n)
@@ -58,7 +57,7 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_log = self.log_widget.obj_output
         self.log_widget.setWindowTitle("Log")
         self.log_widget.show()
-        self.log_widget.move(0,0)
+        self.log_widget.move(1520,0)
 
         self.debug_widget = Output_Widget(600,600)
         self.obj_debug = self.debug_widget.obj_output
@@ -73,6 +72,7 @@ class MyWidget(QtWidgets.QWidget):
         self.error_widget.move(1000,0)
     def init_others(self):
         self.device_initiated = False
+        self.move(1000,880)
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
         # if event.eventType() == MsgEvent.Type:
@@ -103,17 +103,42 @@ class MyWidget(QtWidgets.QWidget):
     def handle_device_type(self):
         pass
     def on_button_clicked(self):
-        sender = self.sender().objectName()
+        senders = ['pb_quest', 'pb_multi', 'pb_multi_client', 'pb_update', 'pb_summon', 'pb_raid', 'pb_raid_host2', 'pb_raid_host4',
+                'pb_raid_client','pb_skip_battle']
+        # targets_for_senders = {}
+        # targets_for_senders['pb_quest'] = self.start_quest
+        # targets_for_senders['pb_multi'] = self.start_multi
+        # targets_for_senders['pb_multi_client'] = self.start_multi_client
+        # targets_for_senders['pb_summon'] = self.start_summon
+        # targets_for_senders['pb_raid'] = self.start_raid
+        # targets_for_senders['pb_raid_host2'] = self.start_raid_host2
+        # targets_for_senders['pb_raid_host4'] = self.start_raid_host4
+        # targets_for_senders['pb_raid_client'] = self.start_raid_client
+        # targets_for_senders['pb_skip_battle'] = self.start_skip_battle
+        # targets_for_senders[''] = self.
+        sender_name = self.sender().objectName()
         btn_text = self.sender().text()
-        print(f"Btn clicked, sender: {sender}, text: {btn_text}")
-        if (sender != 'pb_init') and not self.device_initiated:
+        print(f"Btn clicked, sender: {sender_name}, text: {btn_text}")
+        found = False
+        if (sender_name != 'pb_init') and not self.device_initiated:
             print("Auto initiating")
             self.set_device_name_and_type()
+        # Non automatic btns.
         self.set_params()
-        if sender == 'pb_init':
+        if sender_name == 'pb_init':
             self.set_device_name_and_type()
             self.debug("Setting the device name and type")
-        elif sender == 'pb_quest':
+            found = True
+        # Automatic btns.
+        else:
+            self.start_automator(sender_name=sender_name, btn_text=btn_text)
+            found = True
+            # except:
+            #     self.error(f"Worng Btn Clicked: {btn_text}.")
+            #     found = False
+        return found
+        # Need to mod.
+        if sender_name == 'pb_quest':
             if not 'on' in btn_text:
                 self.quest_thread = threading.Thread(target=self.start_quest)
                 self.quest_thread.start()
@@ -123,7 +148,7 @@ class MyWidget(QtWidgets.QWidget):
                     self.automator.stop()
                 finally:
                     self.sender().setText('Quest: off')
-        elif sender == 'pb_multi':
+        elif sender_name == 'pb_multi':
             if not 'on' in btn_text:
                 self.multi_thread = threading.Thread(target=self.start_multi)
                 self.multi_thread.start()
@@ -133,8 +158,9 @@ class MyWidget(QtWidgets.QWidget):
                     self.automator.stop()
                 finally:
                     self.sender().setText('Multi: off')
-        elif sender == 'pb_multi_client':
+        elif sender_name == 'pb_multi_client':
             if not 'on' in btn_text:
+                print("aa")
                 self.multi_client_thread = threading.Thread(target=self.start_multi_client)
                 self.multi_client_thread.start()
                 self.sender().setText('Multi(c): on')
@@ -143,9 +169,7 @@ class MyWidget(QtWidgets.QWidget):
                     self.automator.stop()
                 finally:
                     self.sender().setText('Multi(c): off')
-        elif sender == 'pb_update':
-            self.gui_update()
-        elif sender == 'pb_summon':
+        elif sender_name == 'pb_summon':
             if 'off' == btn_text.split()[-1]:
                 self.summon_thread = threading.Thread(target=self.start_summon)
                 self.summon_thread.start()
@@ -153,7 +177,7 @@ class MyWidget(QtWidgets.QWidget):
             else:
                 self.automator.stop()
                 self.sender().setText('Summon: off')
-        elif sender == 'pb_raid':
+        elif sender_name == 'pb_raid':
             if 'off' == btn_text.split()[-1]:
                 self.raid_thread = threading.Thread(target=self.start_raid)
                 self.raid_thread.start()
@@ -161,14 +185,54 @@ class MyWidget(QtWidgets.QWidget):
             else:
                 self.automator.stop()
                 self.sender().setText('Raid: off')
-        elif sender == 'pb_raid_host2':
-            self.pb_raid_host2_clicked(sender, btn_text)
-        elif sender == 'pb_raid_host4':
-            self.pb_raid_host4_clicked(sender, btn_text)
-        elif sender == 'pb_raid_client':
-            self.pb_raid_host2_clicked(sender, btn_text)
+        elif sender_name == 'pb_raid_host2':
+            self.pb_raid_host2_clicked(sender_name, btn_text)
+        elif sender_name == 'pb_raid_host4':
+            self.pb_raid_host4_clicked(sender_name, btn_text)
+        elif sender_name == 'pb_raid_client':
+            self.pb_raid_client_clicked(sender_name, btn_text)
+        elif sender_name == 'pb_skip_battle':
+            target = self.start_skip_battle
+            self.start_automator(btn_text=btn_text, target=target)
         else:
             self.debug("wrong operation")
+    def pb_skip_battle_clicked(self, btn_text):
+        target = self.start_skip_battle
+        # Below, no need to touch
+        self.start_automator(btn_text=btn_text, target=target)
+        # # Below same code
+        # if 'off' == btn_text.split()[-1]:
+        #     self.automator_thread = threading.Thread(target=target)
+        #     self.automator_thread.start()
+        #     self.sender().setText(on_text)
+        # else:
+        #     self.automator.stop()
+        #     self.sender().setText(off_text)
+    def start_automator(self, sender_name=None, btn_text=None):
+        base_text = btn_text.split(':')[0]
+        on_text = base_text + ': on'
+        off_text = base_text + ': off'
+        job = sender_name.replace('pb_', 'play_')
+        print(f"Starting automator. Sender name:{sender_name}, btn_text:{btn_text}, on_text:{on_text}, off_text:{off_text}, job:{job}")
+        if 'off' == btn_text.split()[-1]:
+            print("Before")
+            self.automator = ffbe_automator.Automator(window_name=self.window_name, device_type=self.device_type, job=job,
+                                                      log=self.log, debug=print, error=self.error)
+            print("After")
+            self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
+                                           finish_button=self.sender())
+            print("Starting automator thread")
+            target = self.automator.start_automation
+            self.automator_thread = threading.Thread(target=target)
+            # except:
+            #     self.error(f"Error occured. Starting thread: Btn:{btn_text}.")
+            #     return False
+            self.automator_thread.start()
+            self.sender().setText(on_text)
+            print("End")
+        else:
+            self.automator.stop()
+            self.sender().setText(off_text)
     def pb_raid_host2_clicked(self, sender, btn_text):
         if 'off' == btn_text.split()[-1]:
             self.automator_thread = threading.Thread(target=self.start_raid_client)
@@ -180,14 +244,22 @@ class MyWidget(QtWidgets.QWidget):
     def pb_raid_host4_clicked(self, sender, btn_text):
         target=self.start_raid_host4
         if 'off' == btn_text.split()[-1]:
-            print("aa")
             self.automator_thread = threading.Thread(target=target)
             self.automator_thread.start()
-            self.sender().setText('R host4: on')
+            self.sender().setText('R-Host4: on')
         else:
-            print("bb")
             self.automator.stop()
-            self.sender().setText('R host4: off')
+            self.sender().setText('R-Host4: off')
+    def pb_raid_client_clicked(self, sender, btn_text):
+        target=self.start_raid_client
+        if 'off' == btn_text.split()[-1]:
+            self.automator_thread = threading.Thread(target=target)
+            self.automator_thread.start()
+            self.sender().setText('Raid(C): on')
+        else:
+            self.automator.stop()
+            self.sender().setText('Raid(C): off')
+
     def set_params(self):
         self.device_type = self.cb_device_type.currentText()
         self.window_name = self.cb_window_name.currentText()
@@ -202,11 +274,17 @@ class MyWidget(QtWidgets.QWidget):
         self.automator.play_multi(self.rep_time, self.num_of_players, finish_button=self.pb_multi)
     def start_multi_client(self):
         print(self.window_name, self.device_type)
-        self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_multi_client', debug=self.debug, log=self.log)
+        self.automator = ffbe_automator.Automator(self.window_name, device_type=self.device_type, job ='play_multi_client', debug=self.debug, log=self.log)
         self.automator.play_multi_client(self.rep_time, finish_button=self.pb_multi_client)
     def start_summon(self):
         self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'summon', debug=self.debug, log=self.log)
         self.automator.summon(self.rep_time, finish_button=self.pb_summon)
+    def start_skip_battle(self):
+        finish_button = self.pb_skip_battle
+        job = "play_skip_battle"
+        self.automator = ffbe_automator.Automator(self.window_name, device_type=self.device_type, debug=self.debug, log=self.log)
+        self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players, finish_button=finish_button)
+        self.automator.start_automation(job=job)
     def start_raid(self):
         self.automator = ffbe_automator.Automator(self.window_name, self.device_type, 'play_raid', debug=self.debug, log=self.log)
         self.automator.play_raid(self.rep_time, self.num_of_players, finish_button=self.pb_raid)
@@ -217,13 +295,13 @@ class MyWidget(QtWidgets.QWidget):
         finish_button = self.pb_raid_host4
         job = "play_raid_host4"
         self.automator = ffbe_automator.Automator(self.window_name, device_type=self.device_type, debug=self.debug, log=self.log)
-        self.automator.set_user_param(rep_time=self.rep_time, num_of_players=self.num_of_players, finish_button=finish_button)
+        self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players, finish_button=finish_button)
         self.automator.start_automation(job=job)
     def start_raid_client(self):
         finish_button = self.pb_raid_client
         job = "play_raid_client"
         self.automator = ffbe_automator.Automator(self.window_name, device_type=self.device_type, debug=self.debug, log=self.log)
-        self.automator.set_user_param(rep_time=self.rep_time, num_of_players=self.num_of_players, finish_button=finish_button)
+        self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players, finish_button=finish_button)
         self.automator.start_automation(job=job)
     def log(self, msg:str):
         self.log_list.append(msg)
