@@ -4,38 +4,68 @@ import time
 import datetime
 import locator
 from ppadb.client import Client as AdbClient
+import inspect
 import threading
 class Automator:
-    def __init__(self, window_name:str, device_type:str=None, job=None, log=print, debug=print, error=print):
+    def __init__(self):
+        print("Creating Automator.")
+        self.init_internal_vars()
+        self.init_other()
+        # Define all internal variables
+        self.log = None
+        self.debug = None
+        self.error = None
+        self.device_type = None
+        self.job = None
+    def set_msg_handlers(self, log=print, debug=print, error=print):
         self.log = log
         self.debug = debug
         self.error = error
-
-        self.debug("Creating Automator.")
+    def set_window_and_device(self, window_name:str, device_type:str=None):
         self.init_device(window_name=window_name)
         self.device_type = device_type
+    def set_job(self, job=None):
         self.job = job
-        self.init_int_vars()
-        self.init_other()
-        # self.set_params(automation_name)
-    def set_automation_list(self):
+    def set_user_params(self, rep_time, num_of_players, finish_button):
+        self.rep_time = rep_time
+        self.num_of_players = num_of_players
+        self.finish_button = finish_button
+    # def __init__(self, window_name:str, device_type:str=None, job=None, log=print, debug=print, error=print):
+    #     self.log = log
+    #     self.debug = debug
+    #     self.error = error
+    #
+    #     self.debug("Creating Automator.")
+    #     self.init_device(window_name=window_name)
+    #     self.device_type = device_type
+    #     self.job = job
+    #     self.init_int_vars()
+    #     self.init_other()
+    #     # self.set_params(automation_name)
+    def init_automation_list(self):
         # Need to add code when add new automation
         self.automation_by_job = {}
-        self.automation_by_job['play_quest'] = self.play_quest
-        self.automation_by_job['play_multi'] = self.play_multi
-        self.automation_by_job['play_multi_client'] = self.play_multi_client
-        self.automation_by_job['play_raid'] = self.play_raid
-        self.automation_by_job['play_raid_host2'] = self.play_raid_host2
-        self.automation_by_job['play_raid_host4'] = self.play_raid_host4
-        self.automation_by_job['play_raid_client'] = self.play_raid_client
-        self.automation_by_job['play_summon'] = self.summon
-        self.automation_by_job['play_skip_battle'] = self.skip_battle
+        # Get all the methods of the class
+        methods = inspect.getmembers(self, predicate=inspect.ismethod)
+        # Extract the names of the methods
+        method_names = [name for name, _ in methods]
+        # match 'play_quest' > self.play_quest / 'summon' > self.summon
+        for m in method_names:
+            if 'play' == m.split('_')[0]:
+                self.automation_by_job[m] = getattr(self, m)
+            else:
+                self.automation_by_job['play_'+m] = getattr(self, m)
+        # match other non-typical methods
+        #     self.automation_by_job['play_summon'] = self.summon
+        #     self.automation_by_job['play_skip_battle'] = self.skip_battle
+        # self.automation_by_job['play_quest'] = self.play_quest
+        # self.automation_by_job['play_multi'] = self.play_multi
+        # self.automation_by_job['play_multi_client'] = self.play_multi_client
+        # self.automation_by_job['play_raid'] = self.play_raid
+        # self.automation_by_job['play_raid_host2'] = self.play_raid_host2
+        # self.automation_by_job['play_raid_host4'] = self.play_raid_host4
+        # self.automation_by_job['play_raid_client'] = self.play_raid_client
         # self.automation_by_job[''] = self.
-    def init_int_vars(self):
-        self.confidence = 0.9
-    def init_other(self):
-        self.stop_watch_started = False
-        self.set_automation_list()
     def init_device(self, window_name:str=None):
         self.my_client = AdbClient()
         self.my_device = None
@@ -49,7 +79,12 @@ class Automator:
                 break
         self.my_hwnd = win32gui.FindWindow(None, window_name)
         self.debug(f"With window name {window_name}, found device: {self.my_device} and hwnd: {self.my_hwnd}.")
-
+    def init_internal_vars(self):
+        self.confidence = 0.9
+    def init_other(self):
+        self.stop_watch_started = False
+        self.init_automation_list()
+    # From here, called from start_automation
     def set_img_base_path(self):
         device_type = self.device_type
         self.debug("--In set_params--")
@@ -63,7 +98,7 @@ class Automator:
             self.error(f"No such device type: {device_type}")
             return False
         return True
-    def init_locator(self):
+    def create_locator(self):
         self.debug("Starting: def init_locator")
         job = self.job
         self.automation_path += job.replace('play_', '')
@@ -77,14 +112,10 @@ class Automator:
         # Suppose all variables in fit.
         self.debug(f"Starting: def start_automation. Job: {self.job}")
         self.set_img_base_path()
-        self.init_locator()
+        self.create_locator()
         job = self.job
         # Need to add code to handle special case
         self.automation_by_job[job]()
-    def set_user_params(self, rep_time, num_of_players, finish_button):
-        self.rep_time = rep_time
-        self.num_of_players = num_of_players
-        self.finish_button = finish_button
     def stop(self):
         self.running = False
     def elasped_time(self):
@@ -98,6 +129,7 @@ class Automator:
         else:
             self.log(f"Elasped_time: {time.strftime('%M:%S', time.gmtime(self.elasped_time()))}")
             self.stop_watch_started = False
+    # From here, specific automation
     def play_quest(self):
         self.running = True
         self.log(f"Starting quest automation.")
@@ -358,3 +390,14 @@ class Automator:
                 self.locator.locate_and_click(targets2)
             if cnt >= rep_time:
                 break
+    def restoration(self):
+        pass
+        # 체력회복
+    def test(self):
+        print("Testing")
+    def list_all_methos(self):
+        # Get all the methods of the class
+        methods = inspect.getmembers(self, predicate=inspect.ismethod)
+        # Extract the names of the methods
+        method_names = [name for name, _ in methods]
+        print(method_names)
