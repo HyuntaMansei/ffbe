@@ -25,17 +25,11 @@ class MyWidget(QtWidgets.QWidget):
         # variable settings
         self.device_names = ["facebook", "boringstock2", "SM-N950N", "SM-G950N"]
         self.device_index_by_name = {'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1}
-        self.device_types = ['nox_1920_1080', 'android']
+        self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720']
         # Connect any signals and slots
         btn_list = self.findChildren(QtWidgets.QPushButton)
         for b in btn_list:
             b.clicked.connect(self.on_button_clicked)
-        # self.pb_init = self.findChild(QtWidgets.QPushButton, 'pb_init')
-        # self.pb_quest = self.findChild(QtWidgets.QPushButton, 'pb_quest')
-        # self.pb_multi = self.findChild(QtWidgets.QPushButton, 'pb_multi')
-        # self.pb_summon = self.findChild(QtWidgets.QPushButton, 'pb_summon')
-        # self.pb_raid = self.findChild(QtWidgets.QPushButton, 'pb_raid')
-        # self.pb_multi_client = self.findChild(QtWidgets.QPushButton, 'pb_multi_client')
 
         self.cb_device_type = self.findChild(QObject, 'cb_device_type')
         for t in self.device_types:
