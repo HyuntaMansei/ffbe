@@ -76,7 +76,10 @@ class Automator:
             device_name = properties["ro.product.model"]
             if device_name == window_name:
                 self.my_device = dev
+                self.sc_off()
+                # self.my_device.shell("settings put system screen_brightness 0")
                 break
+            self.my_device = self.my_client.devices()[0]
         self.my_hwnd = win32gui.FindWindow(None, window_name)
         self.debug(f"With window name {window_name}, found device: {self.my_device} and hwnd: {self.my_hwnd}.")
     def init_internal_vars(self):
@@ -101,7 +104,8 @@ class Automator:
     def create_locator(self):
         self.debug("Starting: def init_locator")
         job = self.job
-        self.automation_path += job.replace('play_', '')
+        # self.automation_path += job.replace('play_', '')
+        self.automation_path += job.replace('play_', '') + '/'
         self.debug(f"Locator Path: {self.automation_path}")
         self.locator = locator.Locator(self.my_hwnd, self.automation_path)
         self.locator.load_conf(self.device_type)
@@ -132,15 +136,17 @@ class Automator:
     # From here, specific automation
     def play_quest(self):
         self.running = True
+        self.locator.confidence = 0.85
         self.log(f"Starting quest automation.")
         rep_time = self.rep_time
         finish_button = self.finish_button
         targets = ["select_chapter", "an_alchemist_of_steel", "light_stone"]
+        dir_path = "is"
         for cnt in range(rep_time):
             # 퀘스트 자동 진행
             self.debug("Before battle, trying to click sortie")
             while (self.locator.locate('sortie') == None) and self.running:
-                self.locator.locate_and_click(targets, xy='top_quest')
+                self.locator.locate_and_click_dir(dir_path, xy='top_quest')
             ##skip 하기 누르기
             while (self.locator.locate('auto') == None) and self.running:
                 self.locator.locate_and_click('sortie')
@@ -165,15 +171,15 @@ class Automator:
             time.sleep(10)
             count = 0
             self.debug(f"after batlle, until 'select chapter', repeating, ... story skip, count={count}")
-            while (self.locator.locate(targets, trial_number=2) == None) and self.running:
+            while (self.locator.locate_dir(dir_path, trial_number=2) == None) and self.running:
                 self.locator.locate_and_click('end_of_quest')
                 self.locator.locate_and_click('ok')
                 self.locator.locate_and_click('later')
                 self.locator.locate_and_click('close')
-                if not self.locator.locate('select_chapter'):
+                if not self.locator.locate_dir(dir_path):
                     self.locator.click('story_skip1')
                     time.sleep(1)
-                if not self.locator.locate('select_chapter'):
+                if not self.locator.locate_dir(dir_path):
                     self.locator.click('story_skip3')
                 count += 1
                 self.locator.locate_and_click('story')
@@ -393,6 +399,8 @@ class Automator:
     def restoration(self):
         pass
         # 체력회복
+    def sc_off(self):
+        self.my_device.shell("settings put system screen_brightness 0")
     def test(self):
         print("Testing")
     def list_all_methos(self):

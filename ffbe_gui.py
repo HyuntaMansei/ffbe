@@ -23,8 +23,8 @@ class MyWidget(QtWidgets.QWidget):
         # Load the UI file
         uic.loadUi('ffbe_widget.ui', self)
         # variable settings
-        self.device_names = ["facebook", "boringstock2", "SM-N950N", "SM-G950N"]
-        self.device_index_by_name = {'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1}
+        self.device_names = ['hyuntamansei', "facebook", "boringstock2", "SM-N950N", "SM-G950N"]
+        self.device_index_by_name = {'hyuntamansei':0, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1}
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720']
         # Connect any signals and slots
         btn_list = self.findChildren(QtWidgets.QPushButton)
