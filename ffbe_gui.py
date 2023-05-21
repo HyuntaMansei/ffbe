@@ -128,7 +128,7 @@ class MyWidget(QtWidgets.QWidget):
             self.sender().setText(off_text)
         else:
             self.automator = ffbe_automator.Automator()
-            self.automator.set_msg_handlers(log=self.log, debug=print, error=self.error)
+            self.automator.set_msg_handlers(log=self.log, debug=self.debug, error=self.error)
             self.automator.set_window_and_device(window_name=self.window_name, device_type=self.device_type)
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,

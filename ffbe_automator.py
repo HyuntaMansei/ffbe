@@ -151,7 +151,6 @@ class Automator:
             while (self.locator.locate('auto') == None) and self.running:
                 self.locator.locate_and_click('sortie')
                 self.locator.click('story_skip1')
-                time.sleep(2)
                 self.locator.click('story_skip2')
             self.debug("In battle stage")
             start_time = time.time()
@@ -166,21 +165,18 @@ class Automator:
                 self.locator.locate_and_click('close')
                 self.locator.locate_and_click('later')
                 self.locator.locate_and_click('no_evaluate')
-            time.sleep(2)
             self.debug("The quest ended")
-            time.sleep(10)
             count = 0
             self.debug(f"after batlle, until 'select chapter', repeating, ... story skip, count={count}")
-            while (self.locator.locate_dir(dir_path, trial_number=2) == None) and self.running:
+            while (self.locator.locate_dir(dir_path) == None) and self.running:
                 self.locator.locate_and_click('end_of_quest')
                 self.locator.locate_and_click('ok')
                 self.locator.locate_and_click('later')
                 self.locator.locate_and_click('close')
-                if not self.locator.locate_dir(dir_path):
-                    self.locator.click('story_skip1')
-                    time.sleep(1)
-                if not self.locator.locate_dir(dir_path):
-                    self.locator.click('story_skip3')
+                # if not self.locator.locate_dir(dir_path):
+                self.locator.click('story_skip1')
+                # if not self.locator.locate_dir(dir_path):
+                self.locator.click('story_skip3')
                 count += 1
                 self.locator.locate_and_click('story')
             if not self.running:
@@ -254,7 +250,7 @@ class Automator:
             if not self.running:
                 self.log("Quit automation")
                 break
-            self.log(f"Completed: {cnt+1} times")
+            self.log(f"Completed: {cnt+1} times. {rep_time-cnt} times left.")
         if (finish_button != None) and self.running:
             finish_button.click()
     def play_multi_client(self):
