@@ -167,8 +167,8 @@ class Automator:
                 self.locator.locate_and_click('no_evaluate')
             self.debug("The quest ended")
             count = 0
-            self.debug(f"after batlle, until 'select chapter', repeating, ... story skip, count={count}")
-            while (self.locator.locate_dir(dir_path) == None) and self.running:
+            self.debug(f"after battle, until 'select chapter', repeating, ... story skip, count={count}")
+            while ((self.locator.locate_dir(dir_path) == None) and self.locator.locate('sortie')) and self.running:
                 self.locator.locate_and_click('end_of_quest')
                 self.locator.locate_and_click('ok')
                 self.locator.locate_and_click('later')
