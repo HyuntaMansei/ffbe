@@ -6,6 +6,23 @@ import locator
 from ppadb.client import Client as AdbClient
 import inspect
 import threading
+class Timer:
+    def __init__(self):
+        self.is_running = False
+        self.elap_times = []
+        self.start_time = None
+    def click(self):
+        if self.is_running == True:
+            elap_time = time.time()-self.start_time
+            self.elap_times.append(elap_time)
+            return elap_time
+        else:
+            self.is_running = True
+            self.start_time = time.time()
+    def restart(self):
+        self.is_running = True
+        self.elap_times = []
+        self.start_time = time.time()
 class Automator:
     def __init__(self):
         print("Creating Automator.")
@@ -30,18 +47,6 @@ class Automator:
         self.rep_time = rep_time
         self.num_of_players = num_of_players
         self.finish_button = finish_button
-    # def __init__(self, window_name:str, device_type:str=None, job=None, log=print, debug=print, error=print):
-    #     self.log = log
-    #     self.debug = debug
-    #     self.error = error
-    #
-    #     self.debug("Creating Automator.")
-    #     self.init_device(window_name=window_name)
-    #     self.device_type = device_type
-    #     self.job = job
-    #     self.init_int_vars()
-    #     self.init_other()
-    #     # self.set_params(automation_name)
     def init_automation_list(self):
         # Need to add code when add new automation
         self.automation_by_job = {}
@@ -87,6 +92,7 @@ class Automator:
     def init_other(self):
         self.stop_watch_started = False
         self.init_automation_list()
+        self.timer = Timer()
     # From here, called from start_automation
     def set_img_base_path(self):
         device_type = self.device_type
@@ -140,25 +146,24 @@ class Automator:
         self.log(f"Starting quest automation.")
         rep_time = self.rep_time
         finish_button = self.finish_button
-        targets = ["select_chapter", "an_alchemist_of_steel", "light_stone"]
         dir_path = "is"
-        for cnt in range(rep_time):
+        cnt = 0
+        while self.running:
             # 퀘스트 자동 진행
             self.debug("Before battle, trying to click sortie")
             while (self.locator.locate('sortie') == None) and self.running:
                 self.locator.locate_and_click_dir(dir_path, xy='top_quest')
-            ##skip 하기 누르기
+            # skip 하기 누르기
             while (self.locator.locate('auto') == None) and self.running:
                 self.locator.locate_and_click('sortie')
                 self.locator.click('story_skip1')
                 self.locator.click('story_skip2')
             self.debug("In battle stage")
-            start_time = time.time()
+            self.stop_watch()
             while (self.locator.locate('next') == None) and self.running:
-                time.sleep(1)
-            self.debug("Mission complete")
-            elasped_time = time.time() - start_time
-            self.debug(f"elasped_time: {time.strftime('%M:%S', time.gmtime(elasped_time))}")
+                time.sleep(2)
+            self.debug("Battle Ended.")
+            self.stop_watch()
             self.debug("Until end_of_quest")
             while (self.locator.locate('end_of_quest') == None) and self.running:
                 self.locator.locate_and_click('next')
@@ -166,35 +171,31 @@ class Automator:
                 self.locator.locate_and_click('later')
                 self.locator.locate_and_click('no_evaluate')
             self.debug("The quest ended")
-            count = 0
-            self.debug(f"after battle, until 'select chapter', repeating, ... story skip, count={count}")
-            while ((self.locator.locate_dir(dir_path) == None) and self.locator.locate('sortie')) and self.running:
+            self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
+            while ((not self.locator.locate_dir(dir_path)) and not self.locator.locate('sortie')) and self.running:
                 self.locator.locate_and_click('end_of_quest')
                 self.locator.locate_and_click('ok')
                 self.locator.locate_and_click('later')
                 self.locator.locate_and_click('close')
-                # if not self.locator.locate_dir(dir_path):
                 self.locator.click('story_skip1')
-                # if not self.locator.locate_dir(dir_path):
                 self.locator.click('story_skip3')
-                count += 1
-                self.locator.locate_and_click('story')
-            if not self.running:
-                self.debug("Quit automation")
-                break
-            self.log(f"Battle Completed {cnt+1} times")
-        self.log("Automaiton completed")
+                # self.locator.locate_and_click('story')
+            cnt += 1
+            self.log(f"Battle Completed {cnt} times. {rep_time-cnt} times left.")
         if (finish_button != None) and self.running:
+            self.log("Automaiton completed.")
             finish_button.click()
+        self.debug("Quit automation.")
     def play_multi(self):
+        self.locator.confidence = 0.90
         rep_time = self.rep_time
         num_of_players = self.num_of_players
         finish_button = self.finish_button
         self.running = True
         self.time_limit = 300
         self.log("Starting multi automation")
-        for cnt in range(rep_time):
-            self.stop_watch()
+        cnt = 0
+        while self.running:
             self.init_time()
             self.debug(f"Before battle stage.")
             while (not self.locator.locate('auto')) and self.running:
@@ -215,7 +216,7 @@ class Automator:
                     self.locator.locate_and_click('sortie')
                 self.locator.locate_and_click('sortie_confirm')
                 # self.my_locator.locate_and_click('ok')
-                if self.elasped_time() > 30:
+                if self.elasped_time() > 60:
                      while (self.locator.locate('checking_the_result')) and self.running:
                          self.debug("Kicking some checking the result!")
                          if self.locator.locate_and_click('checking_the_result'):
@@ -232,16 +233,18 @@ class Automator:
                         self.locator.locate_and_click('expel')
                     self.init_time()
             self.debug("\n'Auto' is located. In battle stage")
+            self.timer.restart()
             while (not self.locator.locate('next')) and self.running:
                 self.locator.locate_and_click('ok')
                 self.locator.locate_and_click('ok2')
+                self.locator.locate_and_click('ok3')
                 self.locator.locate_and_click('give_up')
                 if self.locator.locate_and_click('yes'):
                     break
                 time.sleep(1)
             # after battle stage
             self.debug("After battle stage")
-            self.stop_watch()
+            self.log(f"Elasped_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
             while (not self.locator.locate('organize')) and self.running:
                 self.locator.locate_and_click('next')
                 # self.my_locator.locate_and_click('ok')
@@ -250,17 +253,32 @@ class Automator:
             if not self.running:
                 self.log("Quit automation")
                 break
-            self.log(f"Completed: {cnt+1} times. {rep_time-cnt} times left.")
-        if (finish_button != None) and self.running:
-            finish_button.click()
+            cnt += 1
+            self.log(f"Completed: {cnt} times. {rep_time-cnt} times left.")
+            if cnt >= rep_time:
+                self.log("Automation completed. Exiting.")
+                finish_button.click()
+                break
     def play_multi_client(self):
         self.running = True
-        self.time_limit = 300
+        cnt = 0
         self.log("Starting multi_client automation")
-        targets = ["cancel", "go_back", "next", "ok", "ready"]
+        targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3"]
         while self.running:
-            self.locator.locate_and_click(targets)
-            time.sleep(1)
+            while (not self.locator.locate('auto')) and self.running:
+                self.locator.locate_and_click("ready")
+                time.sleep(1)
+            self.debug("In battle stage")
+            self.stop_watch()
+            while(not self.locator.locate("next") and self.running):
+                self.locator.locate_and_click(targets)
+            cnt += 1
+            self.debug("Battle Ended")
+            self.debug(f"Completed {cnt} times.")
+            self.stop_watch()
+            while (not self.locator.locate("cancel_ready")) and self.running:
+                self.locator.locate(targets)
+                time.sleep(1)
     def play_raid(self):
         rep_time = self.rep_time
         self.running = True

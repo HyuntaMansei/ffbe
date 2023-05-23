@@ -85,24 +85,24 @@ class Locator:
             prev_path = self.img_path
             self.img_path = self.img_path + folder_name + '\\'
     def locate(self, img_name, trial_number=1, confidence = None):
+        if confidence == None:
+            confidence = self.confidence
         # especially for list of images
         if type(img_name) == list:
+            self.debug(f"Multiple images locating: {img_name}.")
             for i in img_name:
                 res = self.locate(i, trial_number, confidence)
                 if res != None:
                     self.debug(f"'{img_name}' successfully located. {res}")
                     return res
-            self.debug(f"'{img_name}' failed to locate.")
+            self.debug(f"Failed to locate {img_name}.")
             return None
         self.debug(f"One image locating: {img_name}.")
-        if confidence == None:
-            confidence = self.confidence
         for count in range(int(trial_number)):
             img = self.sct.grab(self.rect)
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
             try:
                 img_path = self.get_path(img_name)
-                print(img_path)
                 if img_path:
                     loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
                 else:
@@ -113,17 +113,17 @@ class Locator:
                 # print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
                 # print("Saving sc.png")
                 # pil_img.save('sc.png')
-                self.debug(f"'{img_name}' successfully located.")
+                self.debug(f"{img_name} successfully located.")
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
-        self.debug(f"'{img_name}' failed to locate.")
+        self.debug(f"Failed to locate {img_name}.")
         return None
     def locate_on_screen(self, img_name, confidence = None):
         if confidence == None:
             confidence = self.confidence
         loc = self.locate(img_name, confidence=confidence)
-        try:
+        if loc != None:
             return (self.client_xy0[0]+loc[0], self.client_xy0[1]+loc[1])
-        except:
+        else:
             return None
     def click_on_screen(self, xy):
         prev_pos = pyautogui.position()
@@ -150,7 +150,6 @@ class Locator:
                 xy = self.xys[xy]
             else:
                 loc = self.locate(xy)
-                print(loc)
                 xy = win32gui.ScreenToClient(self.hwnd, loc)
                 # xy = win32gui.ScreenToClient(self.hwnd, self.locate(xy))
                 if not xy:
@@ -168,14 +167,8 @@ class Locator:
                     return self.click_on_screen(loc)
                 else:
                     self.debug(f"Clicking coordinate: {xy}")
-                    self.click(xy)
-                    return loc
-            time.sleep(1)
+                    return self.click(xy)
         return None
-    def wait_and_click(self, img_name: str, xy=None, trial_number=None):
-        if trial_number == None:
-            trial_number = self.trial_number
-        return self.locate_and_click(img_name, xy=xy, trial_number=trial_number)
     def read_coordinates(self, file_name:str=None):
         print(f"In read_coordinates, file_name:{file_name}")
         self.xys = {}
@@ -198,35 +191,28 @@ class Locator:
             return False
     def locate_dir(self, dir_path, trial_number=1, confidence = None):
         path = (self.img_path + dir_path + '/').replace("//", "/")
-        base_path = ('/' + dir_path + '/').replace("//", "/")
+        base_path = (dir_path + '/').replace("//", "/")
         files = os.listdir(path)
-        imgs_in_dir = [base_path+ f for f in files]
-        print(imgs_in_dir)
+        imgs_in_dir = [base_path + f for f in files]
         return self.locate(imgs_in_dir, trial_number, confidence)
-        # self.debug(f"One image locating: {img_name}.")
-        # if confidence == None:
-        #     confidence = self.confidence
-
-    def locate_and_click_dir(self, img_name, xy=None, trial_number = 1, confidence = None):
+    def locate_and_click_dir(self, dir_name, xy=None, trial_number=1, confidence=None):
         if confidence == None:
             confidence = self.confidence
         for count in range(trial_number):
-            loc = self.locate_on_screen_dir(img_name, confidence=confidence)
+            loc = self.locate_on_screen_dir(dir_name, confidence=confidence)
             if loc != None:
                 if xy == None:
-                    self.debug(f"Clicking {img_name} & Loc:{loc}, ")
+                    self.debug(f"Clicking {dir_name} & Loc:{loc}, ")
                     return self.click_on_screen(loc)
                 else:
                     self.debug(f"Clicking coordinate: {xy}")
-                    self.click(xy)
-                    return loc
-            time.sleep(1)
+                    return self.click(xy)
         return None
-    def locate_on_screen_dir(self, dir_path, confidence = None):
+    def locate_on_screen_dir(self, dir_path, confidence=None):
         if confidence == None:
             confidence = self.confidence
         loc = self.locate_dir(dir_path, confidence=confidence)
-        try:
+        if loc != None:
             return (self.client_xy0[0]+loc[0], self.client_xy0[1]+loc[1])
-        except:
+        else:
             return None

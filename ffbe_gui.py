@@ -51,7 +51,7 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_log = self.log_widget.obj_output
         self.log_widget.setWindowTitle("Log")
         self.log_widget.show()
-        self.log_widget.move(1520,0)
+        self.log_widget.move(1300,300)
 
         self.debug_widget = Output_Widget(600,600)
         self.obj_debug = self.debug_widget.obj_output
@@ -66,7 +66,7 @@ class MyWidget(QtWidgets.QWidget):
         self.error_widget.move(1000,0)
     def init_others(self):
         self.device_initiated = False
-        self.move(1000,880)
+        self.move(1300,800)
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
         # if event.eventType() == MsgEvent.Type:
