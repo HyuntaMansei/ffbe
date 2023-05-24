@@ -279,6 +279,7 @@ class Automator:
             time.sleep(8)
             while (not self.locator.locate("cancel_ready")) and self.running:
                 self.locator.locate(targets)
+                self.locator.locate('ready')
                 time.sleep(1)
     def play_raid(self):
         rep_time = self.rep_time
