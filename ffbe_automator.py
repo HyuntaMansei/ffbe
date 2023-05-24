@@ -274,9 +274,9 @@ class Automator:
                 self.locator.locate_and_click(targets)
             cnt += 1
             self.debug("Battle Ended")
-            self.debug(f"Completed {cnt} times.")
+            self.log(f"Completed {cnt} times.")
             self.stop_watch()
-            time.time(10)
+            time.sleep(8)
             while (not self.locator.locate("cancel_ready")) and self.running:
                 self.locator.locate(targets)
                 time.sleep(1)
