@@ -103,6 +103,8 @@ class Automator:
             self.automation_path = './1280_720/'
         elif device_type == 'android':
             self.automation_path = './1280_720/'
+        elif device_type == 'android_q2':
+            self.automation_path = './1600_720/'
         else:
             self.error(f"No such device type: {device_type}")
             return False
@@ -203,13 +205,13 @@ class Automator:
                 if num_of_players == 1:
                     sortie_cond = True
                 elif num_of_players == 2:
-                    if not self.locator.locate('one_person'):
+                    if self.locator.locate('more_than_2'):
                         sortie_cond = True
                 elif num_of_players == 3:
-                    if (self.locator.locate('three_people')) or (self.locator.locate('four_people')):
+                    if self.locator.locate('more_than_3'):
                         sortie_cond = True
                 elif num_of_players == 4:
-                    if (self.locator.locate('four_people')):
+                    if self.locator.locate('four_people'):
                         sortie_cond = True
                 if sortie_cond:
                     self.debug(f"Trying to click sortie, # of players: {num_of_players}, elap_time: {int(self.elasped_time())} sec")

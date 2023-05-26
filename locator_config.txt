@@ -7,3 +7,6 @@ real_cli_xy0 = 0,27
 [android]
 dev_size = 720, 1280
 real_cli_xy0 = 0,0
+[android_q2]
+dev_size = 720, 1600
+real_cli_xy0 = 0,0
