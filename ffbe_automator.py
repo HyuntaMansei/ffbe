@@ -246,10 +246,10 @@ class Automator:
                 time.sleep(1)
             # after battle stage
             self.debug("After battle stage")
-            self.log(f"Elasped_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
+            self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
             while (not self.locator.locate('organize')) and self.running:
                 self.locator.locate_and_click('next')
-                # self.my_locator.locate_and_click('ok')
+                self.my_locator.locate_and_click('ok')
                 self.locator.locate_and_click('cancel')
                 self.locator.locate_and_click('go_back')
             if not self.running:
