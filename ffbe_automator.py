@@ -249,7 +249,7 @@ class Automator:
             self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
             while (not self.locator.locate('organize')) and self.running:
                 self.locator.locate_and_click('next')
-                self.my_locator.locate_and_click('ok')
+                self.locator.locate_and_click('ok')
                 self.locator.locate_and_click('cancel')
                 self.locator.locate_and_click('go_back')
             if not self.running:
