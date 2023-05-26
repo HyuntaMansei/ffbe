@@ -1,3 +1,3 @@
-call scrcpy.exe
+call scrcpy.exe --no-audio
 
 pause
