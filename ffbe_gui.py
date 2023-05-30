@@ -38,9 +38,9 @@ class MyWidget(QtWidgets.QWidget):
         for n in self.device_names:
             self.cb_window_name.addItem(n)
         self.le_rep = self.findChild(QLineEdit, 'le_rep')
-        self.le_rep.setText("30")
+        self.le_rep.setText("300")
         self.le_players = self.findChild(QLineEdit, 'le_players')
-        self.le_players.setText("1")
+        self.le_players.setText("4")
         self.show()
     def init_msg_boxes(self):
         self.log_list = []

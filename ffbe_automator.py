@@ -60,17 +60,6 @@ class Automator:
                 self.automation_by_job[m] = getattr(self, m)
             else:
                 self.automation_by_job['play_'+m] = getattr(self, m)
-        # match other non-typical methods
-        #     self.automation_by_job['play_summon'] = self.summon
-        #     self.automation_by_job['play_skip_battle'] = self.skip_battle
-        # self.automation_by_job['play_quest'] = self.play_quest
-        # self.automation_by_job['play_multi'] = self.play_multi
-        # self.automation_by_job['play_multi_client'] = self.play_multi_client
-        # self.automation_by_job['play_raid'] = self.play_raid
-        # self.automation_by_job['play_raid_host2'] = self.play_raid_host2
-        # self.automation_by_job['play_raid_host4'] = self.play_raid_host4
-        # self.automation_by_job['play_raid_client'] = self.play_raid_client
-        # self.automation_by_job[''] = self.
     def init_device(self, window_name:str=None):
         self.my_client = AdbClient()
         self.my_device = None
@@ -127,6 +116,7 @@ class Automator:
         self.create_locator()
         job = self.job
         # Need to add code to handle special case
+        self.pre_automation_processing()
         self.automation_by_job[job]()
     def stop(self):
         self.running = False
@@ -194,7 +184,7 @@ class Automator:
         num_of_players = self.num_of_players
         finish_button = self.finish_button
         self.running = True
-        self.time_limit = 900
+        self.time_limit = 1200
         self.log("Starting multi automation")
         cnt = 0
         while self.running:
@@ -288,6 +278,7 @@ class Automator:
             self.locator.locate_and_click(targets)
             time.sleep(5)
     def play_raid(self):
+        self.pre_automation_processing()
         rep_time = self.rep_time
         self.running = True
         self.log("Starting single raid automation")
@@ -431,3 +422,5 @@ class Automator:
         # Extract the names of the methods
         method_names = [name for name, _ in methods]
         print(method_names)
+    def pre_automation_processing(self):
+        win32gui.SetForegroundWindow(self.my_hwnd)
