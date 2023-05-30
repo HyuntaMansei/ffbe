@@ -47,7 +47,7 @@ class MyWidget(QtWidgets.QWidget):
         self.debug_list = []
         self.error_list = []
 
-        self.log_widget = Output_Widget(600,300)
+        self.log_widget = Output_Widget(650,300)
         self.obj_log = self.log_widget.obj_output
         self.log_widget.setWindowTitle("Log")
         self.log_widget.show()
@@ -58,12 +58,14 @@ class MyWidget(QtWidgets.QWidget):
         self.debug_widget.setWindowTitle("Debug")
         self.debug_widget.show()
         self.debug_widget.move(400,0)
+        self.debug_widget.showMinimized()
 
         self.error_widget = Output_Widget()
         self.obj_error = self.debug_widget.obj_output
         self.error_widget.setWindowTitle("Error")
         self.error_widget.show()
         self.error_widget.move(1000,0)
+        self.error_widget.showMinimized()
     def init_others(self):
         self.device_initiated = False
         self.move(1100,800)

@@ -173,7 +173,7 @@ class Automator:
                 self.locator.click('story_skip3')
                 # self.locator.locate_and_click('story')
             cnt += 1
-            self.log(f"Battle Completed {cnt} times. {rep_time-cnt} times left.")
+            self.log(f"Completed: {cnt} of {rep_time-cnt} times.")
         if (finish_button != None) and self.running:
             self.log("Automaiton completed.")
             finish_button.click()
@@ -246,7 +246,7 @@ class Automator:
                 self.log("Quit automation")
                 break
             cnt += 1
-            self.log(f"Completed: {cnt} times. {rep_time-cnt} times left.")
+            self.log(f"Completed: {cnt} of {rep_time-cnt} times.")
             if cnt >= rep_time:
                 self.log("Automation completed. Exiting.")
                 finish_button.click()
@@ -377,7 +377,7 @@ class Automator:
         finish_button = self.finish_button
         self.running = True
         self.log("Starting summon automation")
-        summon_cnt = 0
+        cnt = 0
         while self.running:
             print(not self.locator.locate('confirm_summon'))
             while (not self.locator.locate('confirm_summon')) and self.running:
@@ -386,9 +386,9 @@ class Automator:
                 self.locator.locate_and_click('once_again')
                 self.locator.locate_and_click('skip')
             if self.locator.locate_and_click('confirm_summon'):
-                summon_cnt += 1
-                self.log(f"Summon: {summon_cnt} times, {rep_time-summon_cnt} times left.")
-            if summon_cnt >= rep_time:
+                cnt += 1
+                self.log(f"Summon Completed {cnt} times. {rep_time-cnt} times left.")
+            if cnt >= rep_time:
                 break
         if (finish_button != None) and self.running:
             finish_button.click()
