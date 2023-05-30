@@ -47,7 +47,7 @@ class MyWidget(QtWidgets.QWidget):
         self.debug_list = []
         self.error_list = []
 
-        self.log_widget = Output_Widget()
+        self.log_widget = Output_Widget(600,300)
         self.obj_log = self.log_widget.obj_output
         self.log_widget.setWindowTitle("Log")
         self.log_widget.show()

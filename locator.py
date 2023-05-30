@@ -9,11 +9,12 @@ import pyautogui
 import time
 import configparser
 class Locator:
-    def __init__(self, hwnd:str=None, path:str='./', confidence=0.95, debug=print, log=print):
+    def __init__(self, hwnd:str=None, path:str='./', confidence=0.95, debug=print, log=print, error=print):
         print("---Initiating Locator---")
         print(hwnd, path, log, debug)
         self.debug = debug
         self.log = log
+        self.error = error
         self.sct = mss.mss()
         self.basic_init(path, confidence)
         if hwnd != None:
@@ -27,7 +28,7 @@ class Locator:
         self.sltime_before_click = 0.1
         self.sltime_after_click = 0.1
         self.set_path(path)
-        self.read_coordinates(path + "coordinates.txt")
+        # self.read_coordinates(path + "coordinates.txt")
         self.trial_number = waiting_time
         self.click_on_device = None
         self.debug_msg_list = []
@@ -40,6 +41,8 @@ class Locator:
         self.conf = config[device_type]
         # self.conf['dev_size']
         self.real_cli_x0, self.real_cli_y0 = (int(self.conf['real_cli_xy0'].split(',')[0]), int(self.conf['real_cli_xy0'].split(',')[1]))
+        self.coor_file_path = self.conf['coordinates_path']
+        self.read_coordinates()
     def connect_click_method(self, click):
         self.click_on_device = click
     def set_path(self, img_path:str):
@@ -85,6 +88,9 @@ class Locator:
             prev_path = self.img_path
             self.img_path = self.img_path + folder_name + '\\'
     def locate(self, img_name, trial_number=1, confidence = None):
+        if not win32gui.IsWindowVisible(self.hwnd):
+            self.error("Window is not visible. return None")
+            return None
         if confidence == None:
             confidence = self.confidence
         # especially for list of images
@@ -169,8 +175,10 @@ class Locator:
                     self.debug(f"Clicking coordinate: {xy}")
                     return self.click(xy)
         return None
+    def set_coor_file_path(self, file_name):
+        self.coor_file_path = self.img_path + file_name
     def read_coordinates(self, file_name:str=None):
-        print(f"In read_coordinates, file_name:{file_name}")
+        print(f"In def-read_coordinates, file_name:{file_name}")
         self.xys = {}
         if file_name != None:
             try:

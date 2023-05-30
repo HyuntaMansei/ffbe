@@ -115,7 +115,7 @@ class Automator:
         # self.automation_path += job.replace('play_', '')
         self.automation_path += job.replace('play_', '') + '/'
         self.debug(f"Locator Path: {self.automation_path}")
-        self.locator = locator.Locator(self.my_hwnd, self.automation_path)
+        self.locator = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
         self.locator.load_conf(self.device_type)
         self.locator.confidence = self.confidence
         self.time_limit = 300
@@ -194,7 +194,7 @@ class Automator:
         num_of_players = self.num_of_players
         finish_button = self.finish_button
         self.running = True
-        self.time_limit = 300
+        self.time_limit = 900
         self.log("Starting multi automation")
         cnt = 0
         while self.running:
