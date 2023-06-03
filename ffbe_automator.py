@@ -425,8 +425,14 @@ class Automator:
         self.debug("Func, keep_click, starts now")
         if target_dir == None:
             target_dir = 'kc'
+        self.locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
+        self.locator_kc.load_conf(self.device_type)
+        self.locator_kc.confidence = self.confidence
+        self.time_limit = 300
+        self.locator_kc.connect_click_method(self.my_device.input_tap)
+
         self.keep_click_running = True
         while self.running:
             if self.keep_click_running:
-                self.locator.locate_and_click_dir(target_dir)
+                self.locator_kc.locate_and_click_dir(target_dir)
             time.sleep(1)
