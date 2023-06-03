@@ -226,7 +226,9 @@ class Automator:
                         self.locator.locate_and_click('expel')
                     self.init_time()
                 # Recover Stamina if needed
-                # if self.loca
+                if self.locator.locate('short_of_stamina'):
+                    self.recover_stamina()
+
             self.debug("\n'Auto' is located. In battle stage")
             self.timer.restart()
             targets = ['organize']
@@ -389,10 +391,10 @@ class Automator:
                 self.locator.locate_and_click(targets2)
             if cnt >= rep_time:
                 break
-    def recover_stamina(self):
+    def recover_stamina(self, recover_cnt=8):
         # Recovering
         self.debug("Start recovering stamina")
-        targets = ['plus','item']
+        targets = ['yes','plus','item']
         self.keep_click_running = False
         while(not self.locator.locate('recover_amount')) and self.running:
             self.locator.locate_and_click(targets)
@@ -400,7 +402,7 @@ class Automator:
         self.debug("Try to swipe up")
         self.my_device.shell("input swipe 900 600 900 300 1000")
         time.sleep(2)
-        for cnt in range(9):
+        for cnt in range(recover_cnt):
             self.locator.locate_and_click('120')
             time.sleep(0.5)
         while (not self.locator.locate('ok')) and self.running:
@@ -413,6 +415,12 @@ class Automator:
     def test(self):
         self.running = True
         self.recover_stamina()
+    def list_all_methos(self):
+        # Get all the methods of the class
+        methods = inspect.getmembers(self, predicate=inspect.ismethod)
+        # Extract the names of the methods
+        method_names = [name for name, _ in methods]
+        print(method_names)
     def list_all_methos(self):
         # Get all the methods of the class
         methods = inspect.getmembers(self, predicate=inspect.ismethod)
