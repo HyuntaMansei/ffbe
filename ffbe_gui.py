@@ -53,7 +53,7 @@ class MyWidget(QtWidgets.QWidget):
         self.log_widget.show()
         self.log_widget.move(1500,300)
 
-        self.debug_widget = Output_Widget(600,600)
+        self.debug_widget = Output_Widget(1000,600)
         self.obj_debug = self.debug_widget.obj_output
         self.debug_widget.setWindowTitle("Debug")
         self.debug_widget.show()
@@ -116,7 +116,7 @@ class MyWidget(QtWidgets.QWidget):
                 self.start_automator(sender_name=sender_name, btn_text=btn_text)
                 found = True
             except:
-                self.error(f"Something Worng here in on_button_clicked. Btn Clicked: {btn_text}.")
+                self.error(f"Something Wrong here in on_button_clicked. Btn Clicked: {btn_text}.")
                 found = False
         return found
     def start_automator(self, sender_name=None, btn_text=None):

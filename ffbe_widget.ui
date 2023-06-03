@@ -239,6 +239,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="pb_test">
+        <property name="text">
+         <string>Resortation</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
