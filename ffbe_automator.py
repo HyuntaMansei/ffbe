@@ -174,6 +174,8 @@ class Automator:
                 # self.locator.locate_and_click('story')
             cnt += 1
             self.log(f"Completed: {cnt} of {rep_time-cnt} times.")
+            if cnt >= rep_time:
+                break
         if (finish_button != None) and self.running:
             self.log("Automaiton completed.")
             finish_button.click()
@@ -255,28 +257,10 @@ class Automator:
         self.running = True
         cnt = 0
         self.log("Starting multi_client automation")
-        # targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3"]
-        # while self.running:
-        #     while (not self.locator.locate('auto')) and self.running:
-        #         self.locator.locate_and_click("ready")
-        #         time.sleep(1)
-        #     self.debug("In battle stage")
-        #     self.stop_watch()
-        #     while(not self.locator.locate("next") and self.running):
-        #         self.locator.locate_and_click(targets)
-        #     cnt += 1
-        #     self.debug("Battle Ended")
-        #     self.log(f"Completed {cnt} times.")
-        #     self.stop_watch()
-        #     time.sleep(8)
-        #     while (not self.locator.locate("cancel_ready")) and self.running:
-        #         self.locator.locate(targets)
-        #         self.locator.locate('ready')
-        #         time.sleep(1)
         targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3", "ready"]
         while self.running:
             self.locator.locate_and_click(targets)
-            time.sleep(5)
+            time.sleep(1)
     def play_raid(self):
         self.pre_automation_processing()
         rep_time = self.rep_time
