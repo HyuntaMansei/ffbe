@@ -422,6 +422,7 @@ class Automator:
     def pre_automation_processing(self):
         win32gui.SetForegroundWindow(self.my_hwnd)
     def keep_click(self, target_dir:str=None):
+        self.debug("Func, keep_click, starts now")
         if target_dir == None:
             target_dir = 'kc'
         self.keep_click_running = True
