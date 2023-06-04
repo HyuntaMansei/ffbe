@@ -99,9 +99,9 @@ class Locator:
             for i in img_name:
                 res = self.locate(i, trial_number, confidence)
                 if res != None:
-                    self.debug(f"'{img_name}' successfully located. {res}")
+                    self.debug(f"Successfully located: {img_name} at {res}")
                     return res
-            self.debug(f"Failed to locate {img_name}.")
+            # self.debug(f"Failed to locate {img_name}.")
             return None
         # self.debug(f"One image locating: {img_name}.")
         for count in range(int(trial_number)):
@@ -119,7 +119,7 @@ class Locator:
                 # print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
                 # print("Saving sc.png")
                 # pil_img.save('sc.png')
-                # self.debug(f"{img_name} successfully located.")
+                self.debug(f"Successfully located: {img_name} at {loc}")
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
         # self.debug(f"Failed to locate {img_name}.")
         return None
