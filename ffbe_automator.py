@@ -190,6 +190,7 @@ class Automator:
         kc_thread = threading.Thread(target=target_thread)
         kc_thread.start()
 
+        sorties = ['sortie','sortie2','sortie3']
         while self.running:
             self.init_time()
             self.debug(f"Before battle stage.")
@@ -208,7 +209,7 @@ class Automator:
                         sortie_cond = True
                 if sortie_cond:
                     self.debug(f"Trying to click sortie, # of players: {num_of_players}, elap_time: {int(self.elapsed_time())} sec")
-                    self.locator.locate_and_click('sortie')
+                    self.locator.locate_and_click(sorties)
                 if self.elapsed_time() > 120:
                      while (self.locator.locate('checking_the_result')) and self.running:
                          self.debug("Kicking some checking the result!")
@@ -250,14 +251,14 @@ class Automator:
         self.running = True
         cnt = 0
         self.log("Starting multi_client automation")
-        # targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3", "ready"]
+        targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3", "ready"]
 
         target_thread = self.keep_click
         kc_thread = threading.Thread(target=target_thread)
         kc_thread.start()
 
         while self.running:
-            # self.locator.locate_and_click(targets)
+            self.locator.locate_and_click(targets)
             time.sleep(1)
     def play_raid(self):
         self.pre_automation_processing()
@@ -399,6 +400,7 @@ class Automator:
         while(not self.locator.locate('recover_amount')) and self.running:
             self.locator.locate_and_click(targets)
             time.sleep(0.5)
+        time.sleep(2)
         self.debug("Try to swipe up")
         self.my_device.shell("input swipe 900 600 900 300 1000")
         time.sleep(2)
@@ -436,11 +438,13 @@ class Automator:
         self.locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
         self.locator_kc.load_conf(self.device_type)
         self.locator_kc.confidence = self.confidence
-        self.time_limit = 300
         self.locator_kc.connect_click_method(self.my_device.input_tap)
 
         self.keep_click_running = True
         while self.running:
             if self.keep_click_running:
                 self.locator_kc.locate_and_click_dir(target_dir)
+            else:
+                self.debug("Skip keep_click loop")
+                time.sleep(5)
             time.sleep(1)

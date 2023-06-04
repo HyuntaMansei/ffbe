@@ -103,7 +103,7 @@ class Locator:
                     return res
             self.debug(f"Failed to locate {img_name}.")
             return None
-        self.debug(f"One image locating: {img_name}.")
+        # self.debug(f"One image locating: {img_name}.")
         for count in range(int(trial_number)):
             img = self.sct.grab(self.rect)
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
@@ -119,9 +119,9 @@ class Locator:
                 # print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
                 # print("Saving sc.png")
                 # pil_img.save('sc.png')
-                self.debug(f"{img_name} successfully located.")
+                # self.debug(f"{img_name} successfully located.")
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
-        self.debug(f"Failed to locate {img_name}.")
+        # self.debug(f"Failed to locate {img_name}.")
         return None
     def locate_on_screen(self, img_name, confidence = None):
         if confidence == None:
