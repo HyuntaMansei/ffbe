@@ -188,6 +188,7 @@ class Locator:
                             self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
                         except:
                             print(f"reading error")
+                print("")
             except:
                 self.debug(f"no such file: {file_name}")
             self.coor_file_path = file_name
