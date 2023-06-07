@@ -171,7 +171,7 @@ class Automator:
                     self.locator.click('story_skip1')
                     self.locator.click('story_skip3')
             cnt += 1
-            self.log(f"Completed: {cnt} of {rep_time-cnt} times.")
+            self.log(f"Completed: {cnt} and {rep_time-cnt} left.")
             self.stop_watch()
             if cnt >= rep_time:
                 break
@@ -241,7 +241,7 @@ class Automator:
             # after battle stage
             self.debug("After battle stage")
             cnt += 1
-            self.log(f"Completed: {cnt} of {rep_time-cnt} times.")
+            self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
             self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
             if not self.running:
                 self.log("Aborting automation")
