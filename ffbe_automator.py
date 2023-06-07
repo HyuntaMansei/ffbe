@@ -146,6 +146,7 @@ class Automator:
         kc_thread = threading.Thread(target=target_thread)
         kc_thread.start()
 
+        # except_targets = ["sortie"]
         cnt = 0
         while self.running:
             # 퀘스트 자동 진행
@@ -153,8 +154,9 @@ class Automator:
             while (not self.locator.locate('auto')) and self.running:
                 if self.locator.locate_and_click_dir(is_dir_path, xy='top_quest'):
                     time.sleep(4)
-                self.locator.click('story_skip1')
-                self.locator.click('story_skip2')
+                if not self.locator.locate('sortie'):
+                    self.locator.click('story_skip1')
+                    self.locator.click('story_skip2')
                 time.sleep(1)
             self.debug("In battle stage")
             self.stop_watch()
@@ -165,8 +167,9 @@ class Automator:
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
             while ((not self.locator.locate_dir(is_dir_path)) and not self.locator.locate('sortie')) and self.running:
                 self.locator.locate_and_click('end_of_quest')
-                self.locator.click('story_skip1')
-                self.locator.click('story_skip3')
+                if not self.locator.locate_dir(is_dir_path):
+                    self.locator.click('story_skip1')
+                    self.locator.click('story_skip3')
             cnt += 1
             self.log(f"Completed: {cnt} of {rep_time-cnt} times.")
             self.stop_watch()
