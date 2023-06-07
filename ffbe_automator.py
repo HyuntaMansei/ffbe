@@ -410,9 +410,13 @@ class Automator:
         for cnt in range(recover_cnt):
             self.locator.locate_and_click('120')
             time.sleep(0.5)
-        while (not self.locator.locate('sortie')) and self.running:
+        # while (not self.locator.locate('sortie')) and self.running:
+        for c in range(10):
+            if self.locator.locate('sortie') or (not self.running):
+                break
             self.locator.locate_and_click('recover')
             self.locator.locate_and_click('ok')
+            time.sleep(1)
         self.debug("Finished recovering")
         self.keep_click_running = True
     def sc_off(self):
