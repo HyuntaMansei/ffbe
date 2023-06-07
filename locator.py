@@ -28,7 +28,6 @@ class Locator:
         self.sltime_before_click = 0.1
         self.sltime_after_click = 0.1
         self.set_path(path)
-        # self.read_coordinates(path + "coordinates.txt")
         self.trial_number = waiting_time
         self.click_on_device = None
         self.debug_msg_list = []
@@ -63,8 +62,7 @@ class Locator:
         self.client_xy0 = win32gui.ClientToScreen(self.hwnd, (0,0))
         self.client_size = (win32gui.GetClientRect(self.hwnd)[2], win32gui.GetClientRect(self.hwnd)[3])
         self.rect = (self.client_xy0[0], self.client_xy0[1], self.client_xy0[0]+self.client_size[0], self.client_xy0[1]+self.client_size[1])
-        # print(self.client_xy0)
-        # print(self.client_size)
+        self.debug(f"New xy0 = {self.client_xy0} and size: {self.client_size}")
         print("End of size_init")
     def rect_checker(self):
         while True:
@@ -185,7 +183,7 @@ class Locator:
                 with open(file_name, 'r') as f:
                     lines = f.readlines()
                     for l in lines:
-                        print(f"reading coordinates: {l}")
+                        print(f"reading coordinates: {l}", end='')
                         try:
                             self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
                         except:
