@@ -79,7 +79,7 @@ class Automator:
         self.my_hwnd = win32gui.FindWindow(None, window_name)
         self.debug(f"With window name {window_name}, found device: {self.my_device} and hwnd: {self.my_hwnd}.")
     def init_internal_vars(self):
-        self.confidence = 0.9
+        self.confidence = 0.95
     def init_other(self):
         self.stop_watch_started = False
         self.init_automation_list()
