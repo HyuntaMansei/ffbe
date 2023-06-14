@@ -6,6 +6,7 @@ import locator
 from ppadb.client import Client as AdbClient
 import inspect
 import threading
+import os
 class Timer:
     def __init__(self):
         self.is_running = False
@@ -146,9 +147,7 @@ class Automator:
         finish_button = self.finish_button
         is_dir_path = "is"
 
-        target_thread = self.keep_click
-        kc_thread = threading.Thread(target=target_thread)
-        kc_thread.start()
+        self.start_keep_clicks()
 
         # except_targets = ["sortie"]
         cnt = 0
@@ -358,6 +357,32 @@ class Automator:
             while (not self.locator.locate("ready")) and self.running:
                 self.locator.locate_and_click(targets)
                 time.sleep(1.5)
+    def play_100tower(self):
+        self.running = True
+        self.locator.confidence = 0.95
+        finish_button = self.finish_button
+        self.log("Starting 100 tower automation")
+        targets = ["end_of_quest"]
+        self.start_keep_clicks()
+        rep_time = self.rep_time
+        cnt = 0
+        while self.running:
+            self.debug("Before battle stage")
+            while self.running and (not self.locator.locate("auto")):
+                self.locator.locate_and_click(targets)
+                time.sleep(1)
+            self.debug("In battle stage")
+            self.timer.restart()
+            while self.running and (not self.locator.locate("end_of_quest")):
+                time.sleep(1)
+            self.debug("After battle stage")
+            cnt += 1
+            self.log(f"Completed {cnt} and left {rep_time-cnt} times")
+            self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
+            if cnt >= rep_time:
+                self.log("Automation completed. Exit now.")
+                finish_button.click()
+                break
     def summon(self):
         rep_time = self.rep_time
         finish_button = self.finish_button
@@ -423,7 +448,15 @@ class Automator:
         self.my_device.shell("settings put system screen_brightness 0")
     def test(self):
         self.running = True
-        self.recover_stamina()
+        cnt = 0
+        self.log("Starting 100 tower automation")
+        targets = []
+
+        self.start_keep_clicks()
+
+        while self.running:
+            self.locator.locate_and_click(targets)
+            time.sleep(1)
     def list_all_methos(self):
         # Get all the methods of the class
         methods = inspect.getmembers(self, predicate=inspect.ismethod)
@@ -460,10 +493,21 @@ class Automator:
     def start_keep_clicks(self):
         target_thread = self.keep_click
         thread_list = []
-        thread_list.append(threading.Thread(target=target_thread, args=('kc/1', 1)))
-        thread_list.append(threading.Thread(target=target_thread, args=('kc/0', 0)))
-        thread_list.append(threading.Thread(target=target_thread, args=('kc/2', 2)))
-        thread_list.append(threading.Thread(target=target_thread, args=('kc/4', 4)))
-        thread_list.append(threading.Thread(target=target_thread, args=('kc/10', 10)))
+        # Specify the directory path
+        directory = self.automation_path + '/kc/'
+        # Get a list of all subdirectories in the specified directory
+        subdirectories = [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
+        print(f"Subdirectories: {subdirectories}")
+        for s in subdirectories:
+            try:
+                sd = int(s)
+            except:
+                print(f"s in not number, continue.")
+                continue
+            thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, sd)))
+            print(f"Making Keep_click thread for {s}")
+        if thread_list == []:
+            thread_list.append(threading.Thread(target=target_thread))
+            print(f"Making Keep_click thread as basic directory")
         for t in thread_list:
             t.start()

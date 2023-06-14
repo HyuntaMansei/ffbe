@@ -240,9 +240,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pb_test">
+       <widget class="QPushButton" name="pb_100tower">
         <property name="text">
-         <string>Resortation</string>
+         <string>100T: off</string>
         </property>
        </widget>
       </item>
