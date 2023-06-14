@@ -457,7 +457,6 @@ class Automator:
                 time.sleep(sleep_time)
             else:
                 time.sleep(1)
-
     def start_keep_clicks(self):
         target_thread = self.keep_click
         thread_list = []
@@ -465,6 +464,6 @@ class Automator:
         thread_list.append(threading.Thread(target=target_thread, args=('kc/0', 0)))
         thread_list.append(threading.Thread(target=target_thread, args=('kc/2', 2)))
         thread_list.append(threading.Thread(target=target_thread, args=('kc/4', 4)))
-        thread_list.append(threading.Thread(target=target_thread, args=('kc/6', 6)))
+        thread_list.append(threading.Thread(target=target_thread, args=('kc/10', 10)))
         for t in thread_list:
             t.start()
