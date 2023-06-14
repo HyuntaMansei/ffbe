@@ -471,5 +471,6 @@ class Automator:
         thread_list.append(threading.Thread(target=target_thread, args=('kc/0', 0)))
         thread_list.append(threading.Thread(target=target_thread, args=('kc/2', 2)))
         thread_list.append(threading.Thread(target=target_thread, args=('kc/4', 4)))
+        thread_list.append(threading.Thread(target=target_thread, args=('kc/6', 6)))
         for t in thread_list:
             t.start()
