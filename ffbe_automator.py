@@ -195,10 +195,6 @@ class Automator:
 
         self.start_keep_clicks()
 
-        # target_thread = self.keep_click
-        # kc_thread = threading.Thread(target=target_thread)
-        # kc_thread.start()
-        #
         sorties = ['sortie','sortie2','sortie3']
         while self.running:
             self.init_time()
@@ -262,9 +258,7 @@ class Automator:
         self.log("Starting multi_client automation")
         targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3", "ready"]
 
-        target_thread = self.keep_click
-        kc_thread = threading.Thread(target=target_thread)
-        kc_thread.start()
+        self.start_keep_clicks()
 
         while self.running:
             self.locator.locate_and_click(targets)
