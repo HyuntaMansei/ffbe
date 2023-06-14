@@ -199,9 +199,13 @@ class Locator:
     def locate_dir(self, dir_path, trial_number=1, confidence = None):
         path = (self.img_path + dir_path + '/').replace("//", "/")
         base_path = (dir_path + '/').replace("//", "/")
-        files = os.listdir(path)
-        imgs_in_dir = [base_path + f for f in files]
-        return self.locate(imgs_in_dir, trial_number, confidence)
+        try:
+            files = os.listdir(path)
+            imgs_in_dir = [base_path + f for f in files]
+            return self.locate(imgs_in_dir, trial_number, confidence)
+        except:
+            print(f"No such dir: {dir_path}")
+            return None
     def locate_and_click_dir(self, dir_name, xy=None, trial_number=1, confidence=None):
         if confidence == None:
             confidence = self.confidence

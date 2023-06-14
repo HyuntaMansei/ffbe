@@ -23,9 +23,9 @@ class MyWidget(QtWidgets.QWidget):
         # Load the UI file
         uic.loadUi('ffbe_widget.ui', self)
         # variable settings
-        self.device_names = ['initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S"]
-        self.device_index_by_name = {'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
+        self.device_names = ['initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2']
+        self.device_index_by_name = {'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
         # Connect any signals and slots
         btn_list = self.findChildren(QtWidgets.QPushButton)
         for b in btn_list:
@@ -84,6 +84,8 @@ class MyWidget(QtWidgets.QWidget):
         self.device_initiated = True
     def find_device_name(self):
         for dn in self.device_names:
+            # except_device_list = ['SM-A826S']
+            # if not dn in except_device_list:
             hwnd = win32gui.FindWindow(None, dn)
             print(f"{dn} : {hwnd}")
             if hwnd > 0:

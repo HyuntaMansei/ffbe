@@ -36,19 +36,23 @@ class Automator:
         self.job = None
         self.running = False
         self.keep_click_running = False
+        print("Automator has made.")
     def set_msg_handlers(self, log=print, debug=print, error=print):
         self.log = log
         self.debug = debug
         self.error = error
     def set_window_and_device(self, window_name:str, device_type:str=None):
+        print("In def, set_window_and_device")
         self.init_device(window_name=window_name)
         self.device_type = device_type
     def set_job(self, job=None):
         self.job = job
     def set_user_params(self, rep_time, num_of_players, finish_button):
+        print("In def, set_user_params", end='')
         self.rep_time = rep_time
         self.num_of_players = num_of_players
         self.finish_button = finish_button
+        print(" >> Finished.")
     def init_automation_list(self):
         # Need to add code when add new automation
         self.automation_by_job = {}
@@ -189,10 +193,12 @@ class Automator:
         self.log("Starting multi automation")
         cnt = 0
 
-        target_thread = self.keep_click
-        kc_thread = threading.Thread(target=target_thread)
-        kc_thread.start()
+        self.start_keep_clicks()
 
+        # target_thread = self.keep_click
+        # kc_thread = threading.Thread(target=target_thread)
+        # kc_thread.start()
+        #
         sorties = ['sortie','sortie2','sortie3']
         while self.running:
             self.init_time()
@@ -430,28 +436,40 @@ class Automator:
         # Extract the names of the methods
         method_names = [name for name, _ in methods]
         print(method_names)
-    def list_all_methos(self):
-        # Get all the methods of the class
-        methods = inspect.getmembers(self, predicate=inspect.ismethod)
-        # Extract the names of the methods
-        method_names = [name for name, _ in methods]
-        print(method_names)
     def pre_automation_processing(self):
         win32gui.SetForegroundWindow(self.my_hwnd)
-    def keep_click(self, target_dir:str=None):
+    def keep_click(self, target_dir:str=None, sleep_time=None):
         self.debug("Func, keep_click, starts now")
         if target_dir == None:
             target_dir = 'kc'
-        self.locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
-        self.locator_kc.load_conf(self.device_type)
-        self.locator_kc.confidence = self.confidence
-        self.locator_kc.connect_click_method(self.my_device.input_tap)
+        if sleep_time == None:
+            sleep_time = 1
+
+        locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
+        locator_kc.load_conf(self.device_type)
+        locator_kc.confidence = self.confidence
+        locator_kc.connect_click_method(self.my_device.input_tap)
 
         self.keep_click_running = True
         while self.running:
             if self.keep_click_running:
-                self.locator_kc.locate_and_click_dir(target_dir)
+                locator_kc.locate_and_click_dir(target_dir)
+            elif sleep_time == 0:
+                locator_kc.locate_and_click_dir(target_dir)
             else:
-                self.debug("Skip keep_click loop")
-                time.sleep(5)
-            time.sleep(1)
+                self.debug(f"[sleep_time: {sleep_time}]: Skip keep_click loop")
+                time.sleep(5*sleep_time)
+            if not sleep_time == 0:
+                time.sleep(sleep_time)
+            else:
+                time.sleep(1)
+
+    def start_keep_clicks(self):
+        target_thread = self.keep_click
+        thread_list = []
+        thread_list.append(threading.Thread(target=target_thread, args=('kc/1', 1)))
+        thread_list.append(threading.Thread(target=target_thread, args=('kc/0', 0)))
+        thread_list.append(threading.Thread(target=target_thread, args=('kc/2', 2)))
+        thread_list.append(threading.Thread(target=target_thread, args=('kc/4', 4)))
+        for t in thread_list:
+            t.start()
