@@ -42,9 +42,9 @@ class Automator:
         self.log = log
         self.debug = debug
         self.error = error
-    def set_window_and_device(self, window_name:str, device_type:str=None):
+    def set_window_and_device(self, window_name:str, window_hwnd:str=None, device_type:str=None, device_serial:str=None):
         print("In def, set_window_and_device")
-        self.init_device(window_name=window_name)
+        self.init_device(window_name=window_name, window_hwnd=window_hwnd, device_serial=device_serial)
         self.device_type = device_type
     def set_job(self, job=None):
         self.job = job
@@ -67,24 +67,34 @@ class Automator:
                 self.automation_by_job[m] = getattr(self, m)
             else:
                 self.automation_by_job['play_'+m] = getattr(self, m)
-    def init_device(self, window_name:str=None):
+    def init_device(self, window_name:str=None, window_hwnd:str=None, device_serial:str=None):
+        print(f"In def, init_device")
+        if window_hwnd:
+            self.my_hwnd = int(window_hwnd)
+        else:
+            self.my_hwnd = win32gui.FindWindow(None, window_name)
         self.my_client = AdbClient()
         self.my_device = None
         for dev in self.my_client.devices():
             # Get the device properties
-            properties = dev.get_properties()
+            device_name = dev.get_properties()["ro.product.model"].strip()
             # Retrieve the device name
-            device_name = properties["ro.product.model"]
             if device_name == window_name:
-                self.my_device = dev
-                self.sc_off()
+                if device_serial:
+                    print(f"{device_serial} and {dev.serial}")
+                    if device_serial == dev.serial:
+                        self.my_device = dev
+                        # self.sc_off()
+                        break
+                else:
+                    self.my_device = dev
+                    # self.sc_off()
                 # self.my_device.shell("settings put system screen_brightness 0")
-                break
             self.my_device = self.my_client.devices()[0]
-        self.my_hwnd = win32gui.FindWindow(None, window_name)
         self.debug(f"With window name {window_name}, found device: {self.my_device} and hwnd: {self.my_hwnd}.")
     def init_internal_vars(self):
         self.confidence = 0.95
+        self.sleep_mul = 5
     def init_other(self):
         self.stop_watch_started = False
         self.init_automation_list()
@@ -233,12 +243,12 @@ class Automator:
                 # Recover Stamina if needed
                 if self.locator.locate('short_of_stamina'):
                     self.recover_stamina()
-
+                time.sleep(self.sleep_mul)
             self.debug("\n'Auto' is located. In battle stage")
             self.timer.restart()
             targets = ['organize']
             while (not self.locator.locate(targets)) and self.running:
-                time.sleep(1)
+                time.sleep(self.sleep_mul*5)
             # after battle stage
             self.debug("After battle stage")
             cnt += 1
@@ -262,28 +272,99 @@ class Automator:
         while self.running:
             self.locator.locate_and_click(targets)
             time.sleep(1)
+    def play_multi_client_any(self):
+        self.running = True
+        cnt = 0
+        self.log("Starting multi_client automation")
+        targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3", "ready"]
+
+        self.start_keep_clicks()
+
+        while self.running:
+            self.locator.locate_and_click(targets)
+            time.sleep(1)
+    def play_hardship(self):
+        self.locator.confidence = 0.98
+        rep_time = self.rep_time
+        num_of_players = self.num_of_players
+        finish_button = self.finish_button
+        self.running = True
+        self.time_limit = 1200
+        self.log("Starting hardship automation")
+        cnt = 0
+
+        self.start_keep_clicks()
+
+        sorties = ['sortie','sortie2','sortie3']
+        autos = ['auto','auto_hardship']
+        while True:
+            self.timer.restart()
+            self.debug(f"Before battle stage.")
+            while (not self.locator.locate('companion')) and self.running:
+                time.sleep(5)
+            self.debug(f"Companion located.")
+            while (not self.locator.locate(autos)) and self.running:
+                print("Trying to locating auto")
+                if not self.locator.locate('no_companion'):
+                    self.locator.locate_and_click(sorties)
+                time.sleep(4)
+            self.debug("Auto located. In battle stage")
+            while (not self.locator.locate('back_to_sortie_sc')) and self.running:
+                self.locator.locate_and_click(sorties)
+                time.sleep(5)
+            # after battle stage
+            self.debug("After battle stage")
+            cnt += 1
+            self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
+            self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
+            while (not self.locator.locate(sorties)) and self.running:
+                self.locator.locate_and_click('back_to_sortie_sc')
+                time.sleep(2)
+            if not self.running:
+                self.log("Aborting automation")
+                break
+            if cnt >= rep_time:
+                self.log("Automation completed. Exiting.")
+                finish_button.click()
+                break
     def play_raid(self):
         self.pre_automation_processing()
+        self.locator.confidence = 0.98
         rep_time = self.rep_time
+        num_of_players = self.num_of_players
+        finish_button = self.finish_button
         self.running = True
-        self.log("Starting single raid automation")
+        self.time_limit = 600
+        self.log("Starting solo RAID automation")
         self.log(f"path: {self.automation_path}")
-        cnt = 0
+
+        self.start_keep_clicks()
+
+        cnt=0
         while self.running:
             self.debug("In play_raid, location A")
             # while not self.my_locator.locate('auto'):
-            while (self.locator.locate('auto') == None) and self.running:
-                self.locator.locate_and_click('sortie')
-                self.locator.locate_and_click('next_raid')
-                self.locator.locate_and_click('next')
-                self.locator.locate_and_click('end_of_quest')
-                self.locator.locate_and_click('try')
-                self.locator.locate_and_click('ok')
+            while (not self.locator.locate('auto')) and self.running:
+                self.locator.locate_and_click('challenge')
+                if self.locator.locate('get_reward'):
+                    finish_button.click()
+                    self.log(f"Automation completed.")
+                    break
+                time.sleep(5)
             self.log("In battle stage.")
-            while (not self.locator.locate('end_of_quest')) and self.running:
-                pass
+            self.timer.restart()
+            while (not self.locator.locate('challenge')) and self.running:
+                time.sleep(5)
             cnt += 1
-            self.log(f"Completed {cnt} times. {rep_time-cnt} times left.")
+            self.log(f"Completed {cnt} and {rep_time-cnt} left.")
+            self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
+            if not self.running:
+                self.log("Aborting automation")
+                break
+            if cnt >= rep_time:
+                self.log(f"Automation completed.")
+                finish_button.click()
+                break
     def play_raid_host2(self):
         rep_time = self.rep_time
         self.running = True
@@ -379,7 +460,10 @@ class Automator:
             cnt += 1
             self.log(f"Completed {cnt} and left {rep_time-cnt} times")
             self.log(f"Elapsed_time: {time.strftime('%M:%S', time.gmtime(self.timer.click()))}")
-            if cnt >= rep_time:
+            while self.running and (not self.locator.locate("sortie2")):
+                self.locator.locate_and_click('end_of_quest')
+                time.sleep(1)
+            if cnt >= rep_time and self.running:
                 self.log("Automation completed. Exit now.")
                 finish_button.click()
                 break
@@ -404,21 +488,36 @@ class Automator:
         if (finish_button != None) and self.running:
             finish_button.click()
     def skip_battle(self):
+        self.pre_automation_processing()
+        self.locator.confidence = 0.98
+        rep_time = self.rep_time
+        num_of_players = self.num_of_players
+        finish_button = self.finish_button
         self.running = True
+        self.time_limit = 600
+        self.log("Starting solo RAID automation")
+        self.log(f"path: {self.automation_path}")
+
+        self.start_keep_clicks()
+
         self.log("Starting skip battle automation")
         self.log(f"path: {self.automation_path}")
-        rep_time = self.rep_time
-        cnt = 0
+        cnt=0
         while self.running:
-            targets = ["skip_battle", "decide"]
-            while (not self.locator.locate("ok")) and self.running:
+            targets = ["skip_battle"]
+            while (not self.locator.locate("end_of_quest")) and self.running:
                 self.locator.locate_and_click(targets)
+                time.sleep(3)
             cnt += 1
-            self.debug(f"Battle Skipped. {cnt} times. {rep_time-cnt} left.")
-            targets2 = ["x", "ok", "ok2", "next", "end_of_quest", ]
+            self.log(f"Battle Skipped. {cnt} times. {rep_time-cnt} left.")
+            targets2 = ["end_of_quest"]
             while (not self.locator.locate("skip_battle")) and self.running:
                 self.locator.locate_and_click(targets2)
+                time.sleep(3)
             if cnt >= rep_time:
+                self.log("Automation Completed.")
+                # self.running = False
+                finish_button.click()
                 break
     def recover_stamina(self, recover_cnt=8):
         # Recovering
@@ -490,7 +589,12 @@ class Automator:
                 time.sleep(sleep_time)
             else:
                 time.sleep(1)
-    def start_keep_clicks(self):
+    def start_keep_clicks(self, sleep_mul=None):
+        if sleep_mul == None:
+            if self.sleep_mul != None:
+                sleep_mul = self.sleep_mul
+            else:
+                sleep_mul = 1
         target_thread = self.keep_click
         thread_list = []
         # Specify the directory path
@@ -504,10 +608,10 @@ class Automator:
             except:
                 print(f"s in not number, continue.")
                 continue
-            thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, sd)))
+            thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, sd*sleep_mul)))
             print(f"Making Keep_click thread for {s}")
         if thread_list == []:
-            thread_list.append(threading.Thread(target=target_thread))
+            thread_list.append(threading.Thread(target=target_thread, args=('kc', sleep_mul)))
             print(f"Making Keep_click thread as basic directory")
         for t in thread_list:
             t.start()

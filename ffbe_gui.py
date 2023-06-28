@@ -1,6 +1,3 @@
-import time
-
-import PyQt5.QtWidgets
 import win32gui
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QScrollArea, QLabel, QTextEdit, QComboBox, QLineEdit, QPlainTextEdit, QTextBrowser, QSizePolicy
@@ -9,34 +6,64 @@ from PyQt5 import QtWidgets, uic
 import sys
 import ffbe_automator
 import threading
-
+import pygetwindow as gw
+from ppadb.client import Client as AdbClient
 class MsgEvent(QEvent):
     def __init__(self):
         super().__init__(QEvent.User)
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        self.init_preparation()
         self.init_ui()
+        self.init_device_list()
         self.init_msg_boxes()
         self.init_others()
-    def init_ui(self):
-        # Load the UI file
-        uic.loadUi('ffbe_widget.ui', self)
+
+    def init_preparation(self):
         # variable settings
         self.device_names = ['initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2']
         self.device_index_by_name = {'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
+    def init_device_list(self):
+        self.connected_device_name_and_handle = [] #(name, hwnd)
+        self.connected_device_name_and_serial = [] #(name, serial, device)
+        windows = gw.getAllWindows()
+        for window in windows:
+            # print(f"HWND: {window._hWnd} and Window Name: {window.title}")
+            if window.title in self.device_names:
+                self.connected_device_name_and_handle.append((window.title, window._hWnd))
+        print("Connected Devices: ", self.connected_device_name_and_handle)
+        # Connect to the ADB server
+        adb = AdbClient(host="127.0.0.1", port=5037)
+        # Get the device list
+        devices = adb.devices()
+        # Print the serial numbers and names of connected devices
+        for device in devices:
+            device_name = device.shell("getprop ro.product.model").strip()
+            self.connected_device_name_and_serial.append((device_name, device.serial, device))
+        print("Connected Devices(name and serial): ",self.connected_device_name_and_serial)
+        self.cb_device_type.clear()
+        self.cb_device_serial.clear()
+        self.cb_window_name.clear()
+        self.cb_window_hwnd.clear()
+        for t in self.device_types:
+            self.cb_device_type.addItem(t)
+        for nh in self.connected_device_name_and_handle:
+            self.cb_window_name.addItem(nh[0])
+            self.cb_window_hwnd.addItem(str(nh[1]))
+        for ns in self.connected_device_name_and_serial:
+            self.cb_device_serial.addItem(ns[1])
+
+    def init_ui(self):
+        # Load the UI file
+        uic.loadUi('ffbe_widget.ui', self)
         # Connect any signals and slots
         btn_list = self.findChildren(QtWidgets.QPushButton)
         for b in btn_list:
             b.clicked.connect(self.on_button_clicked)
-
-        self.cb_device_type = self.findChild(QObject, 'cb_device_type')
-        for t in self.device_types:
-            self.cb_device_type.addItem(t)
-        self.cb_window_name = self.findChild(QObject, 'cb_window_name')
-        for n in self.device_names:
-            self.cb_window_name.addItem(n)
+        # Connect the slot function to the currentTextChanged signal
+        self.cb_window_name.currentTextChanged.connect(self.on_cb_window_name_text_changed)
         self.le_rep = self.findChild(QLineEdit, 'le_rep')
         self.le_rep.setText("300")
         self.le_players = self.findChild(QLineEdit, 'le_players')
@@ -68,7 +95,7 @@ class MyWidget(QtWidgets.QWidget):
         self.error_widget.showMinimized()
     def init_others(self):
         self.device_initiated = False
-        self.move(1100,800)
+        self.move(300,800)
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
         # if event.eventType() == MsgEvent.Type:
@@ -78,19 +105,37 @@ class MyWidget(QtWidgets.QWidget):
         else:
             return super().event(event)
     def set_device_name_and_type(self):
-        self.device_name = self.find_device_name()
-        self.cb_window_name.setCurrentText(self.device_name)
-        self.cb_device_type.setCurrentIndex(self.device_index_by_name[self.device_name])
+        self.init_device_list()
+        device_name = self.find_device_name()
+        self.cb_window_name.setCurrentText(device_name)
         self.device_initiated = True
     def find_device_name(self):
-        for dn in self.device_names:
-            # except_device_list = ['SM-A826S']
-            # if not dn in except_device_list:
-            hwnd = win32gui.FindWindow(None, dn)
-            print(f"{dn} : {hwnd}")
-            if hwnd > 0:
-                return dn
-        return None
+        try:
+            return self.connected_device_name_and_handle[0][0]
+        except:
+            return None
+        # for dn in self.device_names:
+        #     # except_device_list = ['SM-A826S']
+        #     # if not dn in except_device_list:
+        #     hwnd = win32gui.FindWindow(None, dn)
+        #     print(f"{dn} : {hwnd}")
+        #     if hwnd > 0:
+        #         return dn
+    def get_hwnd_by_name(self, device_name):
+        hwnd = None
+        for nh in self.connected_device_name_and_handle:
+            if nh[0] == device_name:
+                hwnd = nh[1]
+                break
+        print(f"Found hwnd: {hwnd}")
+        return hwnd
+    def get_serial_by_name(self, device_name):
+        serial = None
+        for ns in self.connected_device_name_and_serial:
+            if ns[0] == device_name:
+                serial = ns[1]
+                break
+        return serial
     def find_device_index_by_name(self, device_name):
         try:
             index = self.device_index_by_name[device_name]
@@ -118,9 +163,19 @@ class MyWidget(QtWidgets.QWidget):
                 self.start_automator(sender_name=sender_name, btn_text=btn_text)
                 found = True
             except:
-                self.error(f"Something Wrong here in on_button_clicked. Btn Clicked: {btn_text}.")
+                self.error(f"Something Wrong here in on_button_clicked. Btn Clicked: {btn_text}")
                 found = False
         return found
+    def on_cb_window_name_text_changed(self, text):
+        #hwnd, device_type, serial
+        device_name = text
+        try:
+            self.cb_window_hwnd.setCurrentText(str(self.get_hwnd_by_name(device_name)))
+            self.cb_device_type.setCurrentIndex(self.device_index_by_name[device_name])
+            self.cb_device_serial.setCurrentText(self.get_serial_by_name(device_name))
+        except:
+            self.error("Error in on_cb_window_name_text_changed")
+        print("Text changed:", text)
     def start_automator(self, sender_name=None, btn_text=None):
         base_text = btn_text.split(':')[0]
         on_text = base_text + ': on'
@@ -133,7 +188,7 @@ class MyWidget(QtWidgets.QWidget):
         else:
             self.automator = ffbe_automator.Automator()
             self.automator.set_msg_handlers(log=self.log, debug=self.debug, error=self.error)
-            self.automator.set_window_and_device(window_name=self.window_name, device_type=self.device_type)
+            self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
                                            finish_button=self.sender())
@@ -144,8 +199,11 @@ class MyWidget(QtWidgets.QWidget):
             if 'off' == btn_text.split()[-1]:
                 self.sender().setText(on_text)
     def set_params(self):
-        self.device_type = self.cb_device_type.currentText()
         self.window_name = self.cb_window_name.currentText()
+        self.window_hwnd = self.cb_window_hwnd.currentText()
+        self.device_type = self.cb_device_type.currentText()
+        self.device_serial = self.cb_device_serial.currentText()
+        print(f"Setting parameters: ", self.window_name, self.window_hwnd, self.device_type, self.device_serial)
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
     def log(self, msg:str):
