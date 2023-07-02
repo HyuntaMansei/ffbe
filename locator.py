@@ -16,12 +16,15 @@ class Locator:
         self.log = log
         self.error = error
         self.sct = mss.mss()
+        self.sec_path = None
         self.basic_init(path, confidence)
         if hwnd != None:
             self.size_init(hwnd)
         th_rect_checker = threading.Thread(target=self.rect_checker)
         th_rect_checker.start()
         print("---End of Initializing Locator---")
+    def set_secondary_path(self, path):
+        self.sec_path = path
     def basic_init(self, path, confidence=0.95, waiting_time=10):
         print("In basic_init of Locator")
         self.confidence = confidence
@@ -48,6 +51,7 @@ class Locator:
         self.img_path = img_path
         if (self.img_path[-1] != "/") and (self.img_path[-1] != "\\"):
             self.img_path += "/"
+        self.sec_path = img_path
     def size_init(self, hwnd=None, window_text=None, rect=None):
         print("In size_init")
         if rect != None:
@@ -74,11 +78,17 @@ class Locator:
     def get_path(self, img_name:str):
         if img_name[-4:] != '.png':
             img_path = self.img_path + img_name + '.png'
+            sec_img_path = self.sec_path + img_name + '.png'
         else:
             img_path = self.img_path + img_name
+            sec_img_path = self.sec_path + img_name
         if os.path.exists(img_path) == False:
-            self.debug(f"No such file: {img_path}")
-            return False
+            if os.path.exists(sec_img_path) == False:
+                self.debug(f"No such file: {img_path}")
+                return False
+            else:
+                self.debug(f"Using sec_path for img: {sec_img_path}")
+                return sec_img_path
         return img_path
     def locate_by_folder(self, folder_name:str, confidence=None):
         ret_value = None
@@ -107,6 +117,7 @@ class Locator:
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
             try:
                 img_path = self.get_path(img_name)
+                # self.debug(f"Img path: {img_path}")
                 if img_path:
                     loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
                 else:
@@ -117,7 +128,7 @@ class Locator:
                 # print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
                 # print("Saving sc.png")
                 # pil_img.save('sc.png')
-                self.debug(f"Successfully located: {img_name} at {loc}")
+                # self.debug(f"Successfully located: {img_name} at {loc}")
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
         # self.debug(f"Failed to locate {img_name}.")
         return None

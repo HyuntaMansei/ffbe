@@ -48,11 +48,12 @@ class Automator:
         self.device_type = device_type
     def set_job(self, job=None):
         self.job = job
-    def set_user_params(self, rep_time, num_of_players, finish_button):
+    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5):
         print("In def, set_user_params", end='')
         self.rep_time = rep_time
         self.num_of_players = num_of_players
         self.finish_button = finish_button
+        self.sleep_mul = sleep_multiple
         print(" >> Finished.")
     def init_automation_list(self):
         # Need to add code when add new automation
@@ -99,6 +100,7 @@ class Automator:
         self.stop_watch_started = False
         self.init_automation_list()
         self.timer = Timer()
+        self.limit_timer = Timer()
     # From here, called from start_automation
     def set_img_base_path(self):
         device_type = self.device_type
@@ -114,6 +116,7 @@ class Automator:
         else:
             self.error(f"No such device type: {device_type}")
             return False
+        self.secondary_img_path = self.automation_path + 'images/'
         return True
     def create_locator(self):
         self.debug("Starting: def init_locator")
@@ -122,6 +125,7 @@ class Automator:
         self.automation_path += job.replace('play_', '') + '/'
         self.debug(f"Locator Path: {self.automation_path}")
         self.locator = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
+        self.locator.set_secondary_path(self.secondary_img_path)
         self.locator.load_conf(self.device_type)
         self.locator.confidence = self.confidence
         self.time_limit = 300
@@ -265,24 +269,49 @@ class Automator:
         self.running = True
         cnt = 0
         self.log("Starting multi_client automation")
-        targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3", "ready"]
-
         self.start_keep_clicks()
 
+        targets = ["cancel_ready", "exit_room"]
         while self.running:
-            self.locator.locate_and_click(targets)
-            time.sleep(1)
+            self.timer.restart()
+            while(not self.locator.locate('auto')) and self.running:
+                time.sleep(10)
+            self.debug("In battle stage.")
+            while(not self.locator.locate('cancel_ready')) and self.running:
+                time.sleep(10)
+            cnt += 1
+            self.debug("After battle stage.")
+            self.log(f"Completed {cnt} times.")
     def play_multi_client_any(self):
         self.running = True
         cnt = 0
         self.log("Starting multi_client automation")
-        targets = ["cancel", "go_back", "next", "ok", "ok2", "ok3", "ready"]
-
         self.start_keep_clicks()
-
+        cnt = 0
+        targets = ['cancel_ready', 'exit_room', 'ok', 'x']
+        targets2 = ['refresh', 'recruit_list']
         while self.running:
-            self.locator.locate_and_click(targets)
-            time.sleep(1)
+            self.timer.restart()
+            self.limit_timer.restart()
+            while(not self.locator.locate('auto')) and self.running:
+                time.sleep(10)
+                limit_time = int(self.limit_timer.click())
+                print(f"Limit_timer: {limit_time}")
+                if limit_time > 120:
+                    print("In exit code")
+                    self.keep_click_running = False
+
+                    while (not self.locator.locate(targets2)) and (not self.locator.locate('auto')) and self.running:
+                        self.locator.locate_and_click(targets)
+                        time.sleep(3)
+                    self.keep_click_running = True
+                    self.limit_timer.restart()
+            self.debug("In battle stage.")
+            while(not self.locator.locate('cancel_ready')) and self.running:
+                time.sleep(10)
+            cnt += 1
+            self.debug("After battle stage.")
+            self.log(f"Completed {cnt} times.")
     def play_hardship(self):
         self.locator.confidence = 0.98
         rep_time = self.rep_time
@@ -565,12 +594,12 @@ class Automator:
     def pre_automation_processing(self):
         win32gui.SetForegroundWindow(self.my_hwnd)
     def keep_click(self, target_dir:str=None, sleep_time=None):
-        self.debug("Func, keep_click, starts now")
         if target_dir == None:
             target_dir = 'kc'
         if sleep_time == None:
             sleep_time = 1
 
+        # self.debug(f"Func, keep_click, starts now. Img_dir: {self.automation_path+target_dir}")
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
         locator_kc.load_conf(self.device_type)
         locator_kc.confidence = self.confidence
@@ -608,7 +637,10 @@ class Automator:
             except:
                 print(f"s in not number, continue.")
                 continue
-            thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, sd*sleep_mul)))
+            if sd != 0:
+                thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, sd*sleep_mul)))
+            else:
+                thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, 1*sleep_mul)))
             print(f"Making Keep_click thread for {s}")
         if thread_list == []:
             thread_list.append(threading.Thread(target=target_thread, args=('kc', sleep_mul)))

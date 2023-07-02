@@ -68,6 +68,7 @@ class MyWidget(QtWidgets.QWidget):
         self.le_rep.setText("300")
         self.le_players = self.findChild(QLineEdit, 'le_players')
         self.le_players.setText("4")
+        self.le_sleep_multiple.setText("4")
         self.show()
     def init_msg_boxes(self):
         self.log_list = []
@@ -79,6 +80,7 @@ class MyWidget(QtWidgets.QWidget):
         self.log_widget.setWindowTitle("Log")
         self.log_widget.show()
         self.log_widget.move(1500,300)
+        self.log_widget.showMinimized()
 
         self.debug_widget = Output_Widget(1000,600)
         self.obj_debug = self.debug_widget.obj_output
@@ -191,7 +193,7 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
-                                           finish_button=self.sender())
+                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple)
             print("Starting automator thread")
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
@@ -206,6 +208,7 @@ class MyWidget(QtWidgets.QWidget):
         print(f"Setting parameters: ", self.window_name, self.window_hwnd, self.device_type, self.device_serial)
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
+        self.sleep_multiple = int(self.le_sleep_multiple.text())
     def log(self, msg:str):
         self.log_list.append(msg)
         msg_event = MsgEvent()
