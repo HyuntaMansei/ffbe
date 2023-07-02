@@ -288,7 +288,7 @@ class Automator:
         self.log("Starting multi_client automation")
         self.start_keep_clicks()
         cnt = 0
-        targets = ['cancel_ready', 'exit_room', 'ok', 'x']
+        targets = ['cancel_ready', 'exit_room', 'ok', 'x', 'next']
         targets2 = ['refresh', 'recruit_list']
         while self.running:
             self.timer.restart()
@@ -297,7 +297,7 @@ class Automator:
                 time.sleep(10)
                 limit_time = int(self.limit_timer.click())
                 print(f"Limit_timer: {limit_time}")
-                if limit_time > 120:
+                if limit_time > 600:
                     print("In exit code")
                     self.keep_click_running = False
 
