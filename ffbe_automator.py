@@ -169,8 +169,20 @@ class Automator:
             # 퀘스트 자동 진행
             self.debug("Before battle, trying to click sortie")
             while (not self.locator.locate('auto')) and self.running:
-                if self.locator.locate_and_click_dir(is_dir_path, xy='top_quest'):
-                    time.sleep(4)
+                if self.locator.locate_dir(is_dir_path):
+                    if self.locator.locate('scene3_selected'):
+                        self.locator.click(xy='top_quest')
+                        time.sleep(2)
+                    elif self.locator.locate_and_click('scene3_unselected'):
+                        time.sleep(2)
+                        self.locator.click(xy='top_quest')
+                        time.sleep(2)
+                    elif self.locator.locate_and_click('scene2_unselected'):
+                        time.sleep(2)
+                        self.locator.click(xy='top_quest')
+                        time.sleep(2)
+                if self.locator.locate_and_click_all_dir(is_dir_path, target='top_quest'):
+                     time.sleep(4)
                 if not self.locator.locate('sortie'):
                     self.locator.click('story_skip1')
                     self.locator.click('story_skip2')
@@ -593,7 +605,7 @@ class Automator:
         print(method_names)
     def pre_automation_processing(self):
         win32gui.SetForegroundWindow(self.my_hwnd)
-    def keep_click(self, target_dir:str=None, sleep_time=None):
+    def keep_click(self, target_dir:str=None, sleep_time=None, keep_awake = False):
         if target_dir == None:
             target_dir = 'kc'
         if sleep_time == None:
@@ -607,17 +619,13 @@ class Automator:
 
         self.keep_click_running = True
         while self.running:
-            if self.keep_click_running:
-                locator_kc.locate_and_click_dir(target_dir)
-            elif sleep_time == 0:
-                locator_kc.locate_and_click_dir(target_dir)
-            else:
-                self.debug(f"[sleep_time: {sleep_time}]: Skip keep_click loop")
-                time.sleep(5*sleep_time)
-            if not sleep_time == 0:
+            if self.keep_click_running or keep_awake:
+                print(f"Keep click for {target_dir}")
+                locator_kc.locate_and_click_all_dir(target_dir)
                 time.sleep(sleep_time)
             else:
-                time.sleep(1)
+                print(f"[sleep_time: {sleep_time}]: Skip keep_click loop for {target_dir}")
+                time.sleep(5*sleep_time)
     def start_keep_clicks(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
@@ -633,15 +641,15 @@ class Automator:
         print(f"Subdirectories: {subdirectories}")
         for s in subdirectories:
             try:
-                sd = int(s)
+                sd = float(s)
             except:
                 print(f"s in not number, continue.")
                 continue
             if sd != 0:
                 thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, sd*sleep_mul)))
             else:
-                thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, 1*sleep_mul)))
-            print(f"Making Keep_click thread for {s}")
+                thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, 1*sleep_mul, True)))
+            print(f"Making Keep_click thread for {s} with sleep time: {sd*sleep_mul}")
         if thread_list == []:
             thread_list.append(threading.Thread(target=target_thread, args=('kc', sleep_mul)))
             print(f"Making Keep_click thread as basic directory")

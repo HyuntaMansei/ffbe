@@ -30,6 +30,7 @@ class Locator:
         self.confidence = confidence
         self.sltime_before_click = 0.1
         self.sltime_after_click = 0.1
+        self.multi_click_interval = 1
         self.set_path(path)
         self.trial_number = waiting_time
         self.click_on_device = None
@@ -70,11 +71,15 @@ class Locator:
         print("End of size_init")
     def rect_checker(self):
         while True:
-            new_rect = win32gui.GetWindowRect(self.hwnd)
-            if self.cur_rect != new_rect:
-                self.debug("Resizing rect")
-                self.size_init(self.hwnd)
-            time.sleep(2)
+            try:
+                new_rect = win32gui.GetWindowRect(self.hwnd)
+                if self.cur_rect != new_rect:
+                    self.debug("Resizing rect")
+                    self.size_init(self.hwnd)
+                time.sleep(2)
+            except:
+                self.error("Fail to find window. Exiting.")
+                # exit signal 보내기.
     def get_path(self, img_name:str):
         if img_name[-4:] != '.png':
             img_path = self.img_path + img_name + '.png'
@@ -103,11 +108,11 @@ class Locator:
             confidence = self.confidence
         # especially for list of images
         if type(img_name) == list:
-            self.debug(f"Multiple images locating: {img_name}.")
+            # self.debug(f"Multiple images locating: {img_name}.")
             for i in img_name:
                 res = self.locate(i, trial_number, confidence)
                 if res != None:
-                    self.debug(f"Successfully located: {img_name} at {res}")
+                    self.debug(f"Successfully located: {i} at {res}")
                     return res
             # self.debug(f"Failed to locate {img_name}.")
             return None
@@ -132,6 +137,26 @@ class Locator:
                 return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
         # self.debug(f"Failed to locate {img_name}.")
         return None
+    def locate_all(self, img_list):
+        if not win32gui.IsWindowVisible(self.hwnd):
+            self.error("Window is not visible. return None")
+            return None
+        if self.confidence == None:
+            self.error("Confidence is not set yet. return None")
+            return None
+        # especially for list of images and returns list of locations
+        self.debug(f"Locating all: {img_list}")
+        loc_list = []
+        for i in img_list:
+            res = self.locate(i)
+            if res != None:
+                self.debug(f"Successfully located: {i} at {res}")
+                loc_list.append(res)
+        if loc_list:
+            return loc_list
+        else:
+            # self.debug(f"Failed to locate {img_name}.")
+            return None
     def locate_on_screen(self, img_name, confidence = None):
         if confidence == None:
             confidence = self.confidence
@@ -146,7 +171,7 @@ class Locator:
         if self.click_on_device != None:
             x, y = win32gui.ScreenToClient(self.hwnd, xy)
             xy = (x-self.real_cli_x0, y-self.real_cli_y0)
-            print(f"clicking as device xy: {xy}")
+            # print(f"clicking as device xy: {xy}")
             self.click_on_device(xy[0], xy[1])
             time.sleep(self.sltime_after_click)
         else:
@@ -171,18 +196,18 @@ class Locator:
                     return False
         loc = win32gui.ClientToScreen(self.hwnd, xy)
         return self.click_on_screen(loc)
-    def locate_and_click(self, img_name, xy=None, trial_number = 1, confidence = None):
+    def locate_and_click(self, img_name, target=None, trial_number = 1, confidence = None):
         if confidence == None:
             confidence = self.confidence
         for count in range(trial_number):
             loc = self.locate_on_screen(img_name, confidence=confidence)
             if loc != None:
-                if xy == None:
-                    self.debug(f"Clicking {img_name} & Loc:{loc}, ")
+                if target == None:
+                    self.debug(f"Clicking {img_name} and Loc:{loc}, ")
                     return self.click_on_screen(loc)
                 else:
-                    self.debug(f"Clicking coordinate: {xy}")
-                    return self.click(xy)
+                    self.debug(f"Clicking coordinate: {target}")
+                    return self.click(target)
         return None
     def set_coor_file_path(self, file_name):
         self.coor_file_path = self.img_path + file_name
@@ -207,34 +232,70 @@ class Locator:
             self.read_coordinates(self.coor_file_path)
         else:
             return False
-    def locate_dir(self, dir_path, trial_number=1, confidence = None):
+    def locate_dir(self, dir_path):
         path = (self.img_path + dir_path + '/').replace("//", "/")
         base_path = (dir_path + '/').replace("//", "/")
         try:
             files = os.listdir(path)
             imgs_in_dir = [base_path + f for f in files]
-            return self.locate(imgs_in_dir, trial_number, confidence)
+            return self.locate(imgs_in_dir)
         except:
             print(f"No such dir: {dir_path}")
             return None
-    def locate_and_click_dir(self, dir_name, xy=None, trial_number=1, confidence=None):
-        if confidence == None:
-            confidence = self.confidence
-        for count in range(trial_number):
-            loc = self.locate_on_screen_dir(dir_name, confidence=confidence)
-            if loc != None:
-                if xy == None:
-                    self.debug(f"Clicking {dir_name} & Loc:{loc}, ")
-                    return self.click_on_screen(loc)
-                else:
-                    self.debug(f"Clicking coordinate: {xy}")
-                    return self.click(xy)
-        return None
-    def locate_on_screen_dir(self, dir_path, confidence=None):
-        if confidence == None:
-            confidence = self.confidence
-        loc = self.locate_dir(dir_path, confidence=confidence)
-        if loc != None:
-            return (self.client_xy0[0]+loc[0], self.client_xy0[1]+loc[1])
+
+    def locate_all_dir(self, dir_path):
+        path = (self.img_path + dir_path + '/').replace("//", "/")
+        base_path = (dir_path + '/').replace("//", "/")
+        try:
+            files = os.listdir(path)
+            imgs_in_dir = [base_path + f for f in files]
+            return self.locate_all(imgs_in_dir)
+        except:
+            print(f"No such dir: {dir_path}")
+            return None
+    def locate_and_click_all_dir(self, dir_name, target=None):
+        click_interval = self.multi_click_interval
+        path = (self.img_path + dir_name + '/').replace("//", "/")
+        base_path = (dir_name + '/').replace("//", "/")
+        # try:
+        files = os.listdir(path)
+        imgs_in_dir = [base_path + f for f in files]
+        res_list = []
+        res = None
+        for img in imgs_in_dir:
+            if target:
+                res = self.locate_and_click(img, target=target)
+            else:
+                res = self.locate_and_click(img)
+            if res:
+                res_list.append(res)
+                time.sleep(click_interval)
+        if res_list != []:
+            return res_list
+        else:
+            return None
+        # except:
+        #     print(f"No such dir: {dir_name}")
+        #     return None
+    # def locate_and_click_all_dir(self, dir_name, target=None):
+    #     click_interval = self.multi_click_interval
+    #     loc_on_screen_list = self.locate_on_screen_all_dir(dir_name)
+    #     if loc_on_screen_list != None:
+    #         if target == None:
+    #             self.debug(f"Clicking {dir_name} & Loc:{loc_on_screen_list}")
+    #             res_list = []
+    #             for loc in loc_on_screen_list:
+    #                 res_list.append(self.click_on_screen(loc))
+    #                 time.sleep(click_interval)
+    #             return res_list
+    #         else:
+    #             self.debug(f"Clicking coordinate: {target}")
+    #             return self.click(target)
+    #     return None
+    def locate_on_screen_all_dir(self, dir_path):
+        loc_list = self.locate_all_dir(dir_path)
+        if loc_list != None:
+            loc_on_screen_list = [(self.client_xy0[0] + loc[0], self.client_xy0[1] + loc[1]) for loc in loc_list]
+            return loc_on_screen_list
         else:
             return None
