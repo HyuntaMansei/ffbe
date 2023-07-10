@@ -102,12 +102,12 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_error = self.debug_widget.obj_output
         self.error_widget.setWindowTitle("Error")
         self.error_widget.show()
-        print(f"Initial position: {self.initial_x,self.initial_y}")
-        self.error_widget.move(self.initial_x,self.initial_y)
+        self.error_widget.move(800,0)
         self.error_widget.showMinimized()
     def init_others(self):
         self.device_initiated = False
-        self.move(300,800)
+        print(f"Initial position: {self.initial_x, self.initial_y}")
+        self.move(self.initial_x,self.initial_y)
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
         # if event.eventType() == MsgEvent.Type:
