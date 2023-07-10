@@ -24,8 +24,8 @@ class MyWidget(QtWidgets.QWidget):
     def init_arguments(self):
         self.arguments = sys.argv[1:]
         try:
-            self.initial_x = self.arguments[0]
-            self.initial_y = self.arguments[1]
+            self.initial_x = int(self.arguments[0])
+            self.initial_y = int(self.arguments[1])
         except:
             self.initial_x = 200
             self.initial_y = 800
