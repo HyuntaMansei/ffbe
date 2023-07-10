@@ -14,17 +14,27 @@ class MsgEvent(QEvent):
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        self.init_arguments()
         self.init_preparation()
         self.init_ui()
         self.init_device_list()
         self.init_msg_boxes()
         self.init_others()
 
+    def init_arguments(self):
+        self.arguments = sys.argv[1:]
+        try:
+            self.initial_x = self.arguments[0]
+            self.initial_y = self.arguments[1]
+        except:
+            self.initial_x = 200
+            self.initial_y = 800
     def init_preparation(self):
         # variable settings
         self.device_names = ['initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2']
         self.device_index_by_name = {'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
+
     def init_device_list(self):
         self.connected_device_name_and_handle = [] #(name, hwnd)
         self.connected_device_name_and_serial = [] #(name, serial, device)
@@ -54,7 +64,6 @@ class MyWidget(QtWidgets.QWidget):
             self.cb_window_hwnd.addItem(str(nh[1]))
         for ns in self.connected_device_name_and_serial:
             self.cb_device_serial.addItem(ns[1])
-
     def init_ui(self):
         # Load the UI file
         uic.loadUi('ffbe_widget.ui', self)
@@ -93,7 +102,8 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_error = self.debug_widget.obj_output
         self.error_widget.setWindowTitle("Error")
         self.error_widget.show()
-        self.error_widget.move(1000,0)
+        print(f"Initial position: {self.initial_x,self.initial_y}")
+        self.error_widget.move(self.initial_x,self.initial_y)
         self.error_widget.showMinimized()
     def init_others(self):
         self.device_initiated = False
