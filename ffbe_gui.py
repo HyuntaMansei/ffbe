@@ -20,7 +20,6 @@ class MyWidget(QtWidgets.QWidget):
         self.init_device_list()
         self.init_msg_boxes()
         self.init_others()
-
     def init_arguments(self):
         self.arguments = sys.argv[1:]
         try:
@@ -34,7 +33,6 @@ class MyWidget(QtWidgets.QWidget):
         self.device_names = ['initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2']
         self.device_index_by_name = {'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
-
     def init_device_list(self):
         self.connected_device_name_and_handle = [] #(name, hwnd)
         self.connected_device_name_and_serial = [] #(name, serial, device)
@@ -261,7 +259,6 @@ class Output_Widget(QtWidgets.QWidget):
         font = QFont('Arial', 14)
         font.setWeight(QFont.Bold)
         self.obj_output.setFont(font)
-
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()

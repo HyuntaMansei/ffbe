@@ -162,7 +162,6 @@ class Automator:
         is_dir_path = "is"
 
         self.start_keep_clicks()
-
         # except_targets = ["sortie"]
         cnt = 0
         while self.running:
