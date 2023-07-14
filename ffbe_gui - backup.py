@@ -1,7 +1,6 @@
 import win32gui
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QScrollArea, QLabel, QTextEdit, QComboBox, QLineEdit, QPlainTextEdit, QTextBrowser, QSizePolicy
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QLineEdit, QInputDialog
 from PyQt5.QtCore import Qt, QObject, QEvent, QCoreApplication
 from PyQt5 import QtWidgets, uic
 import sys
@@ -9,7 +8,6 @@ import ffbe_automator
 import threading
 import pygetwindow as gw
 from ppadb.client import Client as AdbClient
-import mysql.connector
 class MsgEvent(QEvent):
     def __init__(self):
         super().__init__(QEvent.User)
@@ -20,7 +18,6 @@ class MyWidget(QtWidgets.QWidget):
         self.init_preparation()
         self.init_ui()
         self.init_device_list()
-        self.init_server_connection()
         self.init_msg_boxes()
         self.init_others()
     def init_arguments(self):
@@ -33,81 +30,9 @@ class MyWidget(QtWidgets.QWidget):
             self.initial_y = 800
     def init_preparation(self):
         # variable settings
-        self.macro_version = '0.1'
-        self.is_automator_initiated = False
-        self.device_names = ['leonis','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
+        self.device_names = ['initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2']
-        self.device_index_by_name = {'leonis':2, 'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
-    def init_server_connection(self):
-        """
-        서버에 접속 후,
-        1. 버전을 확인하고, 패스원드를 비교
-        2. operation_description과 연결된 function_name을 받아온다.
-        """
-        # password = self.show_password_dialog()
-        password = 'leonis'
-        server_version, server_password = self.get_version_and_pass()
-
-        if not password == server_password:
-            print(f"Error. Wrong password. Closing")
-            self.exit()
-            return False
-        if not server_version == self.macro_version:
-            print(f"Error. Out of version {self.macro_version}. Server version is {server_version}. Need to update.")
-            self.exit()
-            return False
-        if not self.init_oper_desc_and_func_name():
-            print("Error downloading operation description and function name.")
-            self.exit()
-            return False
-        print(f"Server connected. Version: {self.macro_version}")
-    def get_version_and_pass(self):
-        connection = mysql.connector.connect(host='146.56.43.43',user='ffbeuser',password='leonis',database='ffbe')
-        cursor = connection.cursor()
-        query = "select * from version_info ORDER BY seq desc limit 1;"
-        cursor.execute(query)
-        results = cursor.fetchall()
-        cursor.close()
-        connection.close()
-        try:
-            server_version = results[0][1]
-            server_password = results[0][2]
-        except:
-            return False, False
-        return server_version, server_password
-    def exit(self):
-        try:
-            self.automator.running = False
-        except:
-            print("No automator present.")
-        print("Closing macro.")
-        self.close()
-    def init_oper_desc_and_func_name(self):
-        """
-        동작 설명과 automator에서 연결된 함수 이름을 받아온다.
-        :return:
-        """
-        self.operation_description = []
-        self.operation_function_name = {}
-        # 서버 연결해서 받아오기
-        # desc = 'test'
-        # func = 'multi_client_any'
-        connection = mysql.connector.connect(host='146.56.43.43',user='ffbeuser',password='leonis',database='ffbe')
-        cursor = connection.cursor()
-        query = "SELECT * FROM operation_list"
-        cursor.execute(query)
-        results = cursor.fetchall()
-        for row in results:
-            print(row)
-            self.operation_description.append(row[1])
-            self.operation_function_name[row[1]] = row[2]
-        cursor.close()
-        connection.close()
-        # combo box에 설명 채우기
-        self.cb_operation.clear()
-        for d in self.operation_description:
-            self.cb_operation.addItem(d)
-        return True
+        self.device_index_by_name = {'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
     def init_device_list(self):
         self.connected_device_name_and_handle = [] #(name, hwnd)
         self.connected_device_name_and_serial = [] #(name, serial, device)
@@ -125,7 +50,7 @@ class MyWidget(QtWidgets.QWidget):
         for device in devices:
             device_name = device.shell("getprop ro.product.model").strip()
             self.connected_device_name_and_serial.append((device_name, device.serial, device))
-        print("Connected Devices(name and serial): ", self.connected_device_name_and_serial)
+        print("Connected Devices(name and serial): ",self.connected_device_name_and_serial)
         self.cb_device_type.clear()
         self.cb_device_serial.clear()
         self.cb_window_name.clear()
@@ -146,8 +71,9 @@ class MyWidget(QtWidgets.QWidget):
             b.clicked.connect(self.on_button_clicked)
         # Connect the slot function to the currentTextChanged signal
         self.cb_window_name.currentTextChanged.connect(self.on_cb_window_name_text_changed)
-        self.cb_operation.currentTextChanged.connect(self.on_cb_operation_text_changed)
+        self.le_rep = self.findChild(QLineEdit, 'le_rep')
         self.le_rep.setText("300")
+        self.le_players = self.findChild(QLineEdit, 'le_players')
         self.le_players.setText("4")
         self.le_sleep_multiple.setText("4")
         self.show()
@@ -232,28 +158,24 @@ class MyWidget(QtWidgets.QWidget):
         btn_text = self.sender().text()
         print(f"Btn clicked, sender: {sender_name}, text: {btn_text}")
         found = False
-        if not self.device_initiated:
+        if (sender_name != 'pb_init') and not self.device_initiated:
             print("Auto initiating")
             self.set_device_name_and_type()
-            self.pb_operation.setText(self.cb_operation.currentText())
-            return True
+        # Non automatic btns.
+        self.set_params()
+        if sender_name == 'pb_init':
+            self.set_device_name_and_type()
+            self.debug("Setting the device name and type")
+            found = True
+        # Automatic btns.
         else:
-            self.set_params()
-            # Automatic btns.
             try:
                 self.start_automator(sender_name=sender_name, btn_text=btn_text)
                 found = True
             except:
                 self.error(f"Something Wrong here in on_button_clicked. Btn Clicked: {btn_text}")
                 found = False
-            return found
-    def on_cb_operation_text_changed(self, text):
-        cur_text = self.pb_operation.text()
-        try:
-            if not ('on' in cur_text) and not (cur_text.lower() == 'init'):
-                self.pb_operation.setText(text)
-        except:
-            self.error(f"Error in on_cb_operation_text_changed, text: {text}")
+        return found
     def on_cb_window_name_text_changed(self, text):
         #hwnd, device_type, serial
         device_name = text
@@ -265,11 +187,10 @@ class MyWidget(QtWidgets.QWidget):
             self.error("Error in on_cb_window_name_text_changed")
         print("Text changed:", text)
     def start_automator(self, sender_name=None, btn_text=None):
-        operation_description = self.cb_operation.currentText()
-        base_text = operation_description
+        base_text = btn_text.split(':')[0]
         on_text = base_text + ': on'
         off_text = base_text + ': off'
-        job = self.operation_function_name[operation_description]
+        job = sender_name.replace('pb_', 'play_')
         print(f"Starting automator. Sender name:{sender_name}, btn_text:{btn_text}, on_text:{on_text}, off_text:{off_text}, job:{job}")
         if 'on' == btn_text.split()[-1]:
             self.automator.stop()
@@ -285,7 +206,8 @@ class MyWidget(QtWidgets.QWidget):
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
             self.automator_thread.start()
-            self.sender().setText(on_text)
+            if 'off' == btn_text.split()[-1]:
+                self.sender().setText(on_text)
     def set_params(self):
         self.window_name = self.cb_window_name.currentText()
         self.window_hwnd = self.cb_window_hwnd.currentText()
@@ -325,15 +247,6 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_log.verticalScrollBar().setValue(self.obj_log.verticalScrollBar().maximum())
         self.obj_debug.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum())
         self.obj_error.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum())
-    def closeEvent(self, event):
-        self.automator.close()
-        QApplication.quit()
-    def show_password_dialog(self):
-        password, ok = QInputDialog.getText(None, "Password", "Enter password:", QLineEdit.Password)
-        if ok:
-            # Check the entered password here or perform any required actions
-            # print("Entered Password:", password)
-            return password
 class Output_Widget(QtWidgets.QWidget):
     def __init__(self, width=400, height=400):
         super().__init__()
@@ -349,5 +262,4 @@ class Output_Widget(QtWidgets.QWidget):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()
-    widget.setWindowTitle("for 레오니스")
     sys.exit(app.exec_())

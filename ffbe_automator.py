@@ -66,8 +66,10 @@ class Automator:
         for m in method_names:
             if 'play' == m.split('_')[0]:
                 self.automation_by_job[m] = getattr(self, m)
+                self.automation_by_job[m[5:]] = getattr(self, m)
             else:
                 self.automation_by_job['play_'+m] = getattr(self, m)
+                self.automation_by_job[m] = getattr(self, m)
     def init_device(self, window_name:str=None, window_hwnd:str=None, device_serial:str=None):
         print(f"In def, init_device")
         if window_hwnd:
@@ -162,7 +164,6 @@ class Automator:
         is_dir_path = "is"
 
         self.start_keep_clicks()
-
         # except_targets = ["sortie"]
         cnt = 0
         while self.running:
@@ -282,7 +283,6 @@ class Automator:
         cnt = 0
         self.log("Starting multi_client automation")
         self.start_keep_clicks()
-
         targets = ["cancel_ready", "exit_room"]
         while self.running:
             self.timer.restart()
@@ -565,6 +565,7 @@ class Automator:
         self.debug("Start recovering stamina")
         targets = ['yes','plus','item']
         self.keep_click_running = False
+        time.sleep(5)
         while(not self.locator.locate('recover_amount')) and self.running:
             self.locator.locate_and_click(targets)
             time.sleep(0.5)
@@ -580,7 +581,7 @@ class Automator:
             if self.locator.locate('sortie') or (not self.running):
                 break
             self.locator.locate_and_click('recover')
-            self.locator.locate_and_click('ok')
+            self.locator.locate_and_click('ok_recover')
             time.sleep(1)
         self.debug("Finished recovering")
         self.keep_click_running = True
@@ -589,9 +590,8 @@ class Automator:
     def test(self):
         self.running = True
         cnt = 0
-        self.log("Starting 100 tower automation")
+        self.log("Testing!!")
         targets = []
-
         self.start_keep_clicks()
 
         while self.running:
@@ -610,7 +610,6 @@ class Automator:
             target_dir = 'kc'
         if sleep_time == None:
             sleep_time = 1
-
         # self.debug(f"Func, keep_click, starts now. Img_dir: {self.automation_path+target_dir}")
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
         locator_kc.load_conf(self.device_type)
@@ -622,10 +621,16 @@ class Automator:
             if self.keep_click_running or keep_awake:
                 print(f"Keep click for {target_dir}")
                 locator_kc.locate_and_click_all_dir(target_dir)
-                time.sleep(sleep_time)
+                for i in range(int(sleep_time)):
+                    time.sleep(1)
+                    if not self.running:
+                        break
             else:
                 print(f"[sleep_time: {sleep_time}]: Skip keep_click loop for {target_dir}")
-                time.sleep(5*sleep_time)
+                for i in range(5*int(sleep_time)):
+                    time.sleep(1)
+                    if not self.running:
+                        break
     def start_keep_clicks(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
@@ -655,3 +660,5 @@ class Automator:
             print(f"Making Keep_click thread as basic directory")
         for t in thread_list:
             t.start()
+    def close(self):
+        self.running = False

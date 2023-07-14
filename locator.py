@@ -79,6 +79,7 @@ class Locator:
                 time.sleep(2)
             except:
                 self.error("Fail to find window. Exiting.")
+                time.sleep(10)
                 # exit signal 보내기.
     def get_path(self, img_name:str):
         if img_name[-4:] != '.png':
@@ -242,7 +243,6 @@ class Locator:
         except:
             print(f"No such dir: {dir_path}")
             return None
-
     def locate_all_dir(self, dir_path):
         path = (self.img_path + dir_path + '/').replace("//", "/")
         base_path = (dir_path + '/').replace("//", "/")
