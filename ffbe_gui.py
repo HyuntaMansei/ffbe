@@ -72,7 +72,8 @@ class MyWidget(QtWidgets.QWidget):
         try:
             server_version = results[0][1]
             server_password = results[0][2]
-        except:
+        except Exception as e:
+            print(f"Exception: {e} with result: {results} in get_version_and_pass")
             return False, False
         return server_version, server_password
     def exit(self):

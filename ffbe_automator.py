@@ -37,6 +37,7 @@ class Automator:
         self.job = None
         self.running = False
         self.keep_click_running = False
+        self.stop_keep_click_index = 1
         print("Automator has made.")
     def set_msg_handlers(self, log=print, debug=print, error=print):
         self.log = log
@@ -258,7 +259,7 @@ class Automator:
                         self.locator.locate_and_click('expel')
                     self.init_time()
                 # Recover Stamina if needed
-                if self.locator.locate('short_of_stamina'):
+                if self.locator.locate(['short_of_stamina', 'item']):
                     self.recover_stamina()
                 time.sleep(self.sleep_mul)
             self.debug("\n'Auto' is located. In battle stage")
@@ -311,12 +312,12 @@ class Automator:
                 print(f"Limit_timer: {limit_time}")
                 if limit_time > 600:
                     print("In exit code")
-                    self.keep_click_running = False
+                    self.stop_keep_click()
 
                     while (not self.locator.locate(targets2)) and (not self.locator.locate('auto')) and self.running:
                         self.locator.locate_and_click(targets)
                         time.sleep(3)
-                    self.keep_click_running = True
+                    self.start_keep_click()
                     self.limit_timer.restart()
             self.debug("In battle stage.")
             while(not self.locator.locate('cancel_ready')) and self.running:
@@ -564,13 +565,13 @@ class Automator:
         # Recovering
         self.debug("Start recovering stamina")
         targets = ['yes','plus','item']
-        self.keep_click_running = False
-        time.sleep(5)
+        self.stop_keep_click()
+        time.sleep(1)
         while(not self.locator.locate('recover_amount')) and self.running:
             self.locator.locate_and_click(targets)
             time.sleep(0.5)
         time.sleep(2)
-        self.debug("Try to swipe up")
+        self.debug("Trying to swipe up")
         self.my_device.shell("input swipe 900 600 900 300 1000")
         time.sleep(2)
         for cnt in range(recover_cnt):
@@ -578,13 +579,13 @@ class Automator:
             time.sleep(0.5)
         # while (not self.locator.locate('sortie')) and self.running:
         for c in range(10):
-            if self.locator.locate('sortie') or (not self.running):
+            if self.locator.locate('dismiss') or (not self.running):
                 break
             self.locator.locate_and_click('recover')
             self.locator.locate_and_click('ok_recover')
             time.sleep(1)
         self.debug("Finished recovering")
-        self.keep_click_running = True
+        self.start_keep_click()
     def sc_off(self):
         self.my_device.shell("settings put system screen_brightness 0")
     def test(self):
@@ -610,27 +611,49 @@ class Automator:
             target_dir = 'kc'
         if sleep_time == None:
             sleep_time = 1
-        # self.debug(f"Func, keep_click, starts now. Img_dir: {self.automation_path+target_dir}")
+        self.debug(f"Func, keep_click, starts now. Img_dir: {self.automation_path+target_dir}")
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
         locator_kc.load_conf(self.device_type)
         locator_kc.confidence = self.confidence
         locator_kc.connect_click_method(self.my_device.input_tap)
 
-        self.keep_click_running = True
+        # self.keep_click_running = True
         while self.running:
             if self.keep_click_running or keep_awake:
-                print(f"Keep click for {target_dir}")
-                locator_kc.locate_and_click_all_dir(target_dir)
+                result = locator_kc.locate_and_click_all_dir(target_dir)
+                if result:
+                    print(f"Successfully clicked for {target_dir}")
                 for i in range(int(sleep_time)):
                     time.sleep(1)
                     if not self.running:
                         break
             else:
-                print(f"[sleep_time: {sleep_time}]: Skip keep_click loop for {target_dir}")
+                print(f"Skip keep_click loop for {target_dir}")
                 for i in range(5*int(sleep_time)):
                     time.sleep(1)
                     if not self.running:
                         break
+    def keep_click_conditional(self, target_dir:str='kc_cond', sleep_time=None):
+        if sleep_time == None:
+            sleep_time = 1
+        locator_kc = locator.Locator(self.my_hwnd, self.automation_path+target_dir, error=self.error)
+        locator_kc.load_conf(self.device_type)
+        locator_kc.confidence = self.confidence
+        locator_kc.connect_click_method(self.my_device.input_tap)
+        while self.running:
+            if locator_kc.locate_dir('start_cond'):
+                self.debug(f"Keep_click_conditional:{target_dir} in operation. Stop keep_click.")
+                print(f"Keep_click_conditional:{target_dir} in operation. Stop keep_click.")
+                time.sleep(3)
+                self.stop_keep_click()
+                while self.running and (not locator_kc.locate_dir('finish_cond')):
+                    print(f"Locating {locator_kc.img_path} in keep_click_conditional")
+                    locator_kc.locate_and_click_all_dir("")
+                    time.sleep(sleep_time)
+                self.start_keep_click()
+                self.debug(f"Keep_click_conditional:{target_dir} finished. keep_click_index:{self.stop_keep_click_index}.")
+                print(f"Keep_click_conditional:{target_dir} finished. keep_click_index:{self.stop_keep_click_index}.")
+            time.sleep(sleep_time*2)
     def start_keep_clicks(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
@@ -647,18 +670,60 @@ class Automator:
         for s in subdirectories:
             try:
                 sd = float(s)
-            except:
-                print(f"s in not number, continue.")
+            except Exception as e:
+                print(f"Exception: {e} with s in function - start_keep_clicks")
                 continue
             if sd != 0:
-                thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, sd*sleep_mul)))
+                thread_list.append(threading.Thread(target=target_thread, args=('kc/' + s, sd * sleep_mul)))
             else:
-                thread_list.append(threading.Thread(target=target_thread, args=('kc/'+s, 1*sleep_mul, True)))
-            print(f"Making Keep_click thread for {s} with sleep time: {sd*sleep_mul}")
+                thread_list.append(threading.Thread(target=target_thread, args=('kc/' + s, 1 * sleep_mul, True)))
+            print(f"Making Keep_click thread for {s} with sleep time: {sd * sleep_mul}")
         if thread_list == []:
             thread_list.append(threading.Thread(target=target_thread, args=('kc', sleep_mul)))
             print(f"Making Keep_click thread as basic directory")
         for t in thread_list:
             t.start()
+        self.start_keep_clicks_conditional()
+        self.start_keep_click()
+    def start_keep_clicks_conditional(self, sleep_mul=None):
+        if sleep_mul == None:
+            if self.sleep_mul != None:
+                sleep_mul = self.sleep_mul
+            else:
+                sleep_mul = 1
+        target_thread = self.keep_click_conditional
+        thread_list = []
+        # Specify the directory path
+        directory = self.automation_path + '/kc_cond/'
+        # Get a list of all subdirectories in the specified directory
+        subdirectories = [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
+        print(f"Subdirectories: {subdirectories}")
+        for s in subdirectories:
+            try:
+                sd = float(s)
+            except Exception as e:
+                print(f"Exception: {e} with s in function - start_keep_clicks_conditional")
+                continue
+            if sd != 0:
+                thread_list.append(threading.Thread(target=target_thread, args=('kc_cond/'+s, sd*sleep_mul)))
+            else:
+                thread_list.append(threading.Thread(target=target_thread, args=('kc_cond/'+s, 1*sleep_mul)))
+            print(f"Making Keep_click_conditional thread for {s} with sleep time: {sd*sleep_mul}")
+        if thread_list == []:
+            thread_list.append(threading.Thread(target=target_thread, args=('kc_cond', sleep_mul)))
+            print(f"Making Keep_click_conditional thread as basic directory")
+        for t in thread_list:
+            t.start()
+    def stop_keep_click(self):
+        self.stop_keep_click_index += 1
+        if self.keep_click_running == True:
+            self.keep_click_running = False
+            print(f"Stopping keep click. stop_keep_click_index={self.stop_keep_click_index}.")
+    def start_keep_click(self):
+        self.stop_keep_click_index -= 1
+        if self.stop_keep_click_index == 0:
+            print(f"Starting keep click. stop_keep_click_index={self.stop_keep_click_index}.")
+            self.keep_click_running = True
+            # self.stop_keep_click_index = 0
     def close(self):
         self.running = False
