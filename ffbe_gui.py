@@ -10,6 +10,15 @@ import threading
 import pygetwindow as gw
 from ppadb.client import Client as AdbClient
 import mysql.connector
+import requests
+def get_public_ip():
+    try:
+        response = requests.get('https://ipinfo.io/json')
+        ip_data = response.json()
+        public_ip = ip_data['ip']
+        return public_ip
+    except requests.RequestException:
+        return "Unable to get public IP address"
 class MsgEvent(QEvent):
     def __init__(self):
         super().__init__(QEvent.User)
@@ -31,13 +40,14 @@ class MyWidget(QtWidgets.QWidget):
         except:
             self.initial_x = 200
             self.initial_y = 800
+        self.ip = ""
     def init_preparation(self):
         # variable settings
         self.macro_version = '0.1'
         self.is_automator_initiated = False
-        self.device_names = ['leonis','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
+        self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2']
-        self.device_index_by_name = {'leonis':2, 'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
+        self.device_index_by_name = {'leonis':2,'jchoi82kor':2, 'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
     def init_server_connection(self):
         """
         서버에 접속 후,
@@ -46,6 +56,10 @@ class MyWidget(QtWidgets.QWidget):
         """
         # password = self.show_password_dialog()
         password = 'leonis'
+        # Call the function to get the public IP address
+        self.ip = get_public_ip()
+        # print("Your public IP address is:", ip)
+
         server_version, server_password = self.get_version_and_pass()
 
         if not password == server_password:
@@ -114,7 +128,7 @@ class MyWidget(QtWidgets.QWidget):
         self.connected_device_name_and_serial = [] #(name, serial, device)
         windows = gw.getAllWindows()
         for window in windows:
-            # print(f"HWND: {window._hWnd} and Window Name: {window.title}")
+            print(f"HWND: {window._hWnd} and Window Name: {window.title}")
             if window.title in self.device_names:
                 self.connected_device_name_and_handle.append((window.title, window._hWnd))
         print("Connected Devices: ", self.connected_device_name_and_handle)
@@ -124,8 +138,11 @@ class MyWidget(QtWidgets.QWidget):
         devices = adb.devices()
         # Print the serial numbers and names of connected devices
         for device in devices:
-            device_name = device.shell("getprop ro.product.model").strip()
-            self.connected_device_name_and_serial.append((device_name, device.serial, device))
+            try:
+                device_name = device.shell("getprop ro.product.model").strip()
+                self.connected_device_name_and_serial.append((device_name, device.serial, device))
+            except Exception as e:
+                print(f"Exception:{e}")
         print("Connected Devices(name and serial): ", self.connected_device_name_and_serial)
         self.cb_device_type.clear()
         self.cb_device_serial.clear()
@@ -233,6 +250,7 @@ class MyWidget(QtWidgets.QWidget):
         btn_text = self.sender().text()
         print(f"Btn clicked, sender: {sender_name}, text: {btn_text}")
         found = False
+        self.write_log_to_server(sender_name)
         if not self.device_initiated:
             print("Auto initiating")
             self.set_device_name_and_type()
@@ -244,8 +262,8 @@ class MyWidget(QtWidgets.QWidget):
             try:
                 self.start_automator(sender_name=sender_name, btn_text=btn_text)
                 found = True
-            except:
-                self.error(f"Something Wrong here in on_button_clicked. Btn Clicked: {btn_text}")
+            except Exception as e:
+                self.error(f"Exception:{e}. in on_button_clicked. Btn Clicked: {btn_text}")
                 found = False
             return found
     def on_cb_operation_text_changed(self, text):
@@ -335,6 +353,15 @@ class MyWidget(QtWidgets.QWidget):
             # Check the entered password here or perform any required actions
             # print("Entered Password:", password)
             return password
+    def write_log_to_server(self, button_name:str):
+        connection = mysql.connector.connect(host='146.56.43.43',user='ffbeuser',password='leonis',database='ffbe')
+        cursor = connection.cursor()
+        query = "INSERT INTO user_log (user_ip, order_date, order_button) values (%s, now(), %s);"
+        values = (self.ip, button_name)
+        cursor.execute(query, values)
+        connection.commit()
+        cursor.close()
+        connection.close()
 class Output_Widget(QtWidgets.QWidget):
     def __init__(self, width=400, height=400):
         super().__init__()

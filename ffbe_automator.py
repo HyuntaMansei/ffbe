@@ -185,14 +185,14 @@ class Automator:
                         time.sleep(2)
                 if self.locator.locate_and_click_all_dir(is_dir_path, target='top_quest'):
                      time.sleep(4)
-                if not self.locator.locate('sortie'):
+                if not self.locator.locate(['sortie', 'common']):
                     self.locator.click('story_skip1')
                     self.locator.click('story_skip2')
-                time.sleep(1)
+                    time.sleep(3)
             self.debug("In battle stage")
             self.stop_watch()
             while (not self.locator.locate('end_of_quest')) and self.running:
-                time.sleep(1)
+                time.sleep(5)
             self.debug("Battle Ended.")
             self.debug("The quest ended")
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
@@ -695,25 +695,26 @@ class Automator:
         thread_list = []
         # Specify the directory path
         directory = self.automation_path + '/kc_cond/'
-        # Get a list of all subdirectories in the specified directory
-        subdirectories = [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
-        print(f"Subdirectories: {subdirectories}")
-        for s in subdirectories:
-            try:
-                sd = float(s)
-            except Exception as e:
-                print(f"Exception: {e} with s in function - start_keep_clicks_conditional")
-                continue
-            if sd != 0:
-                thread_list.append(threading.Thread(target=target_thread, args=('kc_cond/'+s, sd*sleep_mul)))
-            else:
-                thread_list.append(threading.Thread(target=target_thread, args=('kc_cond/'+s, 1*sleep_mul)))
-            print(f"Making Keep_click_conditional thread for {s} with sleep time: {sd*sleep_mul}")
-        if thread_list == []:
-            thread_list.append(threading.Thread(target=target_thread, args=('kc_cond', sleep_mul)))
-            print(f"Making Keep_click_conditional thread as basic directory")
-        for t in thread_list:
-            t.start()
+        if os.path.isdir(directory):
+            # Get a list of all subdirectories in the specified directory
+            subdirectories = [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
+            print(f"Subdirectories: {subdirectories}")
+            for s in subdirectories:
+                try:
+                    sd = float(s)
+                except Exception as e:
+                    print(f"Exception: {e} with s in function - start_keep_clicks_conditional")
+                    continue
+                if sd != 0:
+                    thread_list.append(threading.Thread(target=target_thread, args=('kc_cond/'+s, sd*sleep_mul)))
+                else:
+                    thread_list.append(threading.Thread(target=target_thread, args=('kc_cond/'+s, 1*sleep_mul)))
+                print(f"Making Keep_click_conditional thread for {s} with sleep time: {sd*sleep_mul}")
+            if thread_list == []:
+                thread_list.append(threading.Thread(target=target_thread, args=('kc_cond', sleep_mul)))
+                print(f"Making Keep_click_conditional thread as basic directory")
+            for t in thread_list:
+                t.start()
     def stop_keep_click(self):
         self.stop_keep_click_index += 1
         if self.keep_click_running == True:
