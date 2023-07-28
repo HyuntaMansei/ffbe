@@ -116,6 +116,8 @@ class Automator:
             self.automation_path = './1280_720/'
         elif device_type == 'android_q2':
             self.automation_path = './1600_720/'
+        elif device_type == 'blue_1280_720':
+            self.automation_path = './1280_720_blue/'
         else:
             self.error(f"No such device type: {device_type}")
             return False

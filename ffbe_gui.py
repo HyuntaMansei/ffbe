@@ -1,4 +1,5 @@
 import win32gui
+import win32process
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QScrollArea, QLabel, QTextEdit, QComboBox, QLineEdit, QPlainTextEdit, QTextBrowser, QSizePolicy
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QLineEdit, QInputDialog
@@ -11,6 +12,8 @@ import pygetwindow as gw
 from ppadb.client import Client as AdbClient
 import mysql.connector
 import requests
+import psutil
+
 def get_public_ip():
     try:
         response = requests.get('https://ipinfo.io/json')
@@ -46,8 +49,34 @@ class MyWidget(QtWidgets.QWidget):
         self.macro_version = '0.1'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
-        self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2']
+        self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720']
         self.device_index_by_name = {'leonis':2,'jchoi82kor':2, 'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
+        self.add_device_name_and_type()
+        print(self.device_names)
+        print(self.device_index_by_name)
+    def add_device_name_and_type(self):
+        # find window hwnd using process name
+        blue_stack_hwnds = self.get_hwnd_by_process_name("HD-Player.exe")
+        for bh in blue_stack_hwnds:
+            print(bh)
+            window_name = win32gui.GetWindowText(bh)
+            self.device_names.append(window_name)
+            self.device_index_by_name[window_name] = 4 #for blue_stack
+    def get_hwnd_by_process_name(self, process_name):
+        hwnd_found = []
+        def enum_windows_callback(hwnd, lparam):
+            nonlocal hwnd_found
+            _, pid = win32process.GetWindowThreadProcessId(hwnd)
+            try:
+                process = psutil.Process(pid)
+                if process_name.lower() == process.name().lower():
+                    if win32gui.IsWindowVisible(hwnd):
+                        hwnd_found.append(hwnd)
+            except psutil.NoSuchProcess:
+                pass
+        win32gui.EnumWindows(enum_windows_callback, None)
+        return hwnd_found
+        # print(get_hwnd_by_process_name("HD-Player.exe"))
     def init_server_connection(self):
         """
         서버에 접속 후,
@@ -127,13 +156,15 @@ class MyWidget(QtWidgets.QWidget):
         self.connected_device_name_and_handle = [] #(name, hwnd)
         self.connected_device_name_and_serial = [] #(name, serial, device)
         windows = gw.getAllWindows()
+        print(f"DeviceNames: {self.device_names}")
         for window in windows:
-            print(f"HWND: {window._hWnd} and Window Name: {window.title}")
+            # print(f"HWND: {window._hWnd} and Window Name: {window.title}")
             if window.title in self.device_names:
                 self.connected_device_name_and_handle.append((window.title, window._hWnd))
         print("Connected Devices: ", self.connected_device_name_and_handle)
         # Connect to the ADB server
         adb = AdbClient(host="127.0.0.1", port=5037)
+        # adb.remote_connect(host="127.0.0.1", port=59666)
         # Get the device list
         devices = adb.devices()
         # Print the serial numbers and names of connected devices
