@@ -58,10 +58,17 @@ class MyWidget(QtWidgets.QWidget):
         # find window hwnd using process name
         blue_stack_hwnds = self.get_hwnd_by_process_name("HD-Player.exe")
         for bh in blue_stack_hwnds:
-            print(bh)
+            # print(bh)
             window_name = win32gui.GetWindowText(bh)
             self.device_names.append(window_name)
             self.device_index_by_name[window_name] = 4 #for blue_stack
+        nox_hwnds = self.get_hwnd_by_process_name("Nox.exe")
+        for nh in nox_hwnds:
+            # print(nh)
+            window_name = win32gui.GetWindowText(nh)
+            self.device_names.append(window_name)
+            self.device_index_by_name[window_name] = 2  # for blue_stack
+
     def get_hwnd_by_process_name(self, process_name):
         hwnd_found = []
         def enum_windows_callback(hwnd, lparam):

@@ -187,10 +187,16 @@ class Automator:
                         time.sleep(2)
                 if self.locator.locate_and_click_all_dir(is_dir_path, target='top_quest'):
                      time.sleep(4)
-                if not self.locator.locate(['sortie', 'common']):
+                time.sleep(1)
+                if not self.locator.locate(['sortie', 'common', 'select_party']):
                     self.locator.click('story_skip1')
-                    self.locator.click('story_skip2')
-                    time.sleep(3)
+                    time.sleep(1)
+                    if not self.locator.locate(['sortie', 'common', 'another_world']):
+                        self.locator.click('story_skip2')
+                        time.sleep(1)
+                    else:
+                        self.locator.locate_and_click('menu_cancel')
+                        time.sleep(1)
             self.debug("In battle stage")
             self.stop_watch()
             while (not self.locator.locate('end_of_quest')) and self.running:

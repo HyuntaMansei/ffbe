@@ -11,4 +11,4 @@ GRANT ALL PRIVILEGES ON ffbe.* TO 'ffbemaster'@'%' WITH GRANT OPTION;
 SHOW GRANTS FOR 'ffbemaster'@'%';
 
 show processlist;
-KILL 10200;
+KILL 51305;

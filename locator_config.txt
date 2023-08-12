@@ -4,7 +4,7 @@ real_cli_xy0 = 0,27
 coordinates_path = ./1920_1080/coordinates_nox.txt
 [nox_1280_720]
 dev_size = 720, 1280
-real_cli_xy0 = 0,27
+real_cli_xy0 = 0,30
 coordinates_path = ./1280_720/coordinates_nox.txt
 [android]
 dev_size = 720, 1280
