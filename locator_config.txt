@@ -22,3 +22,7 @@ coordinates_path = ./1280_720/coordinates_nox.txt
 dev_size = 2160, 3840
 real_cli_xy0 = 0,0
 coordinates_path = ./3840_2160/coordinates_gpg.txt
+[gpg_1920_1080]
+dev_size = 1080, 1920
+real_cli_xy0 = 0,0
+coordinates_path = ./1920_1080/coordinates_gpg.txt
