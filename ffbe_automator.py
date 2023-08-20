@@ -124,6 +124,8 @@ class Automator:
             self.automation_path = './1280_720_blue/'
         elif device_type == 'gpg_3840_2160':
             self.automation_path = './3840_2160/'
+        elif device_type == 'gpg_1920_1080':
+            self.automation_path = './1920_1080/'
         else:
             self.error(f"No such device type: {device_type}")
             return False
