@@ -98,17 +98,17 @@ class MyWidget(QtWidgets.QWidget):
                 self.connected_device_name_and_handle.append((window.title, window._hWnd))
         print("Connected Devices: ", self.connected_device_name_and_handle)
         # Connect to the ADB server
-        adb = AdbClient(host="127.0.0.1", port=5037)
-        # adb.remote_connect(host="127.0.0.1", port=59666)
-        # Get the device list
-        devices = adb.devices()
-        # Print the serial numbers and names of connected devices
-        for device in devices:
-            try:
-                device_name = device.shell("getprop ro.product.model").strip()
-                self.connected_device_name_and_serial.append((device_name, device.serial, device))
-            except Exception as e:
-                print(f"Exception:{e}")
+        try:
+            adb = AdbClient(host="127.0.0.1", port=5037)
+            # adb.remote_connect(host="127.0.0.1", port=59666)
+            # Get the device list
+            devices = adb.devices()
+            # Print the serial numbers and names of connected devices
+            for device in devices:
+                    device_name = device.shell("getprop ro.product.model").strip()
+                    self.connected_device_name_and_serial.append((device_name, device.serial, device))
+        except Exception as e:
+            print(f"Exception:{e}")
         # for Google Play Games
         gpg_hwnds = self.get_hwnd_by_process_name("crosvm.exe")
         if gpg_hwnds:

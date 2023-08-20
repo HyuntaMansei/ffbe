@@ -27,3 +27,4 @@ pyinstaller
 mss
 chromedriver_autoinstaller
 screeninfo
+mysql-connector

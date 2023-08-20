@@ -72,6 +72,7 @@ class Automator:
                 self.automation_by_job['play_'+m] = getattr(self, m)
                 self.automation_by_job[m] = getattr(self, m)
     def init_device(self, window_name:str=None, window_hwnd:str=None, device_serial:str=None):
+    def init_device(self, window_name:str=None, window_hwnd:str=None, device_serial:str=None):
         print(f"In def, init_device")
         if window_hwnd:
             self.my_hwnd = int(window_hwnd)
