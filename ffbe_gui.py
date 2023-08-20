@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QScrollArea, QLa
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QLineEdit, QInputDialog
 from PyQt5.QtCore import Qt, QObject, QEvent, QCoreApplication
 from PyQt5 import QtWidgets, uic
+from screeninfo import get_monitors
 import sys
 import ffbe_automator
 import threading
@@ -49,7 +50,7 @@ class MyWidget(QtWidgets.QWidget):
         self.macro_version = '0.1'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
-        self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720']
+        self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
         self.device_index_by_name = {'leonis':2,'jchoi82kor':2, 'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
         self.add_device_name_and_type()
         print(self.device_names)
@@ -67,23 +68,67 @@ class MyWidget(QtWidgets.QWidget):
             # print(nh)
             window_name = win32gui.GetWindowText(nh)
             self.device_names.append(window_name)
-            self.device_index_by_name[window_name] = 2  # for blue_stack
-
-    def get_hwnd_by_process_name(self, process_name):
-        hwnd_found = []
-        def enum_windows_callback(hwnd, lparam):
-            nonlocal hwnd_found
-            _, pid = win32process.GetWindowThreadProcessId(hwnd)
+            self.device_index_by_name[window_name] = 2  # for nox
+        # For Google Play Games
+        gpg_hwnds = self.get_hwnd_by_process_name("crosvm.exe")
+        for nh in gpg_hwnds:
+            # print(nh)
+            window_name = win32gui.GetWindowText(nh)
+            self.device_names.append(window_name)
+            monitors = get_monitors()
+            for monitor in monitors:
+                width = monitor.width
+                height = monitor.height
+                bigger = width if width > height else height
+                if bigger == 3840:
+                    self.device_index_by_name[window_name] = 5  # for gpg
+                elif bigger == 1920:
+                    self.device_index_by_name[window_name] = 6  # for gpg
+                else:
+                    pass
+                break
+    def init_device_list(self):
+        self.connected_device_name_and_handle = [] #(name, hwnd), name is window title
+        self.connected_device_name_and_serial = [] #(name, serial, device)
+        windows = gw.getAllWindows()
+        print(f"DeviceNames: {self.device_names}")
+        for window in windows:
+            # print(f"HWND: {window._hWnd} and Window Name: {window.title}")
+            if window.title in self.device_names:
+                self.connected_device_name_and_handle.append((window.title, window._hWnd))
+        print("Connected Devices: ", self.connected_device_name_and_handle)
+        # Connect to the ADB server
+        adb = AdbClient(host="127.0.0.1", port=5037)
+        # adb.remote_connect(host="127.0.0.1", port=59666)
+        # Get the device list
+        devices = adb.devices()
+        # Print the serial numbers and names of connected devices
+        for device in devices:
             try:
-                process = psutil.Process(pid)
-                if process_name.lower() == process.name().lower():
-                    if win32gui.IsWindowVisible(hwnd):
-                        hwnd_found.append(hwnd)
-            except psutil.NoSuchProcess:
-                pass
-        win32gui.EnumWindows(enum_windows_callback, None)
-        return hwnd_found
-        # print(get_hwnd_by_process_name("HD-Player.exe"))
+                device_name = device.shell("getprop ro.product.model").strip()
+                self.connected_device_name_and_serial.append((device_name, device.serial, device))
+            except Exception as e:
+                print(f"Exception:{e}")
+        # for Google Play Games
+        gpg_hwnds = self.get_hwnd_by_process_name("crosvm.exe")
+        if gpg_hwnds:
+            try:
+                device_name = win32gui.GetWindowText(gpg_hwnds[0])
+                self.connected_device_name_and_serial.append((device_name, device_name, device_name))
+            except Exception as e:
+                print(f"Exception:{e}")
+        print("Connected Devices(name and serial): ", self.connected_device_name_and_serial)
+        self.cb_device_type.clear()
+        self.cb_device_serial.clear()
+        self.cb_window_name.clear()
+        self.cb_window_hwnd.clear()
+        for t in self.device_types:
+            self.cb_device_type.addItem(t)
+        for nh in self.connected_device_name_and_handle:
+            self.cb_window_name.addItem(nh[0])
+            self.cb_window_hwnd.addItem(str(nh[1]))
+        for ns in self.connected_device_name_and_serial:
+            self.cb_device_serial.addItem(ns[1])
     def init_server_connection(self):
         """
         서버에 접속 후,
@@ -159,40 +204,6 @@ class MyWidget(QtWidgets.QWidget):
         for d in self.operation_description:
             self.cb_operation.addItem(d)
         return True
-    def init_device_list(self):
-        self.connected_device_name_and_handle = [] #(name, hwnd)
-        self.connected_device_name_and_serial = [] #(name, serial, device)
-        windows = gw.getAllWindows()
-        print(f"DeviceNames: {self.device_names}")
-        for window in windows:
-            # print(f"HWND: {window._hWnd} and Window Name: {window.title}")
-            if window.title in self.device_names:
-                self.connected_device_name_and_handle.append((window.title, window._hWnd))
-        print("Connected Devices: ", self.connected_device_name_and_handle)
-        # Connect to the ADB server
-        adb = AdbClient(host="127.0.0.1", port=5037)
-        # adb.remote_connect(host="127.0.0.1", port=59666)
-        # Get the device list
-        devices = adb.devices()
-        # Print the serial numbers and names of connected devices
-        for device in devices:
-            try:
-                device_name = device.shell("getprop ro.product.model").strip()
-                self.connected_device_name_and_serial.append((device_name, device.serial, device))
-            except Exception as e:
-                print(f"Exception:{e}")
-        print("Connected Devices(name and serial): ", self.connected_device_name_and_serial)
-        self.cb_device_type.clear()
-        self.cb_device_serial.clear()
-        self.cb_window_name.clear()
-        self.cb_window_hwnd.clear()
-        for t in self.device_types:
-            self.cb_device_type.addItem(t)
-        for nh in self.connected_device_name_and_handle:
-            self.cb_window_name.addItem(nh[0])
-            self.cb_window_hwnd.addItem(str(nh[1]))
-        for ns in self.connected_device_name_and_serial:
-            self.cb_device_serial.addItem(ns[1])
     def init_ui(self):
         # Load the UI file
         uic.loadUi('ffbe_widget.ui', self)
@@ -261,6 +272,21 @@ class MyWidget(QtWidgets.QWidget):
         #     print(f"{dn} : {hwnd}")
         #     if hwnd > 0:
         #         return dn
+    def get_hwnd_by_process_name(self, process_name):
+        hwnd_found = []
+        def enum_windows_callback(hwnd, lparam):
+            nonlocal hwnd_found
+            _, pid = win32process.GetWindowThreadProcessId(hwnd)
+            try:
+                process = psutil.Process(pid)
+                if process_name.lower() == process.name().lower():
+                    if win32gui.IsWindowVisible(hwnd):
+                        hwnd_found.append(hwnd)
+            except psutil.NoSuchProcess:
+                pass
+        win32gui.EnumWindows(enum_windows_callback, None)
+        return hwnd_found
+        # print(get_hwnd_by_process_name("HD-Player.exe"))
     def get_hwnd_by_name(self, device_name):
         hwnd = None
         for nh in self.connected_device_name_and_handle:

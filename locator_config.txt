@@ -18,3 +18,7 @@ coordinates_path = ./1600_720/coordinates_android.txt
 dev_size = 720, 1280
 real_cli_xy0 = 0,66
 coordinates_path = ./1280_720/coordinates_nox.txt
+[gpg_3840_2160]
+dev_size = 2160, 3840
+real_cli_xy0 = 0,0
+coordinates_path = ./3840_2160/coordinates_gpg.txt

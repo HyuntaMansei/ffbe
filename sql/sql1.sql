@@ -130,4 +130,8 @@ select * from char_list where char_main_job = '사무라이';
 
 use ffbe;
 SELECT * FROM test_tb;
+SELECT *, COUNT(*) FROM test_tb GROUP BY seq HAVING COUNT(*) > 1;
 SELECT * FROM char_list;
+truncate char_list;
+select * from vc_list;
+truncate vc_list;

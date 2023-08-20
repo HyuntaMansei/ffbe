@@ -45,8 +45,8 @@ class Automator:
         self.error = error
     def set_window_and_device(self, window_name:str, window_hwnd:str=None, device_type:str=None, device_serial:str=None):
         print("In def, set_window_and_device")
-        self.init_device(window_name=window_name, window_hwnd=window_hwnd, device_serial=device_serial)
         self.device_type = device_type
+        self.init_device(window_name=window_name, window_hwnd=window_hwnd, device_serial=device_serial)
     def set_job(self, job=None):
         self.job = job
     def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5):
@@ -77,24 +77,28 @@ class Automator:
             self.my_hwnd = int(window_hwnd)
         else:
             self.my_hwnd = win32gui.FindWindow(None, window_name)
-        self.my_client = AdbClient()
         self.my_device = None
-        for dev in self.my_client.devices():
-            # Get the device properties
-            device_name = dev.get_properties()["ro.product.model"].strip()
-            # Retrieve the device name
-            if device_name == window_name:
-                if device_serial:
-                    print(f"{device_serial} and {dev.serial}")
-                    if device_serial == dev.serial:
-                        self.my_device = dev
-                        # self.sc_off()
-                        break
-                else:
-                    self.my_device = dev
-                    # self.sc_off()
-                # self.my_device.shell("settings put system screen_brightness 0")
-            self.my_device = self.my_client.devices()[0]
+        if not "gpg" in self.device_type.lower():
+            self.my_client = AdbClient()
+            for dev in self.my_client.devices():
+                # Get the device properties
+                device_name = dev.get_properties()["ro.product.model"].strip()
+                # Retrieve the device name
+                if device_name == window_name:
+                    if device_serial:
+                        # print(f"{device_serial} and {dev.serial}")
+                        if device_serial == dev.serial:
+                            self.my_device = dev
+                            # self.sc_off()
+                            break
+                    else:
+                        pass
+                        # self.my_device = dev
+                # self.my_device = self.my_client.devices()[0]
+        else:
+            # When device is Google Play Games
+            print(self.device_type, " - Nothing to Init.")
+            self.my_device = "GPG"
         self.debug(f"With window name {window_name}, found device: {self.my_device} and hwnd: {self.my_hwnd}.")
     def init_internal_vars(self):
         self.confidence = 0.95
@@ -118,6 +122,8 @@ class Automator:
             self.automation_path = './1600_720/'
         elif device_type == 'blue_1280_720':
             self.automation_path = './1280_720_blue/'
+        elif device_type == 'gpg_3840_2160':
+            self.automation_path = './3840_2160/'
         else:
             self.error(f"No such device type: {device_type}")
             return False
@@ -134,7 +140,8 @@ class Automator:
         self.locator.load_conf(self.device_type)
         self.locator.confidence = self.confidence
         self.time_limit = 300
-        self.locator.connect_click_method(self.my_device.input_tap)
+        if not 'gpg' in self.device_type:
+            self.locator.connect_click_method(self.my_device.input_tap)
     def start_automation(self):
         # Suppose all variables in fit.
         self.debug(f"Starting: def start_automation. Job: {self.job}")
@@ -623,7 +630,8 @@ class Automator:
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
         locator_kc.load_conf(self.device_type)
         locator_kc.confidence = self.confidence
-        locator_kc.connect_click_method(self.my_device.input_tap)
+        if not 'gpg' in self.device_type:
+            locator_kc.connect_click_method(self.my_device.input_tap)
 
         # self.keep_click_running = True
         while self.running:
@@ -647,7 +655,8 @@ class Automator:
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path+target_dir, error=self.error)
         locator_kc.load_conf(self.device_type)
         locator_kc.confidence = self.confidence
-        locator_kc.connect_click_method(self.my_device.input_tap)
+        if not 'gpg' in self.device_type:
+            locator_kc.connect_click_method(self.my_device.input_tap)
         while self.running:
             if locator_kc.locate_dir('start_cond'):
                 self.debug(f"Keep_click_conditional:{target_dir} in operation. Stop keep_click.")
