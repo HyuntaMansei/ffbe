@@ -26,3 +26,4 @@ streamlit
 pyinstaller
 mss
 chromedriver_autoinstaller
+screeninfo
