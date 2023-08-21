@@ -1,8 +1,9 @@
-3x_room.png
+host_any_3x.png
 cancel.png
 next.png
 not_auto.png
 ok.png
+ok_multi.png
 ready.png
 recruit_list.png
 yes.png
