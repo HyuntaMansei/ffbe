@@ -6,14 +6,7 @@ is.png
 multi.png
 no.png
 ok.png
-ok2.png
-ok3.png
-ok4.png
-ok_raid.png
 ok_recover.png
-ok_skip_battle.png
 retry.png
 to_is.png
-to_is2.png
-to_is3.png
 x.png

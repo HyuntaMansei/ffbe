@@ -4,5 +4,4 @@ is.png
 multi.png
 retry.png
 to_is.png
-to_is2.png
 x.png

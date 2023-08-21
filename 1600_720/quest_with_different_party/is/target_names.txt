@@ -1,0 +1,2 @@
+common.png
+select_chapter.png

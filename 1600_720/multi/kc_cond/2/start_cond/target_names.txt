@@ -2,4 +2,3 @@ another_world.png
 is.png
 multi.png
 to_is.png
-to_is2.png
