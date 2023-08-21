@@ -10,3 +10,4 @@ ok_recover.png
 retry.png
 to_is.png
 x.png
+x_multi.png
