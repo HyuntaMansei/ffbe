@@ -392,7 +392,6 @@ class Automator:
                 if limit_time > 600:
                     print("In exit code")
                     self.stop_keep_click()
-
                     while (not self.locator.locate(targets2)) and (not self.locator.locate('auto')) and self.running:
                         self.locator.locate_and_click(targets)
                         time.sleep(3)
