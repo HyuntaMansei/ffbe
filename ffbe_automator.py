@@ -169,7 +169,7 @@ class Automator:
     # From here, specific automation
     def play_quest(self):
         self.running = True
-        self.locator.confidence = 0.85
+        self.locator.confidence = 0.90
         self.log(f"Starting quest automation.")
         rep_time = self.rep_time
         finish_button = self.finish_button
@@ -199,13 +199,13 @@ class Automator:
                 time.sleep(1)
                 if not self.locator.locate(['sortie', 'sortie_eq','common', 'select_party']):
                     self.locator.click('story_skip1')
-                    time.sleep(1)
-                    if not self.locator.locate(['sortie','sortie_eq','common', 'another_world']):
-                        self.locator.click('story_skip2')
-                        time.sleep(1)
-                    else:
-                        self.locator.locate_and_click('menu_cancel')
-                        time.sleep(1)
+                    time.sleep(5)
+                    # if not self.locator.locate(['sortie','sortie_eq','common', 'another_world']):
+                    #     self.locator.click('story_skip2')
+                    #     time.sleep(1)
+                    # else:
+                    #     self.locator.locate_and_click('menu_cancel')
+                    #     time.sleep(1)
             self.debug("In battle stage")
             self.stop_watch()
             while (not self.locator.locate('end_of_quest')) and self.running:
@@ -217,12 +217,67 @@ class Automator:
                 self.locator.locate_and_click('end_of_quest')
                 if not self.locator.locate_dir(is_dir_path):
                     self.locator.click('story_skip1')
-                    self.locator.click('story_skip3')
+                    time.sleep(5)
+                    # self.locator.click('story_skip3')
             cnt += 1
             self.log(f"Completed: {cnt} and {rep_time-cnt} left.")
             self.stop_watch()
             if cnt >= rep_time:
                 break
+        if (finish_button != None) and self.running:
+            self.log("Automaiton completed.")
+            finish_button.click()
+        self.debug("Quit automation.")
+    def play_quest_with_different_party(self):
+        self.running = True
+        self.locator.confidence = 0.95
+        self.log(f"Starting quest automation with different party.")
+        rep_time = self.rep_time
+        finish_button = self.finish_button
+        is_dir_path = "is"
+        self.start_keep_clicks()
+        cnt = 0
+        while self.running:
+            # 퀘스트 자동 진행
+            self.debug("Before battle, trying to click sortie")
+            sorties = ["sortie","sortie_quest","sortie_eq","sortie_12","sortie_confirm"]
+            while (not self.locator.locate('auto')) and self.running:
+                # 처음시작에는 현재 파티 그대로. 전투 끝난 후에는 파티를 한번 변경해 준다.
+                self.locator.locate_and_click(sorties)
+                if not self.locator.locate(['sortie','sortie_eq','common','select_chapter','select_party']):
+                    self.locator.click('story_skip1')
+                    time.sleep(5)
+            self.debug("In battle stage")
+            self.stop_watch()
+            while (not self.locator.locate('end_of_quest')) and self.running:
+                time.sleep(5)
+            self.debug("The Quest ended")
+            self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
+            while (not self.locator.locate(sorties)) and self.running:
+                self.locator.locate_and_click('back_to_sortie')
+                if not self.locator.locate_dir(is_dir_path):
+                    self.locator.click('story_skip1')
+                    time.sleep(5)
+            cnt += 1
+            self.log(f"Completed: {cnt} and {rep_time-cnt} left.")
+            self.stop_watch()
+            if cnt >= rep_time:
+                break
+
+            # Change party
+            self.debug("Select next party")
+            select_next_parties = ["select_next_party", "select_next_party_quest", "select_next_party_eq"]
+            time.sleep(5)
+            while (not self.locator.locate(select_next_parties)) and self.running:
+                self.debug("Selecting party button")
+                self.locator.locate_and_click(["select_party", "select_party_quest"])
+            time.sleep(5)
+            while (not self.locator.locate_and_click(select_next_parties)) and self.running:
+                self.debug("Selecting next party")
+                time.sleep(1)
+            self.debug("Next party selected")
+            time.sleep(3)
+
         if (finish_button != None) and self.running:
             self.log("Automaiton completed.")
             finish_button.click()
@@ -239,24 +294,22 @@ class Automator:
 
         self.start_keep_clicks()
 
-        sorties = ['sortie','sortie2','sortie3']
+        sorties = ['sortie','sortie2','sortie3', 'sortie_multi']
         while self.running:
             self.init_time()
             self.debug(f"Before battle stage.")
             while (not self.locator.locate('auto')) and self.running:
-                sortie_cond = False
-                if num_of_players == 1:
-                    sortie_cond = True
-                elif num_of_players == 2:
-                    if self.locator.locate('more_than_2'):
-                        sortie_cond = True
-                elif num_of_players == 3:
-                    if self.locator.locate('more_than_3'):
-                        sortie_cond = True
-                elif num_of_players == 4:
-                    if self.locator.locate('four_people'):
-                        sortie_cond = True
-                if sortie_cond:
+                num_of_party = None
+                # Check the number of party.
+                if self.locator.locate("party_four"):
+                    num_of_party = 4
+                elif self.locator.locate("party_three"):
+                    num_of_party = 3
+                elif self.locator.locate("party_two"):
+                    num_of_party = 2
+                else:
+                    num_of_party = 1
+                if num_of_party >= num_of_players:
                     self.debug(f"Trying to click sortie, # of players: {num_of_players}, elap_time: {int(self.elapsed_time())} sec")
                     self.locator.locate_and_click(sorties)
                 if self.elapsed_time() > 180:
