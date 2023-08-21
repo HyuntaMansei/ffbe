@@ -3,6 +3,7 @@ menu_cancel.png
 cancel.png
 go_back.png
 later.png
+later_chocobo.png
 next.png
 not_auto.png
 ok.png

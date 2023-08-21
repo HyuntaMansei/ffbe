@@ -1,8 +1,0 @@
-3x_room.png
-cancel.png
-next.png
-not_auto.png
-ok.png
-ready.png
-recruit_list.png
-yes.png

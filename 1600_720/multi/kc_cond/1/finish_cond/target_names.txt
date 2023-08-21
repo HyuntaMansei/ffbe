@@ -1,4 +1,0 @@
-sortie.png
-sortie_quest.png
-sortie_eq.png
-sortie_confirm.png

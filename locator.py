@@ -11,7 +11,7 @@ import configparser
 class Locator:
     def __init__(self, hwnd:str=None, path:str='./', confidence=0.95, debug=print, log=print, error=print):
         print("---Initiating Locator---")
-        print(hwnd, path, log, debug)
+        # print(hwnd, path, log, debug)
         self.debug = debug
         self.log = log
         self.error = error
@@ -25,6 +25,8 @@ class Locator:
         print("---End of Initializing Locator---")
     def set_secondary_path(self, path):
         self.sec_path = path
+    def set_default_path(self, path):
+        self.default_path = path
     def basic_init(self, path, confidence=0.95):
         print("In basic_init of Locator")
         self.confidence = confidence
@@ -225,7 +227,8 @@ class Locator:
         else:
             return False
     def locate_dir(self, dir_path):
-        path = (self.img_path + dir_path + '/').replace("//", "/")
+        # path = (self.img_path + dir_path + '/').replace("//", "/")
+        path = os.path.join(self.img_path,dir_path)
         base_path = (dir_path + '/').replace("//", "/")
         try:
             # files = os.listdir(path)
@@ -234,7 +237,7 @@ class Locator:
             for f in os.listdir(path):
                 if os.path.isfile(os.path.join(path, f)):
                     if f.split('.')[-1] == 'txt':
-                        with open(path + f, "r") as file:
+                        with open(os.path.join(path, f), "r") as file:
                             lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
                         images_in_dir.extend(lines)
                     elif f.split('.')[-1] == "png":
@@ -244,7 +247,7 @@ class Locator:
             # print(images_in_dir)
             return self.locate(images_in_dir)
         except Exception as e:
-            print(f"with {e}, No such dir: {self.img_path+dir_path}")
+            print(f"with {e}, No such dir: {os.path.join(self.img_path,dir_path)}")
             return None
     def locate_all_dir(self, dir_path):
         path = (self.img_path + dir_path + '/').replace("//", "/")

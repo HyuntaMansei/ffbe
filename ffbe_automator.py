@@ -130,15 +130,23 @@ class Automator:
             self.error(f"No such device type: {device_type}")
             return False
         self.secondary_img_path = self.automation_path + 'images/'
+        self.default_automation_path = './common/'
         return True
     def create_locator(self):
         self.debug("Starting: def init_locator")
         job = self.job
         # self.automation_path += job.replace('play_', '')
         self.automation_path += job.replace('play_', '') + '/'
+        self.default_automation_path = os.path.join(self.default_automation_path, job.replace('play_', ''))
+        # Automation folder가 없을 경우, common 폴더를 사용한다.
+        if not os.path.isdir(self.automation_path):
+            self.automation_path = self.default_automation_path
+            self.debug(f"No automation folder, use default folder: {self.automation_path}")
+        self.default_automation_path = os.path.join(self.default_automation_path,job.replace('play_', ''))
         self.debug(f"Locator Path: {self.automation_path}")
         self.locator = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
         self.locator.set_secondary_path(self.secondary_img_path)
+        self.locator.set_default_path(self.default_automation_path)
         self.locator.load_conf(self.device_type)
         self.locator.confidence = self.confidence
         self.time_limit = 300
@@ -197,7 +205,7 @@ class Automator:
                 if self.locator.locate_and_click_all_dir(is_dir_path, target='top_quest'):
                      time.sleep(4)
                 time.sleep(1)
-                if not self.locator.locate(['sortie', 'sortie_eq','common', 'select_party']):
+                if not self.locator.locate(['sortie','sortie_eq','common','select_party']):
                     self.locator.click('story_skip1')
                     time.sleep(5)
                     # if not self.locator.locate(['sortie','sortie_eq','common', 'another_world']):
@@ -268,10 +276,11 @@ class Automator:
             self.debug("Select next party")
             select_next_parties = ["select_next_party", "select_next_party_quest", "select_next_party_eq"]
             time.sleep(5)
-            while (not self.locator.locate(select_next_parties)) and self.running:
+            while (not self.locator.locate("select_party_scroll")) and self.running:
                 self.debug("Selecting party button")
                 self.locator.locate_and_click(["select_party", "select_party_quest"])
-            time.sleep(5)
+                time.sleep(2)
+            time.sleep(3)
             while (not self.locator.locate_and_click(select_next_parties)) and self.running:
                 self.debug("Selecting next party")
                 time.sleep(1)
@@ -708,7 +717,7 @@ class Automator:
     def keep_click_conditional(self, target_dir:str='kc_cond', sleep_time=None):
         if sleep_time == None:
             sleep_time = 1
-        locator_kc = locator.Locator(self.my_hwnd, self.automation_path+target_dir, error=self.error)
+        locator_kc = locator.Locator(self.my_hwnd, os.path.join(self.automation_path,target_dir), error=self.error)
         locator_kc.set_secondary_path(self.secondary_img_path)
         locator_kc.load_conf(self.device_type)
         locator_kc.confidence = self.confidence
