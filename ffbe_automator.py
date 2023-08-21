@@ -197,10 +197,10 @@ class Automator:
                 if self.locator.locate_and_click_all_dir(is_dir_path, target='top_quest'):
                      time.sleep(4)
                 time.sleep(1)
-                if not self.locator.locate(['sortie', 'common', 'select_party']):
+                if not self.locator.locate(['sortie', 'sortie_eq','common', 'select_party']):
                     self.locator.click('story_skip1')
                     time.sleep(1)
-                    if not self.locator.locate(['sortie', 'common', 'another_world']):
+                    if not self.locator.locate(['sortie','sortie_eq','common', 'another_world']):
                         self.locator.click('story_skip2')
                         time.sleep(1)
                     else:
@@ -259,7 +259,7 @@ class Automator:
                 if sortie_cond:
                     self.debug(f"Trying to click sortie, # of players: {num_of_players}, elap_time: {int(self.elapsed_time())} sec")
                     self.locator.locate_and_click(sorties)
-                if self.elapsed_time() > 120:
+                if self.elapsed_time() > 180:
                      while (self.locator.locate('checking_the_result')) and self.running:
                          self.debug("Kicking some checking the result!")
                          if self.locator.locate_and_click('checking_the_result'):
@@ -588,9 +588,9 @@ class Automator:
             self.locator.locate_and_click(targets)
             time.sleep(0.5)
         time.sleep(2)
-        self.debug("Trying to swipe up")
-        self.my_device.shell("input swipe 900 600 900 300 1000")
-        time.sleep(2)
+        # self.debug("Trying to swipe up")
+        # self.my_device.shell("input swipe 900 600 900 300 1000")
+        # time.sleep(2)
         for cnt in range(recover_cnt):
             self.locator.locate_and_click('120')
             time.sleep(0.5)
@@ -630,6 +630,7 @@ class Automator:
             sleep_time = 1
         self.debug(f"Func, keep_click, starts now. Img_dir: {self.automation_path+target_dir}")
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, error=self.error)
+        locator_kc.set_secondary_path(self.secondary_img_path)
         locator_kc.load_conf(self.device_type)
         locator_kc.confidence = self.confidence
         if not 'gpg' in self.device_type:
@@ -655,6 +656,7 @@ class Automator:
         if sleep_time == None:
             sleep_time = 1
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path+target_dir, error=self.error)
+        locator_kc.set_secondary_path(self.secondary_img_path)
         locator_kc.load_conf(self.device_type)
         locator_kc.confidence = self.confidence
         if not 'gpg' in self.device_type:

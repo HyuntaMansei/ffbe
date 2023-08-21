@@ -1,0 +1,11 @@
+3x_room.png
+cancel.png
+next.png
+next2.png
+not_auto.png
+ok.png
+ok2.png
+ok4.png
+ready.png
+recruit_list.png
+yes.png

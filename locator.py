@@ -82,6 +82,7 @@ class Locator:
                 time.sleep(10)
                 # exit signal 보내기.
     def get_path(self, img_name:str):
+        img_name = img_name.strip()
         if img_name[-4:] != '.png':
             img_path = self.img_path + img_name + '.png'
             sec_img_path = self.sec_path + img_name + '.png'
@@ -90,7 +91,7 @@ class Locator:
             sec_img_path = self.sec_path + img_name
         if os.path.exists(img_path) == False:
             if os.path.exists(sec_img_path) == False:
-                self.debug(f"No such file: {img_path}")
+                self.debug(f"No such file: {img_path} or {sec_img_path}")
                 return False
             else:
                 # self.debug(f"Using sec_path for img: {sec_img_path}")
@@ -227,19 +228,43 @@ class Locator:
         path = (self.img_path + dir_path + '/').replace("//", "/")
         base_path = (dir_path + '/').replace("//", "/")
         try:
-            files = os.listdir(path)
-            imgs_in_dir = [base_path + f for f in files]
-            return self.locate(imgs_in_dir)
-        except:
-            print(f"No such dir: {self.img_path+dir_path}")
+            # files = os.listdir(path)
+            # imgs_in_dir = [base_path + f for f in files]
+            images_in_dir = []
+            for f in os.listdir(path):
+                if os.path.isfile(os.path.join(path, f)):
+                    if f.split('.')[-1] == 'txt':
+                        with open(path + f, "r") as file:
+                            lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
+                        images_in_dir.extend(lines)
+                    elif f.split('.')[-1] == "png":
+                        images_in_dir.append(base_path + f)
+                    else:
+                        self.error(f"Unknown File Extension: {f}")
+            # print(images_in_dir)
+            return self.locate(images_in_dir)
+        except Exception as e:
+            print(f"with {e}, No such dir: {self.img_path+dir_path}")
             return None
     def locate_all_dir(self, dir_path):
         path = (self.img_path + dir_path + '/').replace("//", "/")
         base_path = (dir_path + '/').replace("//", "/")
         try:
-            files = os.listdir(path)
-            imgs_in_dir = [base_path + f for f in files]
-            return self.locate_all(imgs_in_dir)
+            # files = os.listdir(path)
+            # imgs_in_dir = [base_path + f for f in files]
+            images_in_dir = []
+            for f in os.listdir(path):
+                if os.path.isfile(os.path.join(path, f)):
+                    if f.split('.')[-1] == 'txt':
+                        with open(path + f, "r") as file:
+                            lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
+                        images_in_dir.extend(lines)
+                    elif f.split('.')[-1] == "png":
+                        images_in_dir.append(base_path + f)
+                    else:
+                        self.error(f"Unknown File Extension: {f}")
+            # print(images_in_dir)
+            return self.locate_all(images_in_dir)
         except Exception as e:
             print(f"Exception: {e} with dir: {dir_path} in function - locate_all_dir")
             return None
@@ -247,9 +272,21 @@ class Locator:
         click_interval = self.multi_click_interval
         path = (self.img_path + dir_name + '/').replace("//", "/")
         base_path = (dir_name + '/').replace("//", "/")
-        files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
-        # print(files)
-        images_in_dir = [base_path + f for f in files]
+        # files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
+        # # print(files)
+        # images_in_dir = [base_path + f for f in files]
+        images_in_dir = []
+        for f in os.listdir(path):
+            if os.path.isfile(os.path.join(path, f)):
+                if f.split('.')[-1] == 'txt':
+                    with open(path + f, "r") as file:
+                        lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
+                        # print(lines)
+                    images_in_dir.extend(lines)
+                elif f.split('.')[-1] == "png":
+                    images_in_dir.append(base_path + f)
+                else:
+                    self.error(f"Unknown File Extension: {f}")
         # print(images_in_dir)
         result_list = []
         result = None
