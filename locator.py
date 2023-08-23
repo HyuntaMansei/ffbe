@@ -178,13 +178,14 @@ class Locator:
             time.sleep(self.sltime_after_click)
         else:
             print(f"clicking as device xy: {xy} by pyautogui click")
-            pyautogui.click(xy)
+            # pyautogui.click(xy)
+            pyautogui.click(xy[0], xy[1])
             time.sleep(self.sltime_after_click)
             pyautogui.moveTo(prev_pos.x, prev_pos.y)
         return xy
     def click(self, xy):
         """
-
+        Client 기준 좌표 또는 target의 이름을 받아서 클릭(click_on_screen 호출)
         :param xy: Client기준 좌표 | target 이름
         :return:
         """
@@ -208,10 +209,10 @@ class Locator:
         loc = self.locate_on_screen(img_name)
         if loc != None:
             if target == None:
-                self.debug(f"Clicking {img_name} and Loc:{loc}, ")
+                self.debug(f"Suc. located and clicking {img_name} and Loc:{loc}, ")
                 return self.click_on_screen(loc)
             else:
-                self.debug(f"Clicking coordinate: {target}")
+                self.debug(f"Suc. located and clicking coordinate: {target}")
                 return self.click(target)
         return None
     def set_coor_file_path(self, file_name):
