@@ -163,20 +163,31 @@ class Locator:
         else:
             return None
     def click_on_screen(self, xy):
+        """
+        화면상의 좌표를 받아서 클릭
+        :param xy: 모니터 화면상의 좌표
+        :return:
+        """
         prev_pos = pyautogui.position()
         time.sleep(self.sltime_before_click)
         if self.click_on_device != None:
             x, y = win32gui.ScreenToClient(self.hwnd, xy)
             xy = (x-self.real_cli_x0, y-self.real_cli_y0)
-            # print(f"clicking as device xy: {xy}")
+            print(f"clicking as device xy: {xy} by click_on_device")
             self.click_on_device(xy[0], xy[1])
             time.sleep(self.sltime_after_click)
         else:
+            print(f"clicking as device xy: {xy} by pyautogui click")
             pyautogui.click(xy)
             time.sleep(self.sltime_after_click)
             pyautogui.moveTo(prev_pos.x, prev_pos.y)
         return xy
     def click(self, xy):
+        """
+
+        :param xy: Client기준 좌표 | target 이름
+        :return:
+        """
         if type(xy) == tuple:
             pass
         elif xy in self.xys.keys():
