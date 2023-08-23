@@ -1,5 +1,5 @@
 another_world.png
-continue.png
+return_to_multi_quest.png
 is.png
 multi.png
 select_quest.png
