@@ -1,3 +1,0 @@
-cancel.png
-give_up.png
-give_up_multi.png

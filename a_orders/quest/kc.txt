@@ -1,0 +1,15 @@
+[1]
+skip_movie.png
+menu_cancel.png
+cancel.png
+go_back.png
+later.png
+later_chocobo.png
+next.png
+not_auto.png
+ok.png
+sortie.png
+sortie_quest.png
+sortie_eq.png
+sortie_confirm.png
+x.png

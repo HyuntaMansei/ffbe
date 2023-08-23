@@ -1,6 +1,6 @@
 import os.path
 import threading
-
+import re
 import mss
 import mss.tools
 import win32gui
@@ -9,31 +9,28 @@ import pyautogui
 import time
 import configparser
 class Locator:
-    def __init__(self, hwnd:str=None, path:str='./', confidence=0.95, debug=print, log=print, error=print):
+    def __init__(self, hwnd:str=None, automation_path='./a_orders', img_path='./images/', confidence=0.95, debug=print, log=print, error=print):
         print("---Initiating Locator---")
         # print(hwnd, path, log, debug)
         self.debug = debug
         self.log = log
         self.error = error
+        self.xys = {}
         self.sct = mss.mss()
-        self.sec_path = None
-        self.basic_init(path, confidence)
+        self.basic_init(automation_path, img_path, confidence)
         if hwnd != None:
             self.size_init(hwnd)
         th_rect_checker = threading.Thread(target=self.rect_checker)
         th_rect_checker.start()
         print("---End of Initializing Locator---")
-    def set_secondary_path(self, path):
-        self.sec_path = path
-    def set_default_path(self, path):
-        self.default_path = path
-    def basic_init(self, path, confidence=0.95):
+    def basic_init(self, automation_path, img_path, confidence=0.95):
         print("In basic_init of Locator")
         self.confidence = confidence
         self.sltime_before_click = 0.1
         self.sltime_after_click = 0.1
         self.multi_click_interval = 0.1
-        self.set_path(path)
+        self.automation_path = automation_path
+        self.img_path = img_path
         self.click_on_device = None
         self.debug_msg_list = []
         self.print_debug = print
@@ -42,6 +39,7 @@ class Locator:
         print("In load_conf of Locator")
         config = configparser.ConfigParser()
         config.read('./locator_config.txt')
+        self.device_type = device_type
         self.conf = config[device_type]
         # self.conf['dev_size']
         self.real_cli_x0, self.real_cli_y0 = (int(self.conf['real_cli_xy0'].split(',')[0]), int(self.conf['real_cli_xy0'].split(',')[1]))
@@ -49,11 +47,6 @@ class Locator:
         self.read_coordinates()
     def connect_click_method(self, click):
         self.click_on_device = click
-    def set_path(self, img_path:str):
-        self.img_path = img_path
-        if (self.img_path[-1] != "/") and (self.img_path[-1] != "\\"):
-            self.img_path += "/"
-        self.sec_path = img_path
     def size_init(self, hwnd=None, window_text=None, rect=None):
         print("In size_init")
         if rect != None:
@@ -86,165 +79,101 @@ class Locator:
     def get_path(self, img_name:str):
         img_name = img_name.strip()
         if img_name[-4:] != '.png':
-            img_path = self.img_path + img_name + '.png'
-            sec_img_path = self.sec_path + img_name + '.png'
+            img_path = os.path.join(self.img_path, img_name + '.png')
         else:
-            img_path = self.img_path + img_name
-            sec_img_path = self.sec_path + img_name
-        if os.path.exists(img_path) == False:
-            if os.path.exists(sec_img_path) == False:
-                self.debug(f"No such file: {img_path} or {sec_img_path}")
-                return False
-            else:
-                # self.debug(f"Using sec_path for img: {sec_img_path}")
-                return sec_img_path
+            img_path = os.path.join(self.img_path, img_name)
+        if not os.path.exists(img_path):
+            self.debug(f"No such file: {img_path}")
+            return False
         return img_path
     def locate(self, image_name):
+        """
+        이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
+        리스트에 대해서는 순차대로 검색 후, 첫번째 일치 좌표를 리턴한다.
+        :param image_name: 단일 이미지 이름 | list of 이미지이름
+        :return: window 기준 중심 좌표
+        """
         if not win32gui.IsWindowVisible(self.hwnd):
             self.error("Window is not visible. return None")
             return None
         # especially for list of images
         if type(image_name) == list:
-            # self.debug(f"Multiple images locating: {img_name}.")
             for image in image_name:
                 result = self.locate(image)
                 if result != None:
-                    self.debug(f"Successfully located: {self.img_path+image} at {result}")
+                    self.debug(f"Successfully located: {os.path.join(self.img_path,image)} at {result}")
                     return result
-            # self.debug(f"Failed to locate {img_name}.")
             return None
-        # self.debug(f"One image locating: {img_name}.")
         img = self.sct.grab(self.rect)
         pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+        loc = None
         try:
             img_path = self.get_path(image_name)
-            # self.debug(f"Img path: {img_path}")
             if img_path:
-                if self.confidence != None:
-                    # print(f"Locating with confidence: {img_path}")
+                if self.confidence:
                     loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
                 else:
-                    # print(f"Locating without confidence: {img_path}")
                     loc = pyautogui.locate(img_path, pil_img)
-            else:
-                loc = None
         except Exception as e:
             print(f"Exception: {e} with img_path:{img_path} in locate")
-            loc = None
-        if loc != None:
-            # print(f"Locating: {loc}, center:{loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2)}")
-            # print("Saving sc.png")
-            # pil_img.save('sc.png')
-            # self.debug(f"Successfully located: {img_name} at {loc}")
-            return (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
-        # self.debug(f"Failed to locate {img_name}.")
+        if loc:
+            center = (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
+            return center
         return None
-    def locate_all(self, img_list):
-        if not win32gui.IsWindowVisible(self.hwnd):
-            self.error("Window is not visible. return None")
-            return None
-        # especially for list of images and returns list of locations
-        # self.debug(f"Locating all: {img_list}")
-        loc_list = []
-        for i in img_list:
-            res = self.locate(i)
-            if res != None:
-                # self.debug(f"Successfully located: {i} at {res}")
-                loc_list.append(res)
-        if loc_list:
-            return loc_list
-        else:
-            # self.debug(f"Failed to locate {img_name}.")
-            return None
-    def locate_on_screen(self, img_name):
-        loc = self.locate(img_name)
-        if loc != None:
-            return (self.client_xy0[0]+loc[0], self.client_xy0[1]+loc[1])
-        else:
-            return None
-    def click_on_screen(self, xy):
+    def click(self, target):
         """
-        화면상의 좌표를 받아서 클릭
-        :param xy: 모니터 화면상의 좌표
-        :return:
+        click_on_client와 동일한 기능으로 이해하면 됨.
+        Client 기준 좌표 또는 target의 이름을 받아서 클릭(click_on_screen 호출)
+        :param target: Client기준 좌표 | target 이름
+        :return: 클릭한 좌표
         """
+        if type(target) == tuple:
+            xy = target
+        elif target in self.xys.keys():
+            xy = self.xys[target]
+        else:
+            self.read_coordinates()
+            if target in self.xys.keys():
+                xy = self.xys[target]
+            else:
+                pass
+                print(f"No target as {target}")
+                return False
         prev_pos = pyautogui.position()
-        time.sleep(self.sltime_before_click)
-        if self.click_on_device != None:
-            x, y = win32gui.ScreenToClient(self.hwnd, xy)
-            xy = (x-self.real_cli_x0, y-self.real_cli_y0)
-            print(f"clicking as device xy: {xy} by click_on_device")
-            self.click_on_device(xy[0], xy[1])
+        # 위에서 계산한 좌표를 클릭
+        # click_on_device가 있는 경우와 그렇지 않은경우(GPG)
+        if self.click_on_device:
+            to_click_xy = (xy[0] - self.real_cli_x0, xy[1] - self.real_cli_y0)
+            self.click_on_device(xy[0]-self.real_cli_x0, xy[1]-self.real_cli_y0)
+            print(f"Clicking {target} as device xy: {to_click_xy} by click_on_device")
             time.sleep(self.sltime_after_click)
         else:
-            print(f"clicking as device xy: {xy} by pyautogui click")
-            # pyautogui.click(xy)
-            pyautogui.click(xy[0], xy[1])
+            to_click_xy = (self.client_xy0[0]+xy[0] - self.real_cli_x0, self.client_xy0[1]+xy[1] - self.real_cli_y0)
+            pyautogui.click(to_click_xy[0], to_click_xy[1])
+            print(f"Clicking {target} as device xy: {to_click_xy} by pyautogui click")
             time.sleep(self.sltime_after_click)
             pyautogui.moveTo(prev_pos.x, prev_pos.y)
         return xy
-    def click(self, xy):
-        """
-        Client 기준 좌표 또는 target의 이름을 받아서 클릭(click_on_screen 호출)
-        :param xy: Client기준 좌표 | target 이름
-        :return:
-        """
-        if type(xy) == tuple:
-            pass
-        elif xy in self.xys.keys():
-            xy = self.xys[xy]
-        else:
-            self.read_coordinates()
-            if xy in self.xys.keys():
-                xy = self.xys[xy]
-            else:
-                loc = self.locate(xy)
-                xy = win32gui.ScreenToClient(self.hwnd, loc)
-                # xy = win32gui.ScreenToClient(self.hwnd, self.locate(xy))
-                if not xy:
-                    return False
-        loc = win32gui.ClientToScreen(self.hwnd, xy)
-        return self.click_on_screen(loc)
     def locate_and_click(self, img_name, target=None):
-        loc = self.locate_on_screen(img_name)
-        if loc != None:
-            if target == None:
-                self.debug(f"Suc. located and clicking {img_name} and Loc:{loc}, ")
-                return self.click_on_screen(loc)
-            else:
-                self.debug(f"Suc. located and clicking coordinate: {target}")
+        """
+        검색할 이미지와 클릭할 타겟을 받아서, 이미지가 검색될 경우 타켓을 클릭.
+        타겟이 없을 경우 이미지 클릭.
+        :param img_name: 검색할 이미지 | list of 이미지
+        :param target: 클릭할 좌표 | None
+        :return: 클릭한 좌표값
+        """
+        loc = self.locate(img_name)
+        if loc:
+            if target:
+                self.debug(f"Suc. to located and clicking coordinate: {target}")
                 return self.click(target)
+            else:
+                self.debug(f"Suc. to located and clicking {img_name} and Loc on window:{loc}")
+                return self.click(loc)
         return None
-    def set_coor_file_path(self, file_name):
-        self.coor_file_path = self.img_path + file_name
-    def read_coordinates(self, file_name:str=None):
-        print(f"In def-read_coordinates, file_name:{file_name}")
-        self.xys = {}
-        if file_name != None:
-            try:
-                with open(file_name, 'r') as f:
-                    lines = f.readlines()
-                    for l in lines:
-                        print(f"reading coordinates: {l}", end='')
-                        try:
-                            self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
-                        except:
-                            print(f"reading error")
-                print("")
-            except Exception as e:
-                self.debug(f"Exception: {e} with file: {file_name} in function - read_coordinates")
-            self.coor_file_path = file_name
-        elif self.coor_file_path != None:
-            self.read_coordinates(self.coor_file_path)
-        else:
-            return False
     def locate_dir(self, dir_path):
-        # path = (self.img_path + dir_path + '/').replace("//", "/")
-        path = os.path.join(self.img_path,dir_path)
-        base_path = (dir_path + '/').replace("//", "/")
+        path = os.path.join(self.automation_path,dir_path)
         try:
-            # files = os.listdir(path)
-            # imgs_in_dir = [base_path + f for f in files]
             images_in_dir = []
             for f in os.listdir(path):
                 if os.path.isfile(os.path.join(path, f)):
@@ -253,53 +182,26 @@ class Locator:
                             lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
                         images_in_dir.extend(lines)
                     elif f.split('.')[-1] == "png":
-                        images_in_dir.append(base_path + f)
+                        images_in_dir.append(os.path.join(dir_path,f))
                     else:
                         self.error(f"Unknown File Extension: {f}")
             # print(images_in_dir)
             return self.locate(images_in_dir)
         except Exception as e:
-            print(f"with {e}, No such dir: {os.path.join(self.img_path,dir_path)}")
-            return None
-    def locate_all_dir(self, dir_path):
-        path = (self.img_path + dir_path + '/').replace("//", "/")
-        base_path = (dir_path + '/').replace("//", "/")
-        try:
-            # files = os.listdir(path)
-            # imgs_in_dir = [base_path + f for f in files]
-            images_in_dir = []
-            for f in os.listdir(path):
-                if os.path.isfile(os.path.join(path, f)):
-                    if f.split('.')[-1] == 'txt':
-                        with open(path + f, "r") as file:
-                            lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
-                        images_in_dir.extend(lines)
-                    elif f.split('.')[-1] == "png":
-                        images_in_dir.append(base_path + f)
-                    else:
-                        self.error(f"Unknown File Extension: {f}")
-            # print(images_in_dir)
-            return self.locate_all(images_in_dir)
-        except Exception as e:
-            print(f"Exception: {e} with dir: {dir_path} in function - locate_all_dir")
+            print(f"with {e}, No such dir: {path}")
             return None
     def locate_and_click_all_dir(self, dir_name, target=None):
         click_interval = self.multi_click_interval
-        path = (self.img_path + dir_name + '/').replace("//", "/")
-        base_path = (dir_name + '/').replace("//", "/")
-        # files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
-        # # print(files)
-        # images_in_dir = [base_path + f for f in files]
+        path = os.path.join(self.automation_path, dir_name)
         images_in_dir = []
         for f in os.listdir(path):
             if os.path.isfile(os.path.join(path, f)):
                 if f.split('.')[-1] == 'txt':
-                    with open(path + f, "r") as file:
+                    with open(os.path.join(path, f), "r") as file:
                         lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
-                        # print(lines)
                     images_in_dir.extend(lines)
                 elif f.split('.')[-1] == "png":
-                    images_in_dir.append(base_path + f)
+                    images_in_dir.append(os.path.join(dir_name,f))
                 else:
                     self.error(f"Unknown File Extension: {f}")
         # print(images_in_dir)
@@ -317,10 +219,38 @@ class Locator:
             return result_list
         else:
             return None
-    def locate_on_screen_all_dir(self, dir_path):
-        loc_list = self.locate_all_dir(dir_path)
-        if loc_list != None:
-            loc_on_screen_list = [(self.client_xy0[0] + loc[0], self.client_xy0[1] + loc[1]) for loc in loc_list]
-            return loc_on_screen_list
-        else:
-            return None
+    def set_coor_file_path(self, file_name):
+        """
+        좌표가 적혀있는 파일 이름을 설정.
+        :param file_name:
+        :return:
+        """
+        self.coor_file_path = self.img_path + file_name
+    def read_coordinates(self):
+        cord_file_path = "./coordinates.txt"
+        try:
+            cord_list = self.read_config(cord_file_path)[self.device_type]
+            for l in cord_list:
+                self.xys[l.split('=')[0].strip()] = (int(l.split('=')[1].split(',')[0].strip()), int(l.split('=')[1].split(',')[1].strip()))
+        except Exception as e:
+            print(f"Error in func. read_coordinates, with {e}")
+            return False
+    def read_config(self, filepath):
+        # print(f"In func. read_config, filepath={filepath}")
+        with open(filepath, 'r') as f:
+            lines = f.readlines()
+        p = re.compile('\[.+\]')
+        config_dict = {}
+        content = []
+        for l in lines:
+            m = re.match(p,l)
+            if m:
+                if content:
+                    config_dict[cur_label] = content
+                cur_label = m.group()[1:-1]
+                content = []
+            else:
+                content.append(l.strip())
+        if content:
+            config_dict[cur_label] = content
+        return config_dict

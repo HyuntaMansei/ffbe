@@ -1,6 +1,0 @@
-another_world.png
-return_to_multi_quest.png
-is.png
-multi.png
-select_quest.png
-to_is.png

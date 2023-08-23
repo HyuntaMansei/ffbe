@@ -216,7 +216,7 @@ class MyWidget(QtWidgets.QWidget):
         self.cb_operation.currentTextChanged.connect(self.on_cb_operation_text_changed)
         self.le_rep.setText("300")
         self.le_players.setText("4")
-        self.le_sleep_multiple.setText("4")
+        self.le_sleep_multiple.setText("3")
         self.show()
     def init_msg_boxes(self):
         self.log_list = []
@@ -378,17 +378,17 @@ class MyWidget(QtWidgets.QWidget):
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
         self.sleep_multiple = int(self.le_sleep_multiple.text())
-    def log(self, msg:str):
-        self.log_list.append(msg)
+    def log(self, msg):
+        self.log_list.append(f"{msg}")
         msg_event = MsgEvent()
         QCoreApplication.postEvent(self, msg_event)
-    def debug(self, msg:str):
-        self.debug_list.append(msg)
+    def debug(self, msg):
+        self.debug_list.append(f"{msg}")
         msg_event = MsgEvent()
         QCoreApplication.postEvent(self, msg_event)
-    def error(self, msg:str):
-        print(f"Error occurred: ", msg)
-        self.error_list.append(msg)
+    def error(self, msg):
+        print(f"Error occurred: {msg}")
+        self.error_list.append(f"{msg}")
         msg_event = MsgEvent()
         QCoreApplication.postEvent(self, msg_event)
     def show_msg(self):

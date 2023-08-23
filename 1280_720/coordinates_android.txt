@@ -1,4 +1,0 @@
-top_quest = 1151,200
-story_skip1 = 1380,129
-story_skip2 = 1313,50
-story_skip3 = 1284,50

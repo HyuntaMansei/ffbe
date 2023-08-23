@@ -1,8 +1,0 @@
-another_world.png
-cancel_summon.png
-is.png
-multi.png
-retry.png
-to_is.png
-x.png
-x_multi.png

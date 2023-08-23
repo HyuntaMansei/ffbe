@@ -1,3 +1,0 @@
-create_room.png
-create_room_cmd.png
-retry.png

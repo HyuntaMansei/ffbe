@@ -1,4 +1,0 @@
-another_world.png
-is.png
-multi.png
-to_is.png
