@@ -1,10 +1,10 @@
 [1]
 ok.png
 ok_multi.png
+cancel_multi.png
 [2]
 host_any_3x.png
 cancel.png
-cancel_multi.png
 next.png
 ready.png
 recruit_list.png
