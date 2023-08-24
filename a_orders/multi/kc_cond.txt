@@ -8,6 +8,7 @@ very_hard_glacial
 [start]
 input_password.png
 select_play_style
+select_quest
 [finish]
 sortie.png
 sortie_quest.png

@@ -13,3 +13,4 @@ sortie_quest.png
 sortie_eq.png
 sortie_confirm.png
 x.png
+yes
