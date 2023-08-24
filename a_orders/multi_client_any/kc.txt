@@ -3,7 +3,6 @@ host_any_3x.png
 cancel.png
 cancel_multi.png
 next.png
-not_auto.png
 ok.png
 ok_multi.png
 ready.png

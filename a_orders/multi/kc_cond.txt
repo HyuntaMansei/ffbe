@@ -1,9 +1,13 @@
 [1]
 create_room.png
+create_room_multi.png
 create_room_cmd.png
 retry.png
+very_hard_raid_boss.png
+very_hard_glacial
 [start]
 input_password.png
+select_play_style
 [finish]
 sortie.png
 sortie_quest.png

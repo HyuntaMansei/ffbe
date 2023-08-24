@@ -1,5 +1,6 @@
 [1]
 cancel.png
+cancel_multi
 give_up.png
 go_back.png
 next.png
