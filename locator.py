@@ -162,15 +162,23 @@ class Locator:
         :param target: 클릭할 좌표 | None
         :return: 클릭한 좌표값
         """
-        loc = self.locate(img_name)
-        if loc:
-            if target:
-                self.debug(f"Suc. to located and clicking coordinate: {target}")
-                return self.click(target)
-            else:
-                self.debug(f"Suc. to located and clicking {img_name} and Loc on window:{loc}")
-                return self.click(loc)
-        return None
+        if type(img_name) == list:
+            res_list =[]
+            for img in img_name:
+                res = self.locate_and_click(img)
+                if res:
+                    res_list.append(res)
+            return res_list
+        else:
+            loc = self.locate(img_name)
+            if loc:
+                if target:
+                    self.debug(f"Suc. to located and clicking coordinate: {target}")
+                    return self.click(target)
+                else:
+                    self.debug(f"Suc. to located and clicking {img_name} and Loc on window:{loc}")
+                    return self.click(loc)
+            return None
     def locate_dir(self, dir_path):
         path = os.path.join(self.automation_path,dir_path)
         try:
