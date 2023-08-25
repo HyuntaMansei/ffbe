@@ -441,5 +441,5 @@ class Output_Widget(QtWidgets.QWidget):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()
-    widget.setWindowTitle("for 레오니스")
+    widget.setWindowTitle("for 레오니스 v0.1")
     sys.exit(app.exec_())

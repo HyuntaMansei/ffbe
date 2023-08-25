@@ -149,6 +149,8 @@ class Locator:
             time.sleep(self.sltime_after_click)
         else:
             to_click_xy = (self.client_xy0[0]+xy[0] - self.real_cli_x0, self.client_xy0[1]+xy[1] - self.real_cli_y0)
+            time.sleep(self.sltime_before_click)
+            pyautogui.moveTo(to_click_xy[0], to_click_xy[1], duration=0.2)
             pyautogui.click(to_click_xy[0], to_click_xy[1])
             print(f"Clicking {target} as device xy: {to_click_xy} by pyautogui click")
             time.sleep(self.sltime_after_click)
