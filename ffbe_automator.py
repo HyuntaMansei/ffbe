@@ -198,7 +198,6 @@ class Automator:
         finish_button = self.finish_button
         is_imgs = ["common", "select_chapter"]
         self.start_keep_clicks()
-        # except_targets = ["sortie"]
         cnt = 0
         while self.running:
             # 퀘스트 자동 진행
@@ -229,12 +228,11 @@ class Automator:
             self.debug("Battle Ended.")
             self.debug("The quest ended")
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
-            while ((not self.locator.locate(is_imgs)) and not self.locator.locate('sortie')) and self.running:
+            while ((not self.locator.locate(is_imgs)) and not self.locator.locate('sortie', 'sortie_eq')) and self.running:
                 self.locator.locate_and_click('end_of_quest')
                 if not self.locator.locate(is_imgs):
                     self.locator.click('story_skip1')
                     time.sleep(5)
-                    # self.locator.click('story_skip3')
             cnt += 1
             self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
             self.stop_watch()
@@ -244,7 +242,6 @@ class Automator:
             self.log("Automaiton completed.")
             finish_button.click()
         self.debug("Quit automation.")
-
     def play_quest_with_different_party(self):
         self.running = True
         self.locator.confidence = 0.95
@@ -299,7 +296,6 @@ class Automator:
             self.log("Automaiton completed.")
             finish_button.click()
         self.debug("Quit automation.")
-
     def play_multi(self):
         self.locator.confidence = 0.90
         rep_time = self.rep_time
@@ -312,7 +308,7 @@ class Automator:
 
         self.start_keep_clicks()
 
-        sorties = ['sortie', 'sortie2', 'sortie3', 'sortie_multi']
+        sorties = ['sortie','sortie_6','sortie_12','sortie_18','sortie_multi']
         while self.running:
             self.init_time()
             self.debug(f"Before battle stage.")
@@ -329,7 +325,7 @@ class Automator:
                     num_of_party = 1
                 if num_of_party >= num_of_players:
                     self.debug(
-                        f"Trying to click sortie, # of players: {num_of_players}, elap_time: {int(self.elapsed_time())} sec")
+                        f"Trying to click sortie, # of players: {num_of_players}, elap. time: {int(self.elapsed_time())} sec")
                     self.locator.locate_and_click(sorties)
                 if self.elapsed_time() > 180:
                     while (self.locator.locate('checking_the_result')) and self.running:
@@ -342,9 +338,10 @@ class Automator:
                                 if (not self.locator.locate('expel')) and (
                                 not self.locator.locate('checking_the_result')):
                                     break
+                            self.init_time()
                 if self.elapsed_time() > self.time_limit:
                     self.debug("Kicking all out!")
-                    while (not self.locator.locate('one_person')) and self.running:
+                    while (not self.locator.locate('party_one')) and self.running:
                         self.locator.locate_and_click('kick_out')
                         self.locator.locate_and_click('expel')
                     self.init_time()
@@ -369,7 +366,6 @@ class Automator:
                 self.log("Automation completed. Exiting.")
                 finish_button.click()
                 break
-
     def play_multi_client(self):
         self.running = True
         cnt = 0
@@ -386,15 +382,14 @@ class Automator:
             cnt += 1
             self.debug("After battle stage.")
             self.log(f"Completed {cnt} times.")
-
     def play_multi_client_any(self):
         self.running = True
         cnt = 0
         self.log("Starting multi_client automation")
         self.start_keep_clicks()
         cnt = 0
-        targets = ['cancel_ready', 'exit_room', 'ok', 'x', 'next']
-        targets2 = ['refresh', 'recruit_list']
+        exit_targets = ['cancel_ready','exit_room','ok','ok_multi','x','x_multi','next']
+        exit_finish = ['refresh','recruit_list', 'auto', 'cancel', 'cancel_multi']
         while self.running:
             self.timer.restart()
             self.limit_timer.restart()
@@ -403,10 +398,10 @@ class Automator:
                 limit_time = int(self.limit_timer.click())
                 print(f"Limit_timer: {limit_time}")
                 if limit_time > 600:
-                    print("In exit code")
+                    self.debug("In exit code")
                     self.stop_keep_click()
-                    while (not self.locator.locate(targets2)) and (not self.locator.locate('auto')) and self.running:
-                        self.locator.locate_and_click(targets)
+                    while (not self.locator.locate(exit_finish)) and (not self.locator.locate('auto')) and self.running:
+                        self.locator.locate_and_click(exit_targets)
                         time.sleep(3)
                     self.start_keep_click()
                     self.limit_timer.restart()
@@ -416,7 +411,6 @@ class Automator:
             cnt += 1
             self.debug("After battle stage.")
             self.log(f"Completed {cnt} times.")
-
     def play_hardship(self):
         self.locator.confidence = 0.98
         rep_time = self.rep_time
@@ -461,7 +455,6 @@ class Automator:
                 self.log("Automation completed. Exiting.")
                 finish_button.click()
                 break
-
     def play_raid(self):
         self.pre_automation_processing()
         self.locator.confidence = 0.98
@@ -500,7 +493,6 @@ class Automator:
                 self.log(f"Automation completed.")
                 finish_button.click()
                 break
-
     def play_raid_host2(self):
         rep_time = self.rep_time
         self.running = True
@@ -524,7 +516,6 @@ class Automator:
             while (not self.locator.locate("sortie")) and self.running:
                 self.locator.locate_and_click(targets)
                 time.sleep(1)
-
     def play_raid_host4(self):
         self.running = True
         self.locator.confidence = 0.95
@@ -554,7 +545,6 @@ class Automator:
                        "create_room", 'cancel2']
             while (not self.locator.locate("sortie")) and self.running:
                 self.locator.locate_and_click(targets)
-
     def play_raid_client(self):
         self.running = True
         self.log("Starting raid client automation")
@@ -577,7 +567,6 @@ class Automator:
             while (not self.locator.locate("ready")) and self.running:
                 self.locator.locate_and_click(targets)
                 time.sleep(1.5)
-
     def play_100tower(self):
         self.running = True
         self.locator.confidence = 0.95
@@ -607,7 +596,6 @@ class Automator:
                 self.log("Automation completed. Exit now.")
                 finish_button.click()
                 break
-
     def summon(self):
         rep_time = self.rep_time
         finish_button = self.finish_button
@@ -628,7 +616,6 @@ class Automator:
                 break
         if (finish_button != None) and self.running:
             finish_button.click()
-
     def skip_battle(self):
         self.pre_automation_processing()
         self.locator.confidence = 0.98
@@ -661,11 +648,10 @@ class Automator:
                 # self.running = False
                 finish_button.click()
                 break
-
     def recover_stamina(self, recover_cnt=8):
         # Recovering
         self.debug("Start recovering stamina")
-        targets = ['yes', 'plus', 'item']
+        targets = ['yes', 'item']
         self.stop_keep_click()
         time.sleep(1)
         while (not self.locator.locate('recover_amount')) and self.running:
@@ -679,18 +665,16 @@ class Automator:
             self.locator.locate_and_click('120')
             time.sleep(0.5)
         # while (not self.locator.locate('sortie')) and self.running:
+        recover_targets = ["recover", "ok_recover"]
         for c in range(10):
             if self.locator.locate('dismiss') or (not self.running):
                 break
-            self.locator.locate_and_click('recover')
-            self.locator.locate_and_click('ok_recover')
+            self.locator.locate_and_click(recover_targets)
             time.sleep(1)
         self.debug("Finished recovering")
         self.start_keep_click()
-
     def sc_off(self):
         self.my_device.shell("settings put system screen_brightness 0")
-
     def test(self):
         self.running = True
         cnt = 0
@@ -701,17 +685,14 @@ class Automator:
         while self.running:
             self.locator.locate_and_click(targets)
             time.sleep(1)
-
     def list_all_methos(self):
         # Get all the methods of the class
         methods = inspect.getmembers(self, predicate=inspect.ismethod)
         # Extract the names of the methods
         method_names = [name for name, _ in methods]
         print(method_names)
-
     def pre_automation_processing(self):
         win32gui.SetForegroundWindow(self.my_hwnd)
-
     def keep_click(self, target_dir: str = None, sleep_time=None, keep_awake=False):
         if target_dir == None:
             target_dir = 'kc'
@@ -812,7 +793,6 @@ class Automator:
                     f"Keep_click_conditional:{target_dir} finished. keep_click_index:{self.stop_keep_click_index}.")
                 print(f"Keep_click_conditional:{target_dir} finished. keep_click_index:{self.stop_keep_click_index}.")
             time.sleep(sleep_time * 2)
-
     def start_keep_clicks_backup(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
@@ -930,20 +910,22 @@ class Automator:
                 m = re.match(p, l)
                 if m:
                     label = m.group()[1:-1]
-                    if re.match('\d+', label):
+                    if label == 'start':
                         if img_dict:
-                            kc_cond_list.append(
-                                {'time': (int(cur_time)), 'targets': img_dict['target'], 'start': img_dict['start'],
-                                 'finish': img_dict['finish']})
-                        cur_time = m.group()[1:-1]
-                        img_dict = {}
-                        cur_img_category = 'target'
-                        img_dict[cur_img_category] = []
-                    elif label == 'start':
+                            kc_cond_list.append({
+                                'time': (int(cur_time)),
+                                'targets': img_dict['target'],
+                                'start': img_dict['start'],
+                                'finish': img_dict['finish']})
+                            img_dict = {}
                         cur_img_category = 'start'
                         img_dict[cur_img_category] = []
                     elif label == 'finish':
                         cur_img_category = 'finish'
+                        img_dict[cur_img_category] = []
+                    elif re.match('\d+', label):
+                        cur_time = m.group()[1:-1]
+                        cur_img_category = 'target'
                         img_dict[cur_img_category] = []
                 else:
                     if l.strip():
