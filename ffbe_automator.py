@@ -302,7 +302,7 @@ class Automator:
         num_of_players = self.num_of_players
         finish_button = self.finish_button
         self.running = True
-        self.time_limit = 1200
+        self.time_limit = 900
         self.log("Starting multi automation")
         cnt = 0
 
@@ -327,9 +327,9 @@ class Automator:
                     self.debug(
                         f"Trying to click sortie, # of players: {num_of_players}, elap. time: {int(self.elapsed_time())} sec")
                     self.locator.locate_and_click(sorties)
-                if (self.elapsed_time() > 180) and (self.locator.get_path("checking_the_result")):
+                if (self.elapsed_time() > 360) and (self.locator.get_path("checking_the_result")):
                     while (self.locator.locate('checking_the_result')) and self.running:
-                        self.debug("Kicking some checking the result!")
+                        self.debug("Kicking someone checking the result!")
                         if self.locator.locate_and_click('checking_the_result'):
                             while True:
                                 time.sleep(1)
@@ -352,7 +352,9 @@ class Automator:
             self.debug("\n'Auto' is located. In battle stage")
             self.timer.restart()
             targets = ['organize']
+            cancels = ["cancel", "cancel_friend", "cancel_multi"]
             while (not self.locator.locate(targets)) and self.running:
+                self.locator.locate_and_click(cancels)
                 time.sleep(self.sleep_mul * 5)
             # after battle stage
             self.debug("After battle stage")

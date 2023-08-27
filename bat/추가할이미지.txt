@@ -1,0 +1,22 @@
+필요한 이미지
+cancel_friend
+cancel_multi
+[882_496]
+
+
+[890_500]
+checking_the_result
+expel
+kick_out
+ok_recover
+cancel_ready
+short_of_stamina
+dismiss
+
+[1600_720]
+cancel_friend
+cancel_multi
+
+[1200_720]
+cancel_friend
+cancel_multi

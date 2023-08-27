@@ -13,7 +13,7 @@ create_room_multi.png
 create_room_cmd.png
 retry.png
 very_hard_raid_boss.png
-very_hard_glacial
+very_hard_omega
 [start]
 another_world.png
 is.png
