@@ -1,0 +1,13 @@
+[1]
+sortie
+sortie_raid
+sortie_confirm.png
+next.png
+next_raid
+end_of_quest
+end_of_quest_raid
+try_again_raid
+ok
+ok_raid
+challenge
+challenge_raid

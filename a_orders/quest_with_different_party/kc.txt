@@ -1,6 +1,6 @@
 [1]
 go_back.png
-skip_movie.png
+skip_video.png
 not_auto.png
 cancel.png
 menu_cancel.png

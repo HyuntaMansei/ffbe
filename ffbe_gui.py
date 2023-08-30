@@ -1,3 +1,4 @@
+import pandas
 import win32gui
 import win32process
 from PyQt5.QtGui import QFont
@@ -47,7 +48,7 @@ class MyWidget(QtWidgets.QWidget):
         self.ip = ""
     def init_preparation(self):
         # variable settings
-        self.macro_version = '0.1'
+        self.macro_version = '0.20'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
@@ -147,7 +148,7 @@ class MyWidget(QtWidgets.QWidget):
             print(f"Error. Wrong password. Closing")
             self.exit()
             return False
-        if not server_version == self.macro_version:
+        if not self.match_version(server_version):
             print(f"Error. Out of version {self.macro_version}. Server version is {server_version}. Need to update.")
             self.exit()
             return False
@@ -156,6 +157,11 @@ class MyWidget(QtWidgets.QWidget):
             self.exit()
             return False
         print(f"Server connected. Version: {self.macro_version}")
+    def match_version(self, server_version):
+        if server_version[:3] == self.macro_version[:3]:
+            return True
+        else:
+            return False
     def get_version_and_pass(self):
         connection = mysql.connector.connect(host='146.56.43.43',user='ffbeuser',password='leonis',database='ffbe')
         cursor = connection.cursor()
@@ -189,15 +195,20 @@ class MyWidget(QtWidgets.QWidget):
         # desc = 'test'
         # func = 'multi_client_any'
         connection = mysql.connector.connect(host='146.56.43.43',user='ffbeuser',password='leonis',database='ffbe')
-        cursor = connection.cursor()
+        # cursor = connection.cursor()
         query = "SELECT * FROM operation_list"
-        cursor.execute(query)
-        results = cursor.fetchall()
-        for row in results:
-            print(row)
-            self.operation_description.append(row[1])
-            self.operation_function_name[row[1]] = row[2]
-        cursor.close()
+        # cursor.execute(query)
+        # results = cursor.fetchall()
+        # index = cursor.column_names
+        df = pandas.read_sql(query, connection)
+        print(df)
+        df = df.sort_values(by='sort_order')
+        for _, row in df.iterrows():
+            self.operation_description.append(row['operation_description'])
+            self.operation_function_name[row['operation_description']] = row['function_name']
+            # self.operation_description.append(row[2])
+            # self.operation_function_name[row[2]] = row[3]
+        # cursor.close()
         connection.close()
         # combo box에 설명 채우기
         self.cb_operation.clear()
@@ -238,7 +249,7 @@ class MyWidget(QtWidgets.QWidget):
         self.debug_widget.showMinimized()
 
         self.error_widget = Output_Widget()
-        self.obj_error = self.debug_widget.obj_output
+        self.obj_error = self.error_widget.obj_output
         self.error_widget.setWindowTitle("Error")
         self.error_widget.show()
         self.error_widget.move(800,0)
@@ -387,10 +398,12 @@ class MyWidget(QtWidgets.QWidget):
         msg_event = MsgEvent()
         QCoreApplication.postEvent(self, msg_event)
     def error(self, msg):
-        print(f"Error occurred: {msg}")
-        self.error_list.append(f"{msg}")
-        msg_event = MsgEvent()
-        QCoreApplication.postEvent(self, msg_event)
+        msg = f"{msg}"
+        if not (msg in self.error_list):
+            print(f"Error occurred-[{msg}]")
+            self.error_list.append(msg)
+            msg_event = MsgEvent()
+            QCoreApplication.postEvent(self, msg_event)
     def show_msg(self):
         msg = ''
         for m in self.log_list:
@@ -400,6 +413,7 @@ class MyWidget(QtWidgets.QWidget):
         for m in self.debug_list:
             msg += m + '\n'
         self.obj_debug.setText(msg)
+        msg = ''
         for m in self.error_list:
             msg += m + '\n'
         self.obj_error.setText(msg)
@@ -407,7 +421,7 @@ class MyWidget(QtWidgets.QWidget):
     def gui_update(self):
         self.obj_log.verticalScrollBar().setValue(self.obj_log.verticalScrollBar().maximum())
         self.obj_debug.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum())
-        self.obj_error.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum())
+        self.obj_error.verticalScrollBar().setValue(self.obj_error.verticalScrollBar().maximum())
     def closeEvent(self, event):
         self.automator.close()
         QApplication.quit()
@@ -441,5 +455,5 @@ class Output_Widget(QtWidgets.QWidget):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()
-    widget.setWindowTitle("for 레오니스 v0.1")
+    widget.setWindowTitle("for 레오니스 v0.11")
     sys.exit(app.exec_())

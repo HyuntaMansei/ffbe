@@ -8,8 +8,9 @@ cancel.png
 host_any_3x.png
 next.png
 ready.png
-recruit_list.png
+recruit_list.png#0.99
 yes.png
+not_auto#0.99
 [3]
 host_any_2x.png
 retry.png

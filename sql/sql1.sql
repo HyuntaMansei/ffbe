@@ -103,6 +103,14 @@ INSERT IGNORE INTO job_list (job_trsl_name, class_name, class_name_alias)
 SELECT job_trsl_name, class_name, class_name_alias 
 FROM job_list_for_update;
 
+create TABLE element_list
+(	
+	seq	INT NOT NULL AUTO_INCREMENT,
+	ele_name VARCHAR(20),
+	ele_img_source VARCHAR(200),
+	PRIMARY KEY(seq) 
+);
+select * from element_list;
 create table job_list_for_update(
 select * from job_list);
 select * from job_list_for_update;
@@ -129,9 +137,14 @@ select * from job_list;
 select * from char_list where char_main_job = '사무라이';
 
 use ffbe;
+select * from operation_list;
+
+select * from operation_list;
 SELECT * FROM test_tb;
 SELECT *, COUNT(*) FROM test_tb GROUP BY seq HAVING COUNT(*) > 1;
-SELECT * FROM char_list;
+SELECT * FROM char_list;version_info
+SELECT char_element,  FROM char_list 
 truncate char_list;
 select * from vc_list;
 truncate vc_list;
+select * from operation_list;

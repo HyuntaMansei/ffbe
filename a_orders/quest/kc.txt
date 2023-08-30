@@ -1,5 +1,5 @@
 [1]
-skip_movie.png
+skip_video.png
 menu_cancel.png
 cancel.png
 go_back.png

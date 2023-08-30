@@ -83,34 +83,72 @@ class Locator:
         else:
             img_path = os.path.join(self.img_path, img_name)
         if not os.path.exists(img_path):
-            self.debug(f"No such file: {img_path}")
+            # self.debug(f"No such file: {img_path}")
+            self.error(f"No such file: {img_path}")
             return False
         return img_path
-    def locate(self, image_name):
+    def locate_and_click(self, t_str, target=None, confidence=None):
+        """
+        검색할 이미지와 클릭할 타겟을 받아서, 이미지가 검색될 경우 타켓을 클릭.
+        타겟이 없을 경우 이미지 클릭.
+        :param t_str: 검색할 이미지 | list of 이미지
+        :param target: 클릭할 좌표 | None
+        :return: 클릭한 좌표값
+        """
+        if type(t_str) == list:
+            res_list =[]
+            for img in t_str:
+                res = self.locate_and_click(img, target=target, confidence=confidence)
+                if res:
+                    res_list.append(res)
+            return res_list
+        else:
+            res = self.get_target_option(t_str=t_str)
+            when = t_str
+            if res["when"]:
+                when = res["when"]
+                target = res["target"]
+            if res["confidence"]:
+                confidence = res["confidence"]
+            loc = self.locate(when, confidence=confidence)
+            if loc:
+                if target:
+                    self.debug(f"Suc. to located and clicking coordinate: {target}")
+                    return self.click_on_screen(target)
+                else:
+                    self.debug(f"Suc. to located and clicking {when} and Loc on window:{loc}")
+                    return self.click_on_screen(loc)
+            return None
+    def locate(self, t_str, confidence=None):
         """
         이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
         리스트에 대해서는 순차대로 검색 후, 첫번째 일치 좌표를 리턴한다.
-        :param image_name: 단일 이미지 이름 | list of 이미지이름
+        :param t_str: 단일 이미지 이름 | list of 이미지이름
         :return: window 기준 중심 좌표
         """
         if not win32gui.IsWindowVisible(self.hwnd):
             self.error("Window is not visible. return None")
             return None
         # especially for list of images
-        if type(image_name) == list:
-            for image in image_name:
-                result = self.locate(image)
-                if result != None:
-                    self.debug(f"Successfully located: {os.path.join(self.img_path,image)} at {result}")
+        if type(t_str) == list:
+            for image in t_str:
+                result = self.locate(image, confidence=confidence)
+                if result:
+                    self.debug(f"Successfully located: [{os.path.join(self.img_path,image)}] at {result} in list")
                     return result
             return None
         img = self.sct.grab(self.rect)
         pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
         loc = None
+        res = self.get_target_option(t_str=t_str)
+        if res["confidence"]:
+            confidence = res["confidence"]
         try:
-            img_path = self.get_path(image_name)
+            img_path = self.get_path(res["target"])
             if img_path:
-                if self.confidence:
+                if confidence:
+                    loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
+                elif self.confidence:
                     loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
                 else:
                     loc = pyautogui.locate(img_path, pil_img)
@@ -120,12 +158,12 @@ class Locator:
             center = (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
             return center
         return None
-    def click(self, target):
+    def click_on_screen(self, target):
         """
         click_on_client와 동일한 기능으로 이해하면 됨.
-        Client 기준 좌표 또는 target의 이름을 받아서 클릭(click_on_screen 호출)
+        Client 기준 좌표 또는 target의 이름을 받아서 클릭
         :param target: Client기준 좌표 | target 이름
-        :return: 클릭한 좌표
+        :return: > 클릭한 target. 클릭 안 했으면 False.
         """
         if type(target) == tuple:
             xy = target
@@ -136,7 +174,6 @@ class Locator:
             if target in self.xys.keys():
                 xy = self.xys[target]
             else:
-                pass
                 print(f"No target as {target}")
                 return False
         prev_pos = pyautogui.position()
@@ -155,80 +192,26 @@ class Locator:
             print(f"Clicking {target} as device xy: {to_click_xy} by pyautogui click")
             time.sleep(self.sltime_after_click)
             pyautogui.moveTo(prev_pos.x, prev_pos.y)
-        return xy
-    def locate_and_click(self, img_name, target=None):
-        """
-        검색할 이미지와 클릭할 타겟을 받아서, 이미지가 검색될 경우 타켓을 클릭.
-        타겟이 없을 경우 이미지 클릭.
-        :param img_name: 검색할 이미지 | list of 이미지
-        :param target: 클릭할 좌표 | None
-        :return: 클릭한 좌표값
-        """
-        if type(img_name) == list:
-            res_list =[]
-            for img in img_name:
-                res = self.locate_and_click(img)
-                if res:
-                    res_list.append(res)
-            return res_list
-        else:
-            loc = self.locate(img_name)
-            if loc:
-                if target:
-                    self.debug(f"Suc. to located and clicking coordinate: {target}")
-                    return self.click(target)
-                else:
-                    self.debug(f"Suc. to located and clicking {img_name} and Loc on window:{loc}")
-                    return self.click(loc)
-            return None
-    def locate_dir(self, dir_path):
-        path = os.path.join(self.automation_path,dir_path)
+        return target
+    def get_target_option(self, t_str):
+        p_target = re.compile("^\w*")
+        p_when = re.compile("@\w*")
+        p_confidence = re.compile("#[\w.]*")
+        patterns = [p_target, p_when, p_confidence]
+        when, confidence = None, None
         try:
-            images_in_dir = []
-            for f in os.listdir(path):
-                if os.path.isfile(os.path.join(path, f)):
-                    if f.split('.')[-1] == 'txt':
-                        with open(os.path.join(path, f), "r") as file:
-                            lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
-                        images_in_dir.extend(lines)
-                    elif f.split('.')[-1] == "png":
-                        images_in_dir.append(os.path.join(dir_path,f))
-                    else:
-                        self.error(f"Unknown File Extension: {f}")
-            # print(images_in_dir)
-            return self.locate(images_in_dir)
+            target = re.search(p_target, t_str).group()
+            mat = re.search(p_when, t_str)
+            if mat:
+                when = mat.group()[1:]
+            mat = re.search(p_confidence, t_str)
+            if mat:
+                confidence = mat.group()[1:]
         except Exception as e:
-            print(f"with {e}, No such dir: {path}")
-            return None
-    def locate_and_click_all_dir(self, dir_name, target=None):
-        click_interval = self.multi_click_interval
-        path = os.path.join(self.automation_path, dir_name)
-        images_in_dir = []
-        for f in os.listdir(path):
-            if os.path.isfile(os.path.join(path, f)):
-                if f.split('.')[-1] == 'txt':
-                    with open(os.path.join(path, f), "r") as file:
-                        lines = [f.strip() for f in file.readlines()]  # Read all lines into a list
-                    images_in_dir.extend(lines)
-                elif f.split('.')[-1] == "png":
-                    images_in_dir.append(os.path.join(dir_name,f))
-                else:
-                    self.error(f"Unknown File Extension: {f}")
-        # print(images_in_dir)
-        result_list = []
-        result = None
-        for image in images_in_dir:
-            if target:
-                result = self.locate_and_click(image, target=target)
-            else:
-                result = self.locate_and_click(image)
-            if result:
-                result_list.append(result)
-                time.sleep(click_interval)
-        if result_list != []:
-            return result_list
-        else:
-            return None
+            print(f"Exception [{e}] in t_str:{t_str}")
+            return False
+        res = {"target":target, "when":when, "confidence":confidence}
+        return res
     def set_coor_file_path(self, file_name):
         """
         좌표가 적혀있는 파일 이름을 설정.
