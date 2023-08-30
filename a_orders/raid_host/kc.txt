@@ -6,7 +6,7 @@ next.png
 next_raid
 end_of_quest
 end_of_quest_raid
-try_again_raid
+try_next_raid
 ok
 ok_raid
 challenge
