@@ -1,3 +1,10 @@
+[chocobo]
+menu_chocobo
+cmd_retrieve_items
+cmd_retrieve_popup
+text_0_chocobo
+menu_open
+menu_summon
 [summon]
 menu_summon
 arrow_down
