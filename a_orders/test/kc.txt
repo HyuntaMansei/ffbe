@@ -1,0 +1,5 @@
+[1]
+cmd_ok_guild_popup
+cmd_ok_duel
+cmd_ok_summon
+cmd_ok_guild_popup

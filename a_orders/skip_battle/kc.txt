@@ -1,0 +1,10 @@
+[1]
+decide
+cmd_decide_skip_battle
+ok
+ok_result
+next
+next_result
+end_of_quest
+later_store
+later_chocobo

@@ -24,8 +24,8 @@ story_skip1 = 1270,149
 story_skip2 = 1210,74
 story_skip3 = 1187,67
 [gpg_3840_2160]
-top_quest = 1349,200
-story_skip1 = 1590,139
+top_quest = 1621,300
+story_skip1 = 1754,161
 story_skip2 = 1534,23
 story_skip3 = 1509,23
 [gpg_1920_1080]

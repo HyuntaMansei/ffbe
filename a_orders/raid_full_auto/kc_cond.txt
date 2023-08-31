@@ -1,0 +1,11 @@
+[start]
+get_reward_raid
+common
+select_chapter
+[finish]
+skip_battle
+[1]
+menu_open
+story
+mission_completed_quest
+get_reward_raid

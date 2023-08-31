@@ -101,6 +101,7 @@ class Locator:
                 res = self.locate_and_click(img, target=target, confidence=confidence)
                 if res:
                     res_list.append(res)
+                    time.sleep(1)
             return res_list
         else:
             res = self.get_target_option(t_str=t_str)
