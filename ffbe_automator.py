@@ -194,15 +194,15 @@ class Automator:
             while (not self.locator.locate('auto')) and self.running:
                 if self.locator.locate(is_imgs):
                     if self.locator.locate('scene3_selected'):
-                        self.locator.click_on_screen(xy='top_quest')
+                        self.locator.click_on_screen(target='top_quest')
                         time.sleep(2)
                     elif self.locator.locate_and_click('scene3_unselected'):
                         time.sleep(2)
-                        self.locator.click_on_screen(xy='top_quest')
+                        self.locator.click_on_screen(target='top_quest')
                         time.sleep(2)
                     elif self.locator.locate_and_click('scene2_unselected'):
                         time.sleep(2)
-                        self.locator.click_on_screen(xy='top_quest')
+                        self.locator.click_on_screen(target='top_quest')
                         time.sleep(2)
                 if self.locator.locate_and_click(is_imgs, target='top_quest'):
                     time.sleep(4)
