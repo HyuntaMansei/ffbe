@@ -1,0 +1,7 @@
+[to_raid]
+menu_raid
+cmd_try_raid_banner
+cmd_try_raid_open
+banner_play_single_raid
+cmd_create_room_popup_raid
+cmd_sortie_raid

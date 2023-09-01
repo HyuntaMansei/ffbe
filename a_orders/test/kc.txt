@@ -1,6 +1,13 @@
 [1]
-cmd_ok_guild_popup
+cmd_ok_popup_skip_battle
+cmd_ok_popup_guild
 cmd_ok_duel
 cmd_ok_summon
 cmd_ok_guild_popup
-cmd_next
+cmd_ok_popup_fragment
+cmd_next_popup
+cmd_next_popup_skip_battle
+cmd_cancel_popup_store@text_change_to_gil
+cmd_no_popup_barracks@text_empty_barracks
+cmd_later_popup_store
+cmd_later_popup_chocobo

@@ -550,14 +550,16 @@ class Automator:
         # keep_clicker.close()
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
-        sc_name = 'pvp'
+        sc_name = 'friend'
         serial_clicker = Serial_Clicker(self)
         serial_clicker.set_path_and_file()
         serial_clicker.start_serial_click(sc_name=sc_name)
         while self.running:
-            time.sleep(10)
+            time.sleep(2)
         if self.running:
             self.finish_button.click()
+        keep_clicker.close()
+        serial_clicker.close()
         # self.running = False
     def list_all_methos(self):
         # Get all the methods of the class
@@ -1056,3 +1058,6 @@ class Serial_Clicker():
             # sc_list.append({'time': (int(sc_name)), 'targets': img_list})
         self.sc_list = sc_list
         return sc_list
+    def close(self):
+        self.running = False
+        self.serial_click_running = False
