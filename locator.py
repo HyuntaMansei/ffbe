@@ -116,6 +116,7 @@ class Locator:
                 if target:
                     self.debug(f"Suc. to located and clicking coordinate: {target}")
                     return self.click_on_screen(target)
+                    # return self.click_on_screen(target)
                 else:
                     self.debug(f"Suc. to located and clicking {when} and Loc on window:{loc}")
                     return self.click_on_screen(loc)
@@ -175,8 +176,8 @@ class Locator:
             if target in self.xys.keys():
                 xy = self.xys[target]
             else:
-                print(f"No target as {target}")
-                return False
+                print(f"No target as {target}, try to locate_and_click.")
+                return self.locate_and_click(t_str=target)
         prev_pos = pyautogui.position()
         # 위에서 계산한 좌표를 클릭
         # click_on_device가 있는 경우와 그렇지 않은경우(GPG)
