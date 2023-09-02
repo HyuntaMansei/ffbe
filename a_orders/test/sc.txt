@@ -14,7 +14,7 @@ menu_open
 menu_store
 [store]
 menu_store
-banner_zazan_for_purchase|banner_mont_for_purchase
+banner_50k_for_purchase
 cmd_purchase_popup
 menu_open
 menu_guild
@@ -101,6 +101,7 @@ menu_mission
 menu_mission
 cmd_receive_all_mission
 pic_treasure_chest
+pic_treasure_chest2
 pic_receive_completed
 x_popup
 menu_stamp
@@ -110,7 +111,6 @@ menu_stamp_stamp
 cmd_receive_all_stamp
 pic_no_mission_stamp
 x_popup
-menu_present
 menu_present
 [present]
 menu_present

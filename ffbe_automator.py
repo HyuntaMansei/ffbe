@@ -418,40 +418,6 @@ class Automator:
             time.sleep(10)
             pass
         keep_clicker.close()
-    def skip_battle(self, rep_time=None, in_call=False):
-        self.pre_automation_processing()
-        self.locator.confidence = 0.95
-        if not rep_time:
-            rep_time = self.rep_time
-        num_of_players = self.num_of_players
-        finish_button = self.finish_button
-        self.running = True
-
-        kc = Keep_Clicker(self)
-        kc.set_automation_path("./a_orders/skip_battle")
-        kc.start_keep_clicks()
-
-        self.log("Starting skip battle automation")
-        print("Starting skip battle automation")
-        self.log(f"path: {self.automation_path}")
-        cnt = 0
-        while self.running:
-            targets = ["cmd_skip_battle", "cmd_skip_battle_quest"]
-            while (not self.locator.locate("cmd_end_of_quest_skip_battle")) and self.running:
-                self.locator.locate_and_click(targets)
-                time.sleep(3)
-            cnt += 1
-            self.log(f"Battle Skipped. {cnt} times. {rep_time - cnt} left.")
-            targets2 = ["cmd_end_of_quest_skip_battle"]
-            while (not self.locator.locate(targets)) and self.running:
-                self.locator.locate_and_click(targets2)
-                time.sleep(3)
-            if cnt >= rep_time:
-                self.log("Automation Completed.")
-                if not in_call:
-                    finish_button.click()
-                break
-        kc.close()
     def play_raid_full_auto(self):
         self.locator.confidence = 0.95
         rep_time = self.rep_time
@@ -491,6 +457,7 @@ class Automator:
                 print("All raid finished.")
                 kc_for_raid.stop_keep_click()
                 raid_loop_cnt += 1
+                self.log(f"Raid finished for {raid_loop_cnt} * 10 time(s), {rep_time-raid_loop_cnt} time(s) left.")
                 if raid_loop_cnt >= rep_time:
                     break
                 print("Let's go to quest")
@@ -503,6 +470,12 @@ class Automator:
                         break
                     time.sleep(5)
                 print("Let's go to raid")
+                sc.start_serial_click_thread("to_raid")
+                while self.running:
+                    if self.locator.locate(["cmd_sortie_raid", "cmd_get_last_reward_raid"]):
+                        break
+                    time.sleep(5)
+                print("Arrived to raid screen")
             else:
                 print("Error! Start from raid or quest sortie screen")
                 time.sleep(5)
@@ -511,6 +484,40 @@ class Automator:
             finish_button.click()
         kc_for_raid.close()
         sc.close()
+    def skip_battle(self, rep_time=None, in_call=False):
+        # self.pre_automation_processing()
+        self.locator.confidence = 0.95
+        if not rep_time:
+            rep_time = self.rep_time
+        num_of_players = self.num_of_players
+        finish_button = self.finish_button
+        self.running = True
+
+        kc = Keep_Clicker(self)
+        kc.set_automation_path("./a_orders/skip_battle")
+        kc.start_keep_clicks()
+
+        self.log("Starting skip battle automation")
+        print("Starting skip battle automation")
+        self.log(f"path: {self.automation_path}")
+        cnt = 0
+        while self.running:
+            targets = ["cmd_skip_battle", "cmd_skip_battle_quest"]
+            while (not self.locator.locate("cmd_end_of_quest_skip_battle")) and self.running:
+                self.locator.locate_and_click(targets)
+                time.sleep(3)
+            cnt += 1
+            self.log(f"Battle Skipped. {cnt} times. {rep_time - cnt} left.")
+            targets2 = ["cmd_end_of_quest_skip_battle"]
+            while (not self.locator.locate(targets)) and self.running:
+                self.locator.locate_and_click(targets2)
+                time.sleep(3)
+            if cnt >= rep_time:
+                self.log("Automation Completed.")
+                if not in_call:
+                    finish_button.click()
+                break
+        kc.close()
     def summon(self):
         rep_time = self.rep_time
         finish_button = self.finish_button
@@ -905,28 +912,32 @@ class Serial_Clicker():
         locator_sc.confidence = self.confidence
         if not ('gpg' in self.device_type):
             locator_sc.connect_click_method(self.my_device.input_tap)
-        prev_targets = []
+        prev_target = None
+        pprev_target = None
         for i, t in enumerate(sc_targets):
             if i == 0:
-                prev_targets.clear()
+                prev_target = None
+                pprev_target = None
                 target = sc_targets[i]
             elif i == 1:
-                prev_targets.clear()
+                prev_target = sc_targets[i - 1]
+                pprev_target = None
                 target = sc_targets[i]
-                prev_targets.append(sc_targets[i - 1])
             else:
-                prev_targets.clear()
+                prev_target = sc_targets[i-1]
+                pprev_target = sc_targets[i-2]
                 target = sc_targets[i]
-                prev_targets.append(sc_targets[i-1])
-                # prev_targets.append(sc_targets[i-2])
-            print(f"for {i}, target = {target}, prev_targets = {prev_targets}")
+            print(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
             if self.serial_click_running:
+                cs_cnt = 0
                 while self.running:
-                    if prev_targets:
-                        for t in prev_targets:
-                            if locator_sc.locate_and_click(t):
+                    if prev_target:
+                        if locator_sc.locate_and_click(prev_target):
+                            time.sleep(click_interval)
+                        if (cs_cnt>4) and pprev_target:
+                            if locator_sc.locate_and_click(pprev_target):
                                 time.sleep(click_interval)
-                    time.sleep(click_interval)
+                    cs_cnt+=1
                     if locator_sc.locate(target):
                         break
             if not self.running:
