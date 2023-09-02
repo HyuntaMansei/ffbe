@@ -1,4 +1,5 @@
-[1]
+[2]
+cmd_ok_popup
 cmd_ok_popup_skip_battle
 cmd_ok_pvp
 cmd_ok_popup_guild
@@ -10,7 +11,6 @@ cmd_next_popup
 cmd_next_popup_skip_battle
 cmd_cancel_popup_store@text_change_to_gil
 cmd_no_popup_barracks@text_empty_barracks
+cmd_skip_ani_summon
 cmd_later_popup_store
 cmd_later_popup_chocobo
-banner_zazan_for_purchase
-banner_mont_for_purchase

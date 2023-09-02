@@ -91,10 +91,12 @@ class Locator:
         """
         검색할 이미지와 클릭할 타겟을 받아서, 이미지가 검색될 경우 타켓을 클릭.
         타겟이 없을 경우 이미지 클릭.
+        target과 t_str의 when의 값이 동시에 존재해서는 안 된다. > Error 리턴
         :param t_str: 검색할 이미지 | list of 이미지
         :param target: 클릭할 좌표 | None
         :return: 클릭한 좌표값
         """
+        # t_str이 리스트라면 재귀 호출
         if type(t_str) == list:
             res_list =[]
             for img in t_str:
@@ -105,22 +107,36 @@ class Locator:
             return res_list
         else:
             res = self.get_target_option(t_str=t_str)
-            when = t_str
-            if res["when"]:
-                when = res["when"]
-                target = res["target"]
+            # Error check - when과 target이 동시에 존재
+            if(res["when"] and target):
+                print(f"double target Error with [{t_str}] and [{target}]")
+                return False
             if res["confidence"]:
                 confidence = res["confidence"]
-            loc = self.locate(when, confidence=confidence)
-            if loc:
-                if target:
-                    self.debug(f"Suc. to located and clicking coordinate: {target}")
-                    return self.click_on_screen(target)
-                    # return self.click_on_screen(target)
-                else:
-                    self.debug(f"Suc. to located and clicking {when} and Loc on window:{loc}")
-                    return self.click_on_screen(loc)
-            return None
+            if not res["when"]:
+                # t_str에 when이 없는 경우.
+                when = res["target"]
+                loc = self.locate(when, confidence=confidence)
+                if loc:
+                    if target:
+                        self.debug(f"Suc. to located [{when}] and clicking target: [{target}]")
+                        return self.click_on_screen(target)
+                    else:
+                        self.debug(f"Suc. to located and clicking [{when}] and Loc on window:[{loc}]")
+                        return self.click_on_screen(loc)
+                return None
+            else:
+                # t_str에 when이 있는 경우, 함수의 parameter인 target이 없다.
+                when = res["when"]
+                t_str_target = res["target"]
+                # 수정중
+                loc = self.locate(when, confidence=confidence)
+                if loc:
+                    c_res = self.click_on_screen(t_str_target)
+                    if c_res:
+                        self.debug(f"Suc. to located [{when}] and clicked target: [{t_str_target}]")
+                    return c_res
+                return None
     def locate(self, t_str, confidence=None):
         """
         이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
@@ -139,12 +155,14 @@ class Locator:
                     self.debug(f"Successfully located: [{os.path.join(self.img_path,image)}] at {result} in list")
                     return result
             return None
-        img = self.sct.grab(self.rect)
-        pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-        loc = None
         res = self.get_target_option(t_str=t_str)
         if res["confidence"]:
             confidence = res["confidence"]
+        if type(res["target"]) == list:
+            return self.locate(res["target"], confidence)
+        img = self.sct.grab(self.rect)
+        pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+        loc = None
         try:
             img_path = self.get_path(res["target"])
             if img_path:
@@ -155,7 +173,7 @@ class Locator:
                 else:
                     loc = pyautogui.locate(img_path, pil_img)
         except Exception as e:
-            print(f"Exception: {e} with img_path:{img_path} in locate")
+            print(f"Exception: {e} with t_str:{t_str} in locate")
         if loc:
             center = (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
             return center
@@ -167,7 +185,14 @@ class Locator:
         :param target: Client기준 좌표 | target 이름
         :return: > 클릭한 target. 클릭 안 했으면 False.
         """
-        if type(target) == tuple:
+        if type(target) == list:
+            res_list = []
+            for t in target:
+                res = self.click_on_screen(t)
+                if res:
+                    res_list.append(res)
+            return res_list
+        elif type(target) == tuple:
             xy = target
         elif target in self.xys.keys():
             xy = self.xys[target]
@@ -197,12 +222,18 @@ class Locator:
         return target
     def get_target_option(self, t_str):
         p_target = re.compile("^\w*")
+        p_addi_target = re.compile("\|\w*")
         p_when = re.compile("@\w*")
         p_confidence = re.compile("#[\w.]*")
-        patterns = [p_target, p_when, p_confidence]
         when, confidence = None, None
         try:
             target = re.search(p_target, t_str).group()
+            mat = re.findall(p_addi_target, t_str)
+            if mat:
+                target = [target,]
+                for m in mat:
+                    target.append(m[1:])
+                print(f"Double target: {target} in {t_str}")
             mat = re.search(p_when, t_str)
             if mat:
                 when = mat.group()[1:]

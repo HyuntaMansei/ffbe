@@ -30,6 +30,7 @@ class MsgEvent(QEvent):
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        self.test_para = None
         self.init_arguments()
         self.init_preparation()
         self.init_ui()
@@ -358,6 +359,9 @@ class MyWidget(QtWidgets.QWidget):
         except:
             self.error("Error in on_cb_window_name_text_changed")
         print("Text changed:", text)
+    def on_le_test_para_text_finished(self, text):
+        self.test_para = text
+        print(text)
     def start_automator(self, sender_name=None, btn_text=None):
         operation_description = self.cb_operation.currentText()
         base_text = operation_description
@@ -374,7 +378,7 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
-                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple)
+                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, test_para=self.test_para)
             print("Starting automator thread")
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
@@ -389,6 +393,7 @@ class MyWidget(QtWidgets.QWidget):
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
         self.sleep_multiple = int(self.le_sleep_multiple.text())
+        self.test_para = self.le_test_para.text()
     def log(self, msg):
         self.log_list.append(f"{msg}")
         msg_event = MsgEvent()

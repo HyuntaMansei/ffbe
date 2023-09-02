@@ -53,12 +53,14 @@ class Automator:
         self.init_device(window_name=window_name, window_hwnd=window_hwnd, device_serial=device_serial)
     def set_job(self, job=None):
         self.job = job
-    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5):
+    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5, test_para=None):
         print("In def, set_user_params", end='')
         self.rep_time = rep_time
         self.num_of_players = num_of_players
         self.finish_button = finish_button
         self.sleep_mul = sleep_multiple
+        self.test_para = test_para
+        print(f" testing para: {self.test_para}")
         print(" >> Finished.")
     def init_automation_list(self):
         # Need to add code when add new automation
@@ -193,17 +195,21 @@ class Automator:
             self.debug("Before battle, trying to click sortie")
             while (not self.locator.locate('auto')) and self.running:
                 if self.locator.locate(is_imgs):
-                    if self.locator.locate('scene3_selected'):
-                        self.locator.click_on_screen(target='top_quest')
-                        time.sleep(2)
+                    if self.locator.locate_and_click('scene3_selected'):
+                        pass
                     elif self.locator.locate_and_click('scene3_unselected'):
-                        time.sleep(2)
-                        self.locator.click_on_screen(target='top_quest')
-                        time.sleep(2)
+                        pass
                     elif self.locator.locate_and_click('scene2_unselected'):
-                        time.sleep(2)
-                        self.locator.click_on_screen(target='top_quest')
-                        time.sleep(2)
+                        pass
+                    time.sleep(4)
+                    # check to switch another chapter
+                    if self.locator.locate('pic_completed_top_quest'):
+                        self.locator.locate_and_click('cmd_select_chapter')
+                        time.sleep(3)
+                        self.locator.locate_and_click('banner_top_chapter')
+                        time.sleep(3)
+                    self.locator.click_on_screen(target='top_quest')
+                    time.sleep(2)
                 if self.locator.locate_and_click(is_imgs, target='top_quest'):
                     time.sleep(4)
                 time.sleep(1)
@@ -412,7 +418,7 @@ class Automator:
             time.sleep(10)
             pass
         keep_clicker.close()
-    def skip_battle(self, rep_time=None):
+    def skip_battle(self, rep_time=None, in_call=False):
         self.pre_automation_processing()
         self.locator.confidence = 0.95
         if not rep_time:
@@ -421,15 +427,16 @@ class Automator:
         finish_button = self.finish_button
         self.running = True
 
-        keep_clicker = Keep_Clicker(self)
-        keep_clicker.set_automation_path("a_orders\skip_battle")
-        keep_clicker.start_keep_clicks()
+        kc = Keep_Clicker(self)
+        kc.set_automation_path("./a_orders/skip_battle")
+        kc.start_keep_clicks()
 
         self.log("Starting skip battle automation")
+        print("Starting skip battle automation")
         self.log(f"path: {self.automation_path}")
         cnt = 0
         while self.running:
-            targets = ["cmd_skip_battle"]
+            targets = ["cmd_skip_battle", "cmd_skip_battle_quest"]
             while (not self.locator.locate("cmd_end_of_quest_skip_battle")) and self.running:
                 self.locator.locate_and_click(targets)
                 time.sleep(3)
@@ -441,9 +448,10 @@ class Automator:
                 time.sleep(3)
             if cnt >= rep_time:
                 self.log("Automation Completed.")
-                finish_button.click()
+                if not in_call:
+                    finish_button.click()
                 break
-        keep_clicker.close()
+        kc.close()
     def play_raid_full_auto(self):
         self.locator.confidence = 0.95
         rep_time = self.rep_time
@@ -451,45 +459,58 @@ class Automator:
         finish_button = self.finish_button
         self.running = True
         self.log("Starting multi automation")
-        loop_cnt = 0
+        raid_loop_cnt = 0
         cnt = 0
-        # self.start_keep_clicks()
-        keep_clicker = Keep_Clicker(self)
-        keep_clicker.start_keep_clicks()
-        sorties = ["sortie", "sortie_raid"]
+        kc_for_raid = Keep_Clicker(self)
+        kc_for_raid.set_target_file(kc_file_name='kc_for_raid.txt')
+        sc = Serial_Clicker(self)
+
         while self.running:
-            time.sleep(3)
-            if not self.locator.locate("skip_battle"):
-                self.locator.locate_and_click(sorties)
-            if self.locator.locate(["get_reward_raid", "skip_battle"]):
-                time.sleep(10)
-                while not self.locator.locate("skip_battle"):
-                    time.sleep(3)
-                self.debug("Skip_battle located. Skipping for 10 times")
-                time.sleep(3)
-                cnt = 0
-            loop_cnt += 1
-            if (loop_cnt > rep_time) or (not self.running):
-                break
-            for cnt in range(10):
-                skip_targets = ["skip_battle", "decide", "ok", "next", "later_store", "later_chocobo"]
-                skip_targets2 = ["end_of_quest", "later_store", "later_chocobo"]
-                while (not self.locator.locate("end_of_quest")) and self.running:
-                    self.locator.locate_and_click(skip_targets)
-                    time.sleep(1)
-                cnt += 1
-                self.log(f"Battle skipped for {cnt} times, {10-cnt} left.")
-                while (not self.locator.locate("skip_battle")) and self.running:
-                    self.locator.locate_and_click(skip_targets2)
-                    time.sleep(1)
-                if not self.running:
+            # 첫화면은 레이드 출격 전 화면 또는 스토리 출격 전 화면
+            # skip battle이 있으면 스토리, 없으면 레이드
+            if self.locator.locate("cmd_skip_battle_quest"):
+                # In story sortie
+                # kc_for_story.start_keep_clicks()
+                print("Try to skip battle for 10 times")
+                self.skip_battle(10, in_call=True)
+                print("Skip battle finished.")
+                print("Let's go to raid")
+                sc.start_serial_click_thread("to_raid")
+                while self.running:
+                    if self.locator.locate(["cmd_sortie_raid", "cmd_get_last_reward_raid"]):
+                        break
+                    time.sleep(5)
+                print("Arrived to raid screen")
+            elif self.locator.locate(["cmd_sortie_raid", "cmd_get_last_reward_raid"]):
+                # In raid sortie
+                kc_for_raid.start_keep_clicks()
+                while self.running:
+                    if self.locator.locate("cmd_get_last_reward_raid"):
+                        break
+                    time.sleep(5)
+                print("All raid finished.")
+                kc_for_raid.stop_keep_click()
+                raid_loop_cnt += 1
+                if raid_loop_cnt >= rep_time:
                     break
-            self.log("Try to go raid")
-            while(not self.locator.locate("raid")) and self.running:
-                to_raid_targets = ["menu_open", "another_world", "raid"]
+                print("Let's go to quest")
+                sc.start_serial_click_thread("to_quest")
+                while self.running:
+                    if self.locator.locate('cmd_ok_popup_skip_battle'):
+                        print("Try to skip battle for 10 times")
+                        self.skip_battle(10, in_call=True)
+                        print("Skip battle finished.")
+                        break
+                    time.sleep(5)
+                print("Let's go to raid")
+            else:
+                print("Error! Start from raid or quest sortie screen")
+                time.sleep(5)
+        print("Full Auto raid finished.")
         if self.running:
             finish_button.click()
-        keep_clicker.close()
+        kc_for_raid.close()
+        sc.close()
     def summon(self):
         rep_time = self.rep_time
         finish_button = self.finish_button
@@ -539,21 +560,23 @@ class Automator:
         self.running = True
         cnt = 0
         self.log("Testing!!")
-
+        sc_name = self.test_para
         print("Testing"*50)
-        keep_clicker = Keep_Clicker(self)
-        keep_clicker.start_keep_clicks()
+        kc = Keep_Clicker(self)
+        kc.start_keep_clicks()
         # sc_name = 'test'
-        serial_clicker = Serial_Clicker(self)
-        serial_clicker.set_path_and_file(sc_file_name="test.txt")
-        serial_clicker.start_serial_clicks()
-        # serial_clicker.start_serial_click(sc_name=sc_name)
+        sc = Serial_Clicker(self)
+        sc.set_path_and_file(sc_file_name="sc.txt")
+        # sc.set_path_and_file(sc_file_name="test.txt")
+        # sc.start_serial_clicks()
+        sc.start_serial_click_thread(sc_name=sc_name)
         while self.running:
-            time.sleep(2)
+            time.sleep(1)
         if self.running:
             self.finish_button.click()
-        keep_clicker.close()
-        serial_clicker.close()
+        kc.close()
+        sc.close()
+        print("Func. test finished")
     def test2(self):
         self.running = True
         cnt = 0
@@ -640,6 +663,7 @@ class Keep_Clicker:
         if self.kc_file_name:
             kc_path = os.path.join(self.automation_path, self.kc_file_name)
         else:
+            self.kc_file_name = 'kc.txt'
             kc_path = os.path.join(self.automation_path, 'kc.txt')
         if not self.load_kc_from_text(kc_path):
             print("Error in def, start_keep_clicks")
@@ -802,9 +826,9 @@ class Keep_Clicker:
         return False
     def close(self):
         if self.kc_cond_file_name:
-            print(f"Stopping keep_clicker for [{self.kc_file_name}] and [{self.kc_cond_file_name}]")
+            print(f"Stopping keep_clicker for [{self.kc_file_name}] and [{self.kc_cond_file_name}] in {self.automation_path}")
         else:
-            print(f"Stopping keep_clicker for [{self.kc_file_name}]")
+            print(f"Stopping keep_clicker for [{self.kc_file_name}] in {self.automation_path}")
         self.running = False
         self.keep_click_running = False
 class Serial_Clicker():
@@ -844,7 +868,7 @@ class Serial_Clicker():
             self.automation_path = automation_path
         if sc_file_name:
             self.sc_file_name = sc_file_name
-    def start_serial_clicks(self, sc_name=None, click_interval=2):
+    def start_serial_click_thread(self, sc_name=None, click_interval=2):
         target_thread = self.start_serial_click
         args = (sc_name, click_interval)
         thread_to_run = threading.Thread(target=target_thread, args=args)
@@ -854,6 +878,7 @@ class Serial_Clicker():
             sc_file_name = self.sc_file_name
         else:
             sc_file_name = "sc.txt"
+            self.sc_file_name = sc_file_name
         self.load_sc_from_text(os.path.join(self.automation_path, sc_file_name))
         if self.sc_list:
             if sc_name:
@@ -881,15 +906,17 @@ class Serial_Clicker():
                 prev_targets.clear()
                 target = sc_targets[i]
                 prev_targets.append(sc_targets[i-1])
-                prev_targets.append(sc_targets[i-2])
+                # prev_targets.append(sc_targets[i-2])
             print(f"for {i}, target = {target}, prev_targets = {prev_targets}")
             if self.serial_click_running:
-                while (not locator_sc.locate(target)) and self.running:
+                while self.running:
                     if prev_targets:
                         for t in prev_targets:
                             if locator_sc.locate_and_click(t):
                                 time.sleep(click_interval)
                     time.sleep(click_interval)
+                    if locator_sc.locate(target):
+                        break
             if not self.running:
                 break
         print(f"Serial Click Finished for [{sc_targets}]")
@@ -932,6 +959,6 @@ class Serial_Clicker():
         self.sc_list = sc_list
         return sc_list
     def close(self):
-        print(f"Serial Clicker for [{self.sc_file_name}] stops now.")
+        print(f"Serial Clicker for [{self.sc_file_name}] in {self.automation_path} stops now.")
         self.running = False
         self.serial_click_running = False
