@@ -570,12 +570,15 @@ class Automator:
         # sc.set_path_and_file(sc_file_name="test.txt")
         # sc.start_serial_clicks()
         if sc_name == 'all':
-            sc_names = list(sc.sc_list.keys())
+            sc_names = [
+                "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
+            ]
             for s in sc_names:
                 sc.start_serial_click_thread(sc_name=s)
-                if sc.serial_click_finished:
+                while (not sc.serial_click_finished) and self.running:
+                    time.sleep(3)
+                if not self.running:
                     break
-                time.sleep(3)
         else:
             sc.start_serial_click_thread(sc_name=sc_name)
         while self.running:
@@ -847,7 +850,7 @@ class Serial_Clicker():
         self.sleep_mul = 1
         self.automation_path = None
         self.sc_file_name = None
-        self.sc_list = []
+        self.sc_list = {}
         self.img_path = None
         self.my_hwnd = None
         self.confidence = 0.95
