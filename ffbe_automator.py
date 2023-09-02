@@ -569,7 +569,15 @@ class Automator:
         sc.set_path_and_file(sc_file_name="sc.txt")
         # sc.set_path_and_file(sc_file_name="test.txt")
         # sc.start_serial_clicks()
-        sc.start_serial_click_thread(sc_name=sc_name)
+        if sc_name == 'all':
+            sc_names = list(sc.sc_list.keys())
+            for s in sc_names:
+                sc.start_serial_click_thread(sc_name=s)
+                if sc.serial_click_finished:
+                    break
+                time.sleep(3)
+        else:
+            sc.start_serial_click_thread(sc_name=sc_name)
         while self.running:
             time.sleep(1)
         if self.running:
@@ -874,6 +882,7 @@ class Serial_Clicker():
         thread_to_run = threading.Thread(target=target_thread, args=args)
         thread_to_run.start()
     def start_serial_click(self, sc_name=None, click_interval=2):
+        self.serial_click_finished = False
         if self.sc_file_name:
             sc_file_name = self.sc_file_name
         else:
