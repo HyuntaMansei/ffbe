@@ -10,6 +10,7 @@ menu_summon
 pic_arrow_down_summon
 banner_free_for_once
 menu_summon_10_for_free
+cmd_ok_summon
 menu_open
 menu_store
 [store]
@@ -102,6 +103,7 @@ menu_mission
 cmd_receive_all_mission
 pic_treasure_chest
 pic_treasure_chest2
+pic_treasure_chest3
 pic_receive_completed
 x_popup
 menu_stamp

@@ -1,6 +1,6 @@
 [2]
 cmd_ok_popup
-cmd_ok_summon
+cmd_ok_popup_download
 cmd_ok_popup_guild
 cmd_ok_popup_guild_fragment
 cmd_ok_popup_guild_fragment2
