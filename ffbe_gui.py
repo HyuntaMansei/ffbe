@@ -49,7 +49,7 @@ class MyWidget(QtWidgets.QWidget):
         self.ip = ""
     def init_preparation(self):
         # variable settings
-        self.macro_version = '0.20'
+        self.macro_version = '0.23'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
@@ -134,7 +134,7 @@ class MyWidget(QtWidgets.QWidget):
     def init_server_connection(self):
         """
         서버에 접속 후,
-        1. 버전을 확인하고, 패스원드를 비교
+        1. 버전을 확인하고, 패스워드를 비교
         2. operation_description과 연결된 function_name을 받아온다.
         """
         # password = self.show_password_dialog()
@@ -277,13 +277,6 @@ class MyWidget(QtWidgets.QWidget):
             return self.connected_device_name_and_handle[0][0]
         except:
             return None
-        # for dn in self.device_names:
-        #     # except_device_list = ['SM-A826S']
-        #     # if not dn in except_device_list:
-        #     hwnd = win32gui.FindWindow(None, dn)
-        #     print(f"{dn} : {hwnd}")
-        #     if hwnd > 0:
-        #         return dn
     def get_hwnd_by_process_name(self, process_name):
         hwnd_found = []
         def enum_windows_callback(hwnd, lparam):
@@ -427,6 +420,11 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_log.verticalScrollBar().setValue(self.obj_log.verticalScrollBar().maximum())
         self.obj_debug.verticalScrollBar().setValue(self.obj_debug.verticalScrollBar().maximum())
         self.obj_error.verticalScrollBar().setValue(self.obj_error.verticalScrollBar().maximum())
+        try:
+            label_text = self.automator.locator.img_path
+            self.lb_info.setText(label_text)
+        except Exception as e:
+            print(e)
     def closeEvent(self, event):
         self.automator.close()
         QApplication.quit()
@@ -460,5 +458,6 @@ class Output_Widget(QtWidgets.QWidget):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()
-    widget.setWindowTitle("for 레오니스 v0.11")
+    window_title = f"for WingedAngel v{widget.macro_version}"
+    widget.setWindowTitle(window_title)
     sys.exit(app.exec_())

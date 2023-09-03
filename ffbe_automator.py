@@ -912,8 +912,6 @@ class Serial_Clicker():
         locator_sc.confidence = self.confidence
         if not ('gpg' in self.device_type):
             locator_sc.connect_click_method(self.my_device.input_tap)
-        prev_target = None
-        pprev_target = None
         for i, t in enumerate(sc_targets):
             if i == 0:
                 prev_target = None
