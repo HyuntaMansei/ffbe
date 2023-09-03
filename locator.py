@@ -110,6 +110,7 @@ class Locator:
             # Error check - when과 target이 동시에 존재
             if(res["when"] and target):
                 print(f"double target Error with [{t_str}] and [{target}]")
+                time.sleep(1)
                 return False
             if res["confidence"]:
                 confidence = res["confidence"]

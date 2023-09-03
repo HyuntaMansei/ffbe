@@ -55,6 +55,7 @@ text_duel_point
 cmd_start_battle
 cmd_skip_duel
 cmd_decide_popup_skip_duel
+cmd_ok_duel
 cmd_end_duel
 menu_open
 menu_another_world
@@ -62,8 +63,7 @@ menu_another_world
 menu_another_world
 menu_event
 menu_daily
-pic_scroll_down_daily
-banner_pilgrimage
+banner_pilgrimage|pic_scroll_down_daily
 banner_hardest_pilgrimage
 cmd_skip_battle_eq
 cmd_decide_popup_skip_battle
@@ -101,8 +101,7 @@ menu_mission
 [mission]
 menu_mission
 cmd_receive_all_mission
-pic_treasure_chest
-pic_treasure_chest2
+pic_treasure_chest|pic_treasure_chest2
 pic_treasure_chest3|pic_treasure_chest4
 pic_receive_completed
 x_popup

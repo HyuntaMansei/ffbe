@@ -572,9 +572,11 @@ class Automator:
         self.log("Testing!!")
         sc_name = self.test_para
         print("Testing"*50)
-        while self.locator.locate("menu_mogri_store") and self.running:
-            to_is_targets = ["pic_rank_dark1", "pic_rank_dark2", "pic_rank_dark1","pic_arrow_down_is"]
-            self.locator.locate_and_click(to_is_targets)
+        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is"]
+        while not self.locator.locate("menu_mogri_store") and self.running:
+            for t in to_is_targets:
+                self.locator.locate_and_click(t)
+                time.sleep(1)
         kc = Keep_Clicker(self)
         kc.start_keep_clicks()
         # sc_name = 'test'
@@ -940,7 +942,7 @@ class Serial_Clicker():
                     if prev_target:
                         if locator_sc.locate_and_click(prev_target):
                             time.sleep(click_interval)
-                        if (cs_cnt>4) and pprev_target:
+                        if (cs_cnt>2) and pprev_target:
                             if locator_sc.locate_and_click(pprev_target):
                                 time.sleep(click_interval)
                     cs_cnt+=1
@@ -950,7 +952,7 @@ class Serial_Clicker():
                 break
         print(f"Serial Click Finished for [{sc_targets}]")
         self.serial_click_finished = True
-    def start(self):
+    def resume(self):
         self.stop_serial_click_index -= 1
         if self.stop_serial_click_index <= 0:
             print(f"Starting keep click. stop_serial_click_index={self.stop_serial_click_index}.")
