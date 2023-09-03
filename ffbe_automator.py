@@ -185,7 +185,7 @@ class Automator:
         self.log(f"Starting quest automation.")
         rep_time = self.rep_time
         finish_button = self.finish_button
-        is_imgs = ["common", "select_chapter"]
+        is_imgs = ["pic_common_is", "cmd_select_chapter"]
         # self.start_keep_clicks()
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
@@ -195,7 +195,7 @@ class Automator:
             self.debug("Before battle, trying to click sortie")
             while (not self.locator.locate('auto')) and self.running:
                 if self.locator.locate(is_imgs):
-                    if self.locator.locate_and_click('scene3_selected'):
+                    if self.locator.locate('scene3_selected'):
                         pass
                     elif self.locator.locate_and_click('scene3_unselected'):
                         pass
@@ -203,13 +203,16 @@ class Automator:
                         pass
                     time.sleep(4)
                     # check to switch another chapter
+                    if not self.running:
+                        break
                     if self.locator.locate('pic_completed_top_quest'):
                         self.locator.locate_and_click('cmd_select_chapter')
                         time.sleep(3)
                         self.locator.locate_and_click('banner_top_chapter')
                         time.sleep(3)
-                    self.locator.click_on_screen(target='top_quest')
-                    time.sleep(2)
+                    if self.locator.locate('pic_completed_top_quest'):
+                        print("No new quest to play")
+                        break
                 if self.locator.locate_and_click(is_imgs, target='top_quest'):
                     time.sleep(4)
                 time.sleep(1)
