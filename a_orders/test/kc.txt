@@ -1,4 +1,5 @@
 [2]
+cmd_skip_ani_summon
 cmd_ok_popup
 cmd_ok_popup_download
 cmd_ok_popup_guild

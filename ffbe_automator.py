@@ -572,6 +572,9 @@ class Automator:
         self.log("Testing!!")
         sc_name = self.test_para
         print("Testing"*50)
+        while locator.locate("menu_mogri_store") and self.running:
+            to_is_targets = ["pic_rank_dark1", "pic_rank_dark2", "pic_rank_dark1","pic_arrow_down_is"]
+            self.locator.locate_and_click(to_is_targets)
         kc = Keep_Clicker(self)
         kc.start_keep_clicks()
         # sc_name = 'test'
@@ -592,12 +595,14 @@ class Automator:
         else:
             sc.start_serial_click_thread(sc_name=sc_name)
         while self.running:
+            if sc.serial_click_finished:
+                break
             time.sleep(1)
+        print("Func. test finished")
         if self.running:
             self.finish_button.click()
         kc.close()
         sc.close()
-        print("Func. test finished")
     def test2(self):
         self.running = True
         cnt = 0
