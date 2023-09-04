@@ -49,7 +49,7 @@ class MyWidget(QtWidgets.QWidget):
         self.ip = ""
     def init_preparation(self):
         # variable settings
-        self.macro_version = '0.25'
+        self.macro_version = '0.26'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
