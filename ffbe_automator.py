@@ -527,14 +527,15 @@ class Automator:
         self.running = True
         self.log("Starting Gil-summon automation")
         kc = Keep_Clicker(self)
-        kc.sleep_mul=1
+        kc.sleep_mul=3
         kc.start_keep_clicks()
         cnt = 0
         while self.running:
             while (not self.locator.locate('cmd_summon_popup_confirm')) and self.running:
                 print("In while loop, processing")
-                time.sleep(2)
+                time.sleep(3)
             if self.locator.locate_and_click('cmd_summon_popup_confirm'):
+                time.sleep(3)
                 cnt += 1
                 self.log(f"Summon Completed {cnt} times. {rep_time - cnt} times left.")
             if cnt >= rep_time:

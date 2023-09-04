@@ -458,6 +458,6 @@ class Output_Widget(QtWidgets.QWidget):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     widget = MyWidget()
-    window_title = f"for WingedAngel v{widget.macro_version}"
+    window_title = f"for WingedAngel v.{widget.macro_version}"
     widget.setWindowTitle(window_title)
     sys.exit(app.exec_())
