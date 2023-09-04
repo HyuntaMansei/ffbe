@@ -440,8 +440,8 @@ class Automator:
             if self.locator.locate("cmd_skip_battle_quest"):
                 # In story sortie
                 # kc_for_story.start_keep_clicks()
-                print("Try to skip battle for 10 times")
-                self.skip_battle(10, in_call=True)
+                print("Try to skip battle for 9 times")
+                self.skip_battle(9, in_call=True)
                 print("Skip battle finished.")
                 print("Let's go to raid")
                 sc.start_serial_click_thread("to_raid")
@@ -521,26 +521,27 @@ class Automator:
                     finish_button.click()
                 break
         kc.close()
-    def summon(self):
+    def gil_summon(self):
         rep_time = self.rep_time
         finish_button = self.finish_button
         self.running = True
-        self.log("Starting summon automation")
+        self.log("Starting Gil-summon automation")
+        kc = Keep_Clicker(self)
+        kc.sleep_mul=1
+        kc.start_keep_clicks()
         cnt = 0
         while self.running:
-            print(not self.locator.locate('confirm_summon'))
-            while (not self.locator.locate('confirm_summon')) and self.running:
-                print("In while loop")
-                self.locator.locate_and_click('ok')
-                self.locator.locate_and_click('once_again')
-                self.locator.locate_and_click('skip')
-            if self.locator.locate_and_click('confirm_summon'):
+            while (not self.locator.locate('cmd_summon_popup_confirm')) and self.running:
+                print("In while loop, processing")
+                time.sleep(2)
+            if self.locator.locate_and_click('cmd_summon_popup_confirm'):
                 cnt += 1
                 self.log(f"Summon Completed {cnt} times. {rep_time - cnt} times left.")
             if cnt >= rep_time:
                 break
         if (finish_button != None) and self.running:
             finish_button.click()
+        kc.close()
     def recover_stamina(self, keep_clicker=None, recover_cnt=8):
         # Recovering
         self.debug("Start recovering stamina")
