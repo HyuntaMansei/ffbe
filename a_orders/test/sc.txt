@@ -10,7 +10,6 @@ menu_summon
 pic_arrow_down_summon
 banner_free_for_once
 menu_summon_10_for_free
-cmd_ok_summon
 menu_open
 menu_store
 [store]
@@ -55,7 +54,6 @@ text_duel_point
 cmd_start_battle
 cmd_skip_duel
 cmd_decide_popup_skip_duel
-cmd_ok_duel
 cmd_end_duel
 menu_open
 menu_another_world
