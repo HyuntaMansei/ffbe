@@ -14,3 +14,4 @@ sortie_eq.png
 sortie_confirm.png
 x.png
 yes
+cmd_ok_popup_point
