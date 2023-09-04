@@ -98,8 +98,7 @@ menu_mission
 [mission]
 menu_mission
 cmd_receive_all_mission
-pic_treasure_chest|pic_treasure_chest2
-pic_treasure_chest3|pic_treasure_chest4
+pic_treasure_chest|pic_treasure_chest2|pic_treasure_chest3
 pic_receive_completed
 x_popup
 menu_stamp
