@@ -109,7 +109,7 @@ class Locator:
             res = self.get_target_option(t_str=t_str)
             # Error check - when과 target이 동시에 존재
             if(res["when"] and target):
-                print(f"double target Error with [{t_str}] and [{target}]")
+                print(f"Double target Error with [{t_str}] and [{target}]")
                 time.sleep(1)
                 return False
             if res["confidence"]:
@@ -152,6 +152,7 @@ class Locator:
         if type(t_str) == list:
             for image in t_str:
                 result = self.locate(image, confidence=confidence)
+                time.sleep(0.5)
                 if result:
                     self.debug(f"Successfully located: [{os.path.join(self.img_path,image)}] at {result} in list")
                     return result
@@ -234,7 +235,7 @@ class Locator:
                 target = [target,]
                 for m in mat:
                     target.append(m[1:])
-                print(f"Double target: {target} in {t_str}")
+                print(f"Multiple target: {target} in {t_str}")
             mat = re.search(p_when, t_str)
             if mat:
                 when = mat.group()[1:]

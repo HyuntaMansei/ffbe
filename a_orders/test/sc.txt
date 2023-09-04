@@ -36,8 +36,7 @@ menu_guild_quest
 cmd_skip_all_guild_quest
 cmd_decide_popup_guild_quest
 cmd_end_of_quest_result
-menu_open
-menu_guild
+menu_open|menu_guild
 menu_barracks
 cmd_food_supply
 cmd_supply_all
@@ -83,6 +82,7 @@ text_10_skip_quest
 cmd_decide_popup_skip_quest
 cmd_end_of_quest
 menu_vision_card
+menu_vision_card
 cmd_skip_all_hard_quest
 cmd_decide_popup_skip_quest
 cmd_end_of_quest
@@ -99,14 +99,14 @@ menu_mission
 menu_mission
 cmd_receive_all_mission
 pic_treasure_chest|pic_treasure_chest2|pic_treasure_chest3
-pic_receive_completed
+pic_receive_completed|cmd_normal_popup_mission
 x_popup
 menu_stamp
 [stamp]
 menu_stamp
 menu_stamp_stamp
 cmd_receive_all_stamp
-pic_no_mission_stamp
+pic_no_mission_stamp#0.99
 x_popup
 menu_present
 [present]

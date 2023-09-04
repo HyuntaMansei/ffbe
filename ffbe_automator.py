@@ -208,11 +208,11 @@ class Automator:
                     if self.locator.locate('pic_completed_top_quest'):
                         self.locator.locate_and_click('cmd_select_chapter')
                         time.sleep(3)
-                        self.locator.locate_and_click('banner_top_chapter')
+                        self.locator.locate_and_click('banner_next_chapter|banner_top_chapter')
                         time.sleep(3)
                     if self.locator.locate('pic_completed_top_quest'):
                         print("No new quest to play")
-                        break
+                        finish_button.click()
                 if self.locator.locate_and_click(is_imgs, target='top_quest'):
                     time.sleep(4)
                 time.sleep(1)
