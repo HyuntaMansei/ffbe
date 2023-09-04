@@ -1,5 +1,6 @@
-[2]
+[1]
 menu_summon_10_for_free
 menu_summon_10_for_mil
 cmd_ok_popup_fragment
 cmd_gil_summon_once_again
+cmd_skip_ani_summon
