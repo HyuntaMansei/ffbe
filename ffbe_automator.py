@@ -263,12 +263,12 @@ class Automator:
                     time.sleep(5)
             self.debug("In battle stage")
             self.stop_watch()
-            while (not self.locator.locate('end_of_quest')) and self.running:
+            while (not self.locator.locate('cmd_end_of_quest_popup_quest')) and self.running:
                 time.sleep(5)
             self.debug("The Quest ended")
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
             while (not self.locator.locate(sorties)) and self.running:
-                self.locator.locate_and_click('back_to_sortie')
+                self.locator.locate_and_click('cmd_back_to_sortie_popup_quest')
                 if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
                     self.locator.locate_and_click('yes')
@@ -281,7 +281,7 @@ class Automator:
 
             # Change party
             self.debug("Select next party")
-            select_next_parties = ["select_next_party#0.99"]
+            select_next_parties = ["select_next_party|select_next_party2#0.97"]
             time.sleep(5)
             while (not self.locator.locate("select_party_scroll")) and self.running:
                 self.debug("Selecting party button")
