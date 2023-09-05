@@ -1,13 +1,11 @@
 [2]
 cmd_skip_ani_summon
-cmd_ok_popup_fragment
 cmd_ok_summon
-cmd_ok_popup_download
-cmd_ok_popup_guild_medal
 cmd_ok_duel
-cmd_ok_popup_get_rewards
+cmd_ok_popup_download
+cmd_ok_popup_fragment
+cmd_ok_popup_guild_medal
 cmd_ok_popup_skip_battle
-cmd_next_popup
 cmd_next_popup_skip_battle
 cmd_cancel_popup_store@text_change_to_gil
 cmd_no_popup_barracks@text_empty_barracks
