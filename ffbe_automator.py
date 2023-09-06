@@ -585,18 +585,21 @@ class Automator:
         sc.set_path_and_file(sc_file_name="sc.txt")
         # sc.set_path_and_file(sc_file_name="test.txt")
         # sc.start_serial_clicks()
-        if sc_name == 'all':
+        if sc_name == ''or 'all':
             sc_names = [
                 "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
             ]
-            for s in sc_names:
-                sc.start_serial_click_thread(sc_name=s)
-                while (not sc.serial_click_finished) and self.running:
-                    time.sleep(3)
-                if not self.running:
-                    break
         else:
-            sc.start_serial_click_thread(sc_name=sc_name)
+            sc_names = [s.strip() for s in sc_name.split(',')]
+        print(f"sc_names: [{sc_names}]")
+        for s in sc_names:
+            sc.start_serial_click_thread(sc_name=s)
+            while (not sc.serial_click_finished) and self.running:
+                time.sleep(3)
+            if not self.running:
+                break
+            # else:
+            # sc.start_serial_click_thread(sc_name=sc_name)
         while self.running:
             if sc.serial_click_finished:
                 break
