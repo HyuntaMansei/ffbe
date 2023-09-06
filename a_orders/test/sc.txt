@@ -59,7 +59,7 @@ menu_another_world
 menu_another_world
 menu_event
 menu_daily
-banner_pilgrimage|pic_scroll_down_daily
+banner_pilgrimage|banner_pilgrimage2|pic_scroll_down_daily
 banner_hardest_pilgrimage
 cmd_skip_battle_eq
 cmd_decide_popup_skip_battle

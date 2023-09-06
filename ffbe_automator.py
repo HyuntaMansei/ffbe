@@ -247,7 +247,6 @@ class Automator:
         self.log(f"Starting quest automation with different party.")
         rep_time = self.rep_time
         finish_button = self.finish_button
-        # self.start_keep_clicks()
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
         cnt = 0
@@ -749,9 +748,11 @@ class Keep_Clicker:
                     result = locator_kc.locate_and_click(target)
                     if result:
                         print(f"Successfully clicked for [{target}] by keep click with SleepTime: {sleep_time}")
+                    if not (self.running and (self.keep_click_running or keep_awake)):
+                        break
                 for i in range(int(sleep_time)):
                     time.sleep(1)
-                    if not self.running:
+                    if not (self.running and (self.keep_click_running or keep_awake)):
                         break
             else:
                 print(f"Skip keep_click loop for {target_list} sleep time: {sleep_time}")
