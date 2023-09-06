@@ -6,7 +6,7 @@ go_back.png
 later.png
 later_chocobo.png
 next.png
-not_auto.png
+not_auto.png#0.99
 ok.png
 sortie.png
 sortie_quest.png
