@@ -247,7 +247,6 @@ class Automator:
         self.log(f"Starting quest automation with different party.")
         rep_time = self.rep_time
         finish_button = self.finish_button
-        # self.start_keep_clicks()
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
         cnt = 0
@@ -263,12 +262,12 @@ class Automator:
                     time.sleep(5)
             self.debug("In battle stage")
             self.stop_watch()
-            while (not self.locator.locate('end_of_quest')) and self.running:
+            while (not self.locator.locate('cmd_end_of_quest_popup_quest')) and self.running:
                 time.sleep(5)
             self.debug("The Quest ended")
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
             while (not self.locator.locate(sorties)) and self.running:
-                self.locator.locate_and_click('back_to_sortie')
+                self.locator.locate_and_click('cmd_back_to_sortie_popup_quest')
                 if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
                     self.locator.locate_and_click('yes')
@@ -281,7 +280,7 @@ class Automator:
 
             # Change party
             self.debug("Select next party")
-            select_next_parties = ["select_next_party#0.99"]
+            select_next_parties = ["select_next_party|select_next_party2#0.97"]
             time.sleep(5)
             while (not self.locator.locate("select_party_scroll")) and self.running:
                 self.debug("Selecting party button")
@@ -568,6 +567,47 @@ class Automator:
             time.sleep(1)
         self.debug("Finished recovering")
         keep_clicker.start_keep_click()
+    def daily_work(self):
+        self.running = True
+        cnt = 0
+        self.log("Starting Daily Work automation")
+        sc_name = self.test_para
+        print("Starting Daily Work automation")
+        # to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is"]
+        # while not self.locator.locate("menu_mogri_store") and self.running:
+        #     for t in to_is_targets:
+        #         self.locator.locate_and_click(t)
+        #         time.sleep(1)
+        kc = Keep_Clicker(self)
+        kc.start_keep_clicks()
+        sc = Serial_Clicker(self)
+        sc.set_path_and_file(sc_file_name="sc.txt")
+        # if sc_name == ''or 'all':
+        #     sc_names = [
+        #         "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
+        #     ]
+        # else:
+        #     sc_names = [s.strip() for s in sc_name.split(',')]
+        sc_names = [
+                    "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
+                ]
+        print(f"sc_names: [{sc_names}]")
+        for s in sc_names:
+            sc.start_serial_click_thread(sc_name=s)
+            while (not sc.serial_click_finished) and self.running:
+                time.sleep(3)
+            if not self.running:
+                break
+        while self.running:
+            if sc.serial_click_finished:
+                break
+            time.sleep(1)
+        self.log("Func. Daily Work finished")
+        print("Func. Daily Work finished")
+        if self.running:
+            self.finish_button.click()
+        kc.close()
+        sc.close()
     def test(self):
         self.running = True
         cnt = 0
@@ -586,18 +626,21 @@ class Automator:
         sc.set_path_and_file(sc_file_name="sc.txt")
         # sc.set_path_and_file(sc_file_name="test.txt")
         # sc.start_serial_clicks()
-        if sc_name == 'all':
+        if sc_name == ''or 'all':
             sc_names = [
                 "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
             ]
-            for s in sc_names:
-                sc.start_serial_click_thread(sc_name=s)
-                while (not sc.serial_click_finished) and self.running:
-                    time.sleep(3)
-                if not self.running:
-                    break
         else:
-            sc.start_serial_click_thread(sc_name=sc_name)
+            sc_names = [s.strip() for s in sc_name.split(',')]
+        print(f"sc_names: [{sc_names}]")
+        for s in sc_names:
+            sc.start_serial_click_thread(sc_name=s)
+            while (not sc.serial_click_finished) and self.running:
+                time.sleep(3)
+            if not self.running:
+                break
+            # else:
+            # sc.start_serial_click_thread(sc_name=sc_name)
         while self.running:
             if sc.serial_click_finished:
                 break
@@ -749,9 +792,11 @@ class Keep_Clicker:
                     result = locator_kc.locate_and_click(target)
                     if result:
                         print(f"Successfully clicked for [{target}] by keep click with SleepTime: {sleep_time}")
+                    if not (self.running and (self.keep_click_running or keep_awake)):
+                        break
                 for i in range(int(sleep_time)):
                     time.sleep(1)
-                    if not self.running:
+                    if not (self.running and (self.keep_click_running or keep_awake)):
                         break
             else:
                 print(f"Skip keep_click loop for {target_list} sleep time: {sleep_time}")

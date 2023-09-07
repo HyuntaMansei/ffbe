@@ -59,7 +59,7 @@ menu_another_world
 menu_another_world
 menu_event
 menu_daily
-banner_pilgrimage|pic_scroll_down_daily
+banner_pilgrimage|banner_pilgrimage2|pic_scroll_down_daily
 banner_hardest_pilgrimage
 cmd_skip_battle_eq
 cmd_decide_popup_skip_battle
@@ -98,7 +98,7 @@ menu_mission
 [mission]
 menu_mission
 cmd_receive_all_mission
-pic_treasure_chest|pic_treasure_chest2|pic_treasure_chest3
+pic_treasure_chest|pic_treasure_chest2|pic_treasure_chest3#0.85
 pic_receive_completed|cmd_normal_popup_mission
 x_popup
 menu_stamp
