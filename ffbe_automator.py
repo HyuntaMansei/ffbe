@@ -567,6 +567,47 @@ class Automator:
             time.sleep(1)
         self.debug("Finished recovering")
         keep_clicker.start_keep_click()
+    def daily_work(self):
+        self.running = True
+        cnt = 0
+        self.log("Starting Daily Work automation")
+        sc_name = self.test_para
+        print("Starting Daily Work automation")
+        # to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is"]
+        # while not self.locator.locate("menu_mogri_store") and self.running:
+        #     for t in to_is_targets:
+        #         self.locator.locate_and_click(t)
+        #         time.sleep(1)
+        kc = Keep_Clicker(self)
+        kc.start_keep_clicks()
+        sc = Serial_Clicker(self)
+        sc.set_path_and_file(sc_file_name="sc.txt")
+        # if sc_name == ''or 'all':
+        #     sc_names = [
+        #         "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
+        #     ]
+        # else:
+        #     sc_names = [s.strip() for s in sc_name.split(',')]
+        sc_names = [
+                    "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
+                ]
+        print(f"sc_names: [{sc_names}]")
+        for s in sc_names:
+            sc.start_serial_click_thread(sc_name=s)
+            while (not sc.serial_click_finished) and self.running:
+                time.sleep(3)
+            if not self.running:
+                break
+        while self.running:
+            if sc.serial_click_finished:
+                break
+            time.sleep(1)
+        self.log("Func. Daily Work finished")
+        print("Func. Daily Work finished")
+        if self.running:
+            self.finish_button.click()
+        kc.close()
+        sc.close()
     def test(self):
         self.running = True
         cnt = 0
