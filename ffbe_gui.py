@@ -15,6 +15,7 @@ from ppadb.client import Client as AdbClient
 import mysql.connector
 import requests
 import psutil
+import setting_gui
 
 def get_public_ip():
     try:
@@ -31,12 +32,14 @@ class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.test_para = None
+        self.dw_setting = None
         self.init_arguments()
         self.init_preparation()
         self.init_ui()
         self.init_device_list()
         self.init_server_connection()
         self.init_msg_boxes()
+        self.init_setting()
         self.init_others()
     def init_arguments(self):
         self.arguments = sys.argv[1:]
@@ -255,6 +258,10 @@ class MyWidget(QtWidgets.QWidget):
         self.error_widget.show()
         self.error_widget.move(800,0)
         self.error_widget.showMinimized()
+    def init_setting(self):
+        self.dw_setting = setting_gui.SettingsDialog()
+        self.dw_setting.initUi()
+        print(self.dw_setting.checked_boxes, " and ", self.dw_setting.checked_rbs)
     def init_others(self):
         self.device_initiated = False
         print(f"Initial position: {self.initial_x, self.initial_y}")
@@ -338,7 +345,7 @@ class MyWidget(QtWidgets.QWidget):
     def on_cb_operation_text_changed(self, text):
         cur_text = self.pb_operation.text()
         try:
-            if not ('on' in cur_text) and not (cur_text.lower() == 'init'):
+            if not ('on' in cur_text) and not (cur_text.lower() == 'init') and not (cur_text.lower() == '초기화') :
                 self.pb_operation.setText(text)
         except:
             self.error(f"Error in on_cb_operation_text_changed, text: {text}")
@@ -372,6 +379,7 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
                                            finish_button=self.sender(), sleep_multiple=self.sleep_multiple, test_para=self.test_para)
+            self.automator.set_dw_settings(self.dw_setting)
             print("Starting automator thread")
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
@@ -443,6 +451,8 @@ class MyWidget(QtWidgets.QWidget):
         connection.commit()
         cursor.close()
         connection.close()
+    def open_settings(self):
+        self.dw_setting.exec_()
 class Output_Widget(QtWidgets.QWidget):
     def __init__(self, width=400, height=400):
         super().__init__()

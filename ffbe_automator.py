@@ -573,6 +573,12 @@ class Automator:
         self.log("Starting Daily Work automation")
         sc_name = self.test_para
         print("Starting Daily Work automation")
+        dw_on_order = [
+            "사전작업","초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물"
+        ]
+        dw_on_order = [
+            "초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물"
+        ]
         # to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is"]
         # while not self.locator.locate("menu_mogri_store") and self.running:
         #     for t in to_is_targets:
@@ -588,12 +594,27 @@ class Automator:
         #     ]
         # else:
         #     sc_names = [s.strip() for s in sc_name.split(',')]
-        sc_names = [
-                    "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
-                ]
-        print(f"sc_names: [{sc_names}]")
-        for s in sc_names:
-            sc.start_serial_click_thread(sc_name=s)
+        # sc_names = [
+        #             "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
+        #         ]
+        # print(f"sc_names: [{sc_names}]")
+        for dw in dw_on_order:
+            if dw in self.checked_boxes:
+                if dw.lower() == 'pvp':
+                    if 'pvp1회' in self.checked_rbs:
+                        sc.start_serial_click_thread(sc_name="pvp1회")
+                    else:
+                        sc.start_serial_click_thread(sc_name="pvp5회")
+                elif dw == '스토리':
+                    if not ('하드퀘스트' in self.checked_boxes):
+                        sc.start_serial_click_thread(sc_name='스토리no하드')
+                    else:
+                        sc.start_serial_click_thread(sc_name=dw)
+                else:
+                    try:
+                        sc.start_serial_click_thread(sc_name=dw)
+                    except Exception as e:
+                        print(e)
             while (not sc.serial_click_finished) and self.running:
                 time.sleep(3)
             if not self.running:
@@ -608,6 +629,11 @@ class Automator:
             self.finish_button.click()
         kc.close()
         sc.close()
+    def set_dw_settings(self, dw_settings):
+        print("Setting dailywork config")
+        self.checked_boxes = [cb.lower() for cb in dw_settings.checked_boxes]
+        self.checked_rbs = dw_settings.checked_rbs
+        print(self.checked_boxes, " and ",self.checked_rbs)
     def test(self):
         self.running = True
         cnt = 0
@@ -1013,7 +1039,7 @@ class Serial_Clicker():
         global sc_name
         path = file_path
         if os.path.isfile(path):
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding='UTF-8') as f:
                 lines = f.readlines()
         else:
             return False

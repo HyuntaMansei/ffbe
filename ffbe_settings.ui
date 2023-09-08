@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>754</width>
-    <height>544</height>
+    <width>491</width>
+    <height>381</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>711</width>
-     <height>501</height>
+     <width>451</width>
+     <height>359</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -165,7 +165,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>pvp 1회</string>
+         <string>pvp1회</string>
         </property>
        </widget>
       </item>
@@ -178,7 +178,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>pvp 5회</string>
+         <string>pvp5회</string>
         </property>
        </widget>
       </item>
@@ -309,7 +309,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,1,0">
       <item>
        <widget class="QCheckBox" name="cb_present">
         <property name="sizePolicy">
@@ -331,9 +331,23 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>전체선택</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="text">
+         <string>전체해제</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QDialogButtonBox" name="buttonBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -357,11 +371,11 @@
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>Dialog</receiver>
-   <slot>accept()</slot>
+   <slot>custom_accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>315</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -376,8 +390,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>383</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -385,5 +399,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>select_all()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>145</x>
+     <y>365</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>142</x>
+     <y>420</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>deselect_all()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>364</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>417</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>custom_accept()</slot>
+  <slot>select_all()</slot>
+  <slot>deselect_all()</slot>
+ </slots>
 </ui>
