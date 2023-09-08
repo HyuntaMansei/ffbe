@@ -1,4 +1,0 @@
-[default]
-checked_box = 스토리/하드퀘스트/친구/미션/스탬프/선물
-checked_rb = pvp5회
-
