@@ -598,6 +598,7 @@ class Automator:
         #             "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
         #         ]
         # print(f"sc_names: [{sc_names}]")
+        print("work to do: ",self.checked_boxes)
         for dw in dw_on_order:
             if dw in self.checked_boxes:
                 if dw.lower() == 'pvp':
@@ -615,10 +616,10 @@ class Automator:
                         sc.start_serial_click_thread(sc_name=dw)
                     except Exception as e:
                         print(e)
-            while (not sc.serial_click_finished) and self.running:
-                time.sleep(3)
-            if not self.running:
-                break
+                while (not sc.serial_click_finished) and self.running:
+                    time.sleep(3)
+                if not self.running:
+                    break
         while self.running:
             if sc.serial_click_finished:
                 break
