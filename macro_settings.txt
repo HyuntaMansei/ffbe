@@ -1,0 +1,3 @@
+[default]
+checked_box = 사전작업/초코보
+checked_rb = pvp 1회

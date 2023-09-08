@@ -51,8 +51,7 @@ cmd_ready_for_duel
 text_duel_point
 cmd_start_battle
 cmd_skip_duel
-cmd_decide_popup_skip_duel
-cmd_end_duel
+cmd_end_duel|cmd_decide_popup_skip_duel
 menu_open
 menu_another_world
 [another_world]
