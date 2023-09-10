@@ -70,6 +70,14 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
     def deselect_all(self):
         for cb in self.check_boxes:
             cb.setChecked(False)
+    def cb_story_changed(self, state):
+        # print(state)
+        if not state:
+            self.cb_hard_quest.setEnabled(False)
+            self.cb_party_name_xp.setEnabled(False)
+        else:
+            self.cb_hard_quest.setEnabled(True)
+            self.cb_party_name_xp.setEnabled(True)
 def show_settings_popup():
     dialog = SettingsDialog()
     dialog.initUi()

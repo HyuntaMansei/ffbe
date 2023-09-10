@@ -1,5 +1,20 @@
-백그라운드 반복용:
+[초기 진입용] 완료: 1600_720
+pic_arrow_down_is2
+[백그라운드 반복] - 완료: 890_500 / 1600_720
 icon_background_repetition
 x_popup_background_repetition
 next_popup_background_repetition
 ok_popup_background_repetition
+[체력회복] 완료: 1600_720
+icon_plus_stamina
+pic_item_popup_stamina
+icon_plus_recover_stamina
+icon_plus_off_recover_stamina
+cmd_recover_popup_recover_stamina
+cmd_recover_off_popup_recover_stamina
+cmd_ok_popup_recover_stamina
+cmd_cancel_popup_recover_stamina
+cmd_close_popup_stamina
+[pre스토리xp] 완료: 1600_720
+
+

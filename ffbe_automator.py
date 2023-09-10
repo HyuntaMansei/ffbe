@@ -373,12 +373,13 @@ class Automator:
                 finish_button.click()
                 break
         keep_clicker.close()
-    def play_multi_client_any(self):
+    def play_multi_client_any(self, inCall = False):
         self.running = True
         self.locator.confidence = 0.95
         self.log("Starting multi_client automation")
-        # self.start_keep_clicks()
         keep_clicker = Keep_Clicker(self)
+        if inCall:
+            keep_clicker.set_automation_path('a_orders\multi_client_any')
         keep_clicker.start_keep_clicks()
         cnt = 0
         exit_targets = ['cancel_ready','exit_room','ok','ok_multi','x','x_multi','next']
@@ -392,11 +393,11 @@ class Automator:
                 print(f"Limit_timer: {limit_time}")
                 if limit_time > 600:
                     self.debug("In exit code")
-                    self.stop_keep_click()
+                    keep_clicker.stop_keep_click()
                     while (not self.locator.locate(exit_finish)) and (not self.locator.locate('auto')) and self.running:
                         self.locator.locate_and_click(exit_targets)
                         time.sleep(3)
-                    self.start_keep_click()
+                    keep_clicker.start_keep_click()
                     self.limit_timer.restart()
             self.debug("In battle stage.")
             while (not self.locator.locate('cancel_ready')) and self.running:
@@ -573,46 +574,53 @@ class Automator:
         self.log("Starting Daily Work automation")
         sc_name = self.test_para
         print("Starting Daily Work automation")
-        dw_on_order = [
-            "사전작업","초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물"
-        ]
-        dw_on_order = [
-            "초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물"
-        ]
-        # to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is"]
-        # while not self.locator.locate("menu_mogri_store") and self.running:
-        #     for t in to_is_targets:
-        #         self.locator.locate_and_click(t)
-        #         time.sleep(1)
+        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2"]
+        while not self.locator.locate("menu_mogri_store") and self.running:
+            for t in to_is_targets:
+                self.locator.locate_and_click(t)
+                time.sleep(1)
         kc = Keep_Clicker(self)
         kc.start_keep_clicks()
         sc = Serial_Clicker(self)
         sc.set_path_and_file(sc_file_name="sc.txt")
-        # if sc_name == ''or 'all':
-        #     sc_names = [
-        #         "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
-        #     ]
-        # else:
-        #     sc_names = [s.strip() for s in sc_name.split(',')]
-        # sc_names = [
-        #             "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
-        #         ]
-        # print(f"sc_names: [{sc_names}]")
         print("work to do: ",self.checked_boxes)
-        for dw in dw_on_order:
+        dw_in_order = [
+            "백그라운드","체력회복", "초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물", "멀티클라"
+        ]
+        for dw in dw_in_order:
             if dw in self.checked_boxes:
-                if dw.lower() == 'pvp':
+                if dw == '백그라운드':
+                    print("aa")
+                    time.sleep(5)
+                    if self.locator.locate("icon_background_repetition"):
+                        sc.start_serial_click_thread(sc_name=dw)
+                    else:
+                        print("finished")
+                        continue
+                if dw == '멀티클라':
+                    print("멀티클라")
+                    self.play_multi_client_any(inCall=True)
+                elif dw.lower() == 'pvp':
                     if 'pvp1회' in self.checked_rbs:
                         sc.start_serial_click_thread(sc_name="pvp1회")
                     else:
                         sc.start_serial_click_thread(sc_name="pvp5회")
                 elif dw == '스토리':
-                    if not ('하드퀘스트' in self.checked_boxes):
-                        sc.start_serial_click_thread(sc_name='스토리no하드')
+                    if '파티명:xp' in self.checked_boxes:
+                        sc.start_serial_click_thread(sc_name='pre스토리xp')
+                        if not ('하드퀘스트' in self.checked_boxes):
+                            sc.start_serial_click_thread(sc_name='스토리no하드')
+                        else:
+                            sc.start_serial_click_thread(sc_name=dw)
                     else:
-                        sc.start_serial_click_thread(sc_name=dw)
+                        sc.start_serial_click_thread(sc_name='pre스토리')
+                        if not ('하드퀘스트' in self.checked_boxes):
+                            sc.start_serial_click_thread(sc_name='스토리no하드')
+                        else:
+                            sc.start_serial_click_thread(sc_name=dw)
                 else:
                     try:
+                        print("Starting DW for ", dw)
                         sc.start_serial_click_thread(sc_name=dw)
                     except Exception as e:
                         print(e)
@@ -816,21 +824,21 @@ class Keep_Clicker:
         while self.running:
             if self.keep_click_running or keep_awake:
                 for target in target_list:
+                    if not (self.running and (self.keep_click_running or keep_awake)):
+                        break
                     result = locator_kc.locate_and_click(target)
                     if result:
                         print(f"Successfully clicked for [{target}] by keep click with SleepTime: {sleep_time}")
-                    if not (self.running and (self.keep_click_running or keep_awake)):
-                        break
                 for i in range(int(sleep_time)):
-                    time.sleep(1)
                     if not (self.running and (self.keep_click_running or keep_awake)):
                         break
+                    time.sleep(1)
             else:
                 print(f"Skip keep_click loop for {target_list} sleep time: {sleep_time}")
                 for i in range(5 * int(sleep_time)):
-                    time.sleep(1)
                     if not self.running:
                         break
+                    time.sleep(1)
     def keep_click_conditional(self, target_list, start_list, finish_list, sleep_time=None):
         if sleep_time == None:
             sleep_time = 1
@@ -949,7 +957,7 @@ class Serial_Clicker():
         self.my_device = None
         self.running = True
         self.serial_click_running = True
-        self.serial_click_finished = False
+        self.serial_click_finished = True
         self.stop_serial_click_index = 1
         if automator:
             self.set_variables(automator=automator)
@@ -976,6 +984,8 @@ class Serial_Clicker():
         thread_to_run = threading.Thread(target=target_thread, args=args)
         thread_to_run.start()
     def start_serial_click(self, sc_name=None, click_interval=2):
+        while (not self.serial_click_finished) and self.running:
+            time.sleep(3)
         self.serial_click_finished = False
         if self.sc_file_name:
             sc_file_name = self.sc_file_name

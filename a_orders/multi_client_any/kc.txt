@@ -16,9 +16,8 @@ host_any_2x.png
 retry.png
 [5]
 host_any.png
-[7]
 give_up.png
 give_up_multi.png
 scroll_down.png
-[11]
+[7]
 refresh.png

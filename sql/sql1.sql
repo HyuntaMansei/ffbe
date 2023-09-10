@@ -142,7 +142,7 @@ select * from operation_list;
 select * from operation_list;
 SELECT * FROM test_tb;
 SELECT *, COUNT(*) FROM test_tb GROUP BY seq HAVING COUNT(*) > 1;
-SELECT * FROM char_list;version_info
+SELECT * FROM char_list;
 SELECT char_element,  FROM char_list 
 truncate char_list;
 select * from vc_list;
