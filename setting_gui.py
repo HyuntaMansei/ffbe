@@ -31,8 +31,13 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
             print(e)
         # print(self.conf['default']['checked_box'])
         # print(self.conf['default']['checked_rb'])
-        self.checked_boxes = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
-        self.checked_rbs = [s.strip() for s in self.conf['default']['checked_rb'].split('/')]
+        self.checked_boxes = []
+        self.checked_rbs = []
+        try:
+            self.checked_boxes = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
+            self.checked_rbs = [s.strip() for s in self.conf['default']['checked_rb'].split('/')]
+        except Exception as e:
+            print(e)
         # print(self.checked_boxes)
         # print(self.checked_rbs)
     def initial_check(self):
@@ -62,8 +67,13 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
     def save_to_file(self):
         str_checked_boxes = '/'.join(self.checked_boxes)
         str_checked_rbs = '/'.join(self.checked_rbs)
-        self.conf['default']['checked_box'] = str_checked_boxes
-        self.conf['default']['checked_rb'] = str_checked_rbs
+        if self.conf.has_section('default'):
+            self.conf['default']['checked_box'] = str_checked_boxes
+            self.conf['default']['checked_rb'] = str_checked_rbs
+        else:
+            self.conf.add_section('default')
+            self.conf['default']['checked_box'] = str_checked_boxes
+            self.conf['default']['checked_rb'] = str_checked_rbs
         with open(self.file_path, 'w', encoding='UTF-8') as configfile:
             self.conf.write(configfile)
     def select_all(self):
@@ -76,7 +86,16 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         # print(state)
         if not state:
             self.cb_hard_quest.setEnabled(False)
-            self.cb_party_name_xp.setEnabled(False)
+            if not self.cb_another_world.isChecked():
+                self.cb_party_name_xp.setEnabled(False)
+        else:
+            self.cb_hard_quest.setEnabled(True)
+            self.cb_party_name_xp.setEnabled(True)
+    def cb_another_world_changed(self, state):
+        # print(state)
+        if not state:
+            if not self.cb_story.isChecked():
+                self.cb_party_name_xp.setEnabled(False)
         else:
             self.cb_hard_quest.setEnabled(True)
             self.cb_party_name_xp.setEnabled(True)

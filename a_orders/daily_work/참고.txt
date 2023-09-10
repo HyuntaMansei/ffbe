@@ -1,10 +1,5 @@
 [초기 진입용] 완료: 1600_720
 pic_arrow_down_is2
-[백그라운드 반복] - 완료: 890_500 / 1600_720 / 882
-icon_background_repetition
-x_popup_background_repetition
-next_popup_background_repetition
-ok_popup_background_repetition
 [체력회복] 완료: 1600_720 / 882
 icon_plus_stamina
 pic_item_popup_stamina
@@ -20,3 +15,10 @@ cb_select_party_presortie
 banner_xp_select_party
 pic_scroll_up_select_party
 cb_party_xp_selected
+
+완료-----------------------------------------------------------
+[백그라운드 반복] - 완료: 890_500 / 1600_720 / 882
+icon_background_repetition
+x_popup_background_repetition
+next_popup_background_repetition
+ok_popup_background_repetition

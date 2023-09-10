@@ -597,7 +597,7 @@ class Automator:
                     else:
                         print("finished")
                         continue
-                if dw == '멀티클라':
+                elif dw == '멀티클라':
                     print("멀티클라")
                     self.play_multi_client_any(inCall=True)
                 elif dw.lower() == 'pvp':
@@ -605,6 +605,11 @@ class Automator:
                         sc.start_serial_click_thread(sc_name="pvp1회")
                     else:
                         sc.start_serial_click_thread(sc_name="pvp5회")
+                elif dw == '이계의성':
+                    if '파티명:xp' in self.checked_boxes:
+                        sc.start_serial_click_thread(sc_name='이계의성xp')
+                    else:
+                        sc.start_serial_click_thread(sc_name=dw)
                 elif dw == '스토리':
                     if '파티명:xp' in self.checked_boxes:
                         sc.start_serial_click_thread(sc_name='pre스토리xp')

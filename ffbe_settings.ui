@@ -448,7 +448,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>325</x>
-     <y>239</y>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
      <x>881</x>
@@ -472,11 +472,28 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>cb_another_world</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>Dialog</receiver>
+   <slot>cb_another_world_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>106</x>
+     <y>209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-13</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>custom_accept()</slot>
   <slot>select_all()</slot>
   <slot>deselect_all()</slot>
   <slot>cb_story_changed()</slot>
+  <slot>cb_another_world_changed()</slot>
  </slots>
 </ui>
