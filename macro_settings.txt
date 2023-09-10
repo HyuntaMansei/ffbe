@@ -1,4 +1,4 @@
 [default]
-checked_box = 스토리/하드퀘스트
+checked_box = 하드퀘스트
 checked_rb = pvp5회
 

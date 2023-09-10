@@ -44,6 +44,8 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         for c in self.radio_boxes:
             if c.text() in self.checked_rbs:
                 c.setChecked(True)
+        if not self.cb_story.isChecked():
+            self.cb_story_changed(0)
     def custom_accept(self):
         self.checked_boxes = []
         self.checked_rbs = []
