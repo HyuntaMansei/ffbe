@@ -1,4 +1,4 @@
 [default]
-checked_box = 스토리/하드퀘스트
+checked_box = 길드/이계의성/스탬프/PVP/멀티클라/체력회복/소환/상점/미션/백그라운드/스토리/친구/초코보/선물/하드퀘스트/파티명:XP
 checked_rb = pvp5회
 
