@@ -590,13 +590,18 @@ class Automator:
         for dw in dw_in_order:
             if dw in self.checked_boxes:
                 if dw == '백그라운드':
-                    print("aa")
                     time.sleep(5)
                     if self.locator.locate("icon_background_repetition"):
                         sc.start_serial_click_thread(sc_name=dw)
                     else:
-                        print("finished")
                         continue
+                elif dw == '체력회복':
+                    time.sleep(2)
+                    kc.stop_keep_click()
+                    sc.start_serial_click_thread(sc_name=dw)
+                    while (not sc.serial_click_finished) and self.running:
+                        time.sleep(3)
+                    kc.start_keep_click()
                 elif dw == '멀티클라':
                     print("멀티클라")
                     self.play_multi_client_any(inCall=True)
