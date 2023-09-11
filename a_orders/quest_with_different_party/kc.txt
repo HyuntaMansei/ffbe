@@ -7,5 +7,6 @@ menu_cancel.png
 later.png
 ok.png
 ok_result.png
+cmd_ok_popup_result
 next.png
 x.png

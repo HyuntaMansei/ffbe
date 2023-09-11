@@ -356,7 +356,7 @@ class Automator:
             self.debug("\n'Auto' is located. In battle stage")
             self.timer.restart()
             targets = ['organize']
-            cancels = ["cancel", "cancel_friend", "cancel_multi"]
+            cancels = ["cancel", "cancel_friend", "cancel_multi", "cmd_cancel_popup_multi"]
             while (not self.locator.locate(targets)) and self.running:
                 self.locator.locate_and_click(cancels)
                 time.sleep(self.sleep_mul * 5)
@@ -616,18 +616,14 @@ class Automator:
                     else:
                         sc.start_serial_click_thread(sc_name=dw)
                 elif dw == '스토리':
-                    if '파티명:xp' in self.checked_boxes:
+                    if ('파티명:xp' in self.checked_boxes) and (not '이계의성' in self.checked_boxes):
                         sc.start_serial_click_thread(sc_name='pre스토리xp')
-                        if not ('하드퀘스트' in self.checked_boxes):
-                            sc.start_serial_click_thread(sc_name='스토리no하드')
-                        else:
-                            sc.start_serial_click_thread(sc_name=dw)
                     else:
                         sc.start_serial_click_thread(sc_name='pre스토리')
-                        if not ('하드퀘스트' in self.checked_boxes):
-                            sc.start_serial_click_thread(sc_name='스토리no하드')
-                        else:
-                            sc.start_serial_click_thread(sc_name=dw)
+                    if not ('하드퀘스트' in self.checked_boxes):
+                        sc.start_serial_click_thread(sc_name='스토리no하드')
+                    else:
+                        sc.start_serial_click_thread(sc_name=dw)
                 else:
                     try:
                         print("Starting DW for ", dw)
