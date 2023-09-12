@@ -9,4 +9,5 @@ ok.png
 ok_result.png
 cmd_ok_popup_result
 next.png
+cmd_next_popup_quest
 x.png

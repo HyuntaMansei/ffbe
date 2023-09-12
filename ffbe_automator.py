@@ -331,7 +331,7 @@ class Automator:
                     self.debug(
                         f"Trying to click sortie, # of players: {num_of_players}, elap. time: {int(self.elapsed_time())} sec")
                     self.locator.locate_and_click(sorties)
-                if (self.elapsed_time() > 360) and (self.locator.get_path("checking_the_result")):
+                if (self.elapsed_time() > 500) and (self.locator.get_path("checking_the_result")):
                     while (self.locator.locate('checking_the_result')) and self.running:
                         self.debug("Kicking someone checking the result!")
                         if self.locator.locate_and_click('checking_the_result'):

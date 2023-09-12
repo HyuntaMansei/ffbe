@@ -1,0 +1,5 @@
+---퀘스트다른파티진행---
+완: 1600 / 882 / 890
+cmd_end_of_quest_popup_quest
+cmd_back_to_sortie_popup_quest
+select_next_party2

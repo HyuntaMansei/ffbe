@@ -1,0 +1,6 @@
+[신규추가] - 1600 / 890 
+cmd_cancel_popup_multi
+
+890
+cmd_go_back_popup_multi
+cmd_next_popup_multi

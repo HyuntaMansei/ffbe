@@ -1,7 +1,9 @@
 [1]
 give_up.png
 go_back.png
+cmd_go_back_popup_multi
 next.png
+cmd_next_popup_multi
 ok.png
 sortie_confirm.png
 yes.png
