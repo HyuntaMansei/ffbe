@@ -487,8 +487,27 @@ class Automator:
             finish_button.click()
         kc_for_raid.close()
         sc.close()
+    def whim_store(self):
+        self.locator.confidence = 0.95
+        finish_button = self.finish_button
+        self.running = True
+
+        kc = Keep_Clicker(self)
+        # kc.set_automation_path("./a_orders/skip_battle")
+        kc.start_keep_clicks()
+
+        self.log("Starting skip battle for whim store")
+        print("Starting skip battle for whim store")
+        self.log(f"path: {self.automation_path}")
+        cnt = 0
+        while (not self.locator.locate("cmd_later_popup_store")) and self.running:
+            time.sleep(1)
+        cnt += 1
+        print("Succeed to find whim store")
+        if self.running:
+            finish_button.click()
+        kc.close()
     def skip_battle(self, rep_time=None, in_call=False):
-        # self.pre_automation_processing()
         self.locator.confidence = 0.95
         if not rep_time:
             rep_time = self.rep_time
