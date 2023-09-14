@@ -8,3 +8,4 @@ ok.png
 sortie_confirm.png
 yes.png
 cmd_cancel_popup_multi
+not_auto#0.99
