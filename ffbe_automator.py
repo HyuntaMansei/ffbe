@@ -491,15 +491,28 @@ class Automator:
         self.locator.confidence = 0.95
         finish_button = self.finish_button
         self.running = True
-
-        kc = Keep_Clicker(self)
-        # kc.set_automation_path("./a_orders/skip_battle")
-        kc.start_keep_clicks()
-
         self.log("Starting skip battle for whim store")
         print("Starting skip battle for whim store")
         self.log(f"path: {self.automation_path}")
         cnt = 0
+        # sc = Serial_Clicker(self)
+        # sc.set_path_and_file(sc_file_name="sc.txt")
+        # dw_in_order = [
+        #     "pre스토리xp","스토리20"
+        # ]
+        # for dw in dw_in_order:
+        #     try:
+        #         print("Starting DW for ", dw)
+        #         sc.start_serial_click_thread(sc_name=dw)
+        #     except Exception as e:
+        #         print(e)
+        #     while (not sc.serial_click_finished) and self.running:
+        #         time.sleep(3)
+        #     if not self.running:
+        #         break
+        # print("Skip battle until whim store")
+        kc = Keep_Clicker(self)
+        kc.start_keep_clicks()
         while (not self.locator.locate("cmd_later_popup_store")) and self.running:
             time.sleep(1)
         cnt += 1
@@ -507,6 +520,41 @@ class Automator:
         if self.running:
             finish_button.click()
         kc.close()
+        # sc.close()
+    def whim_store_full(self):
+        self.locator.confidence = 0.95
+        finish_button = self.finish_button
+        self.running = True
+        self.log("Starting skip battle for whim store")
+        print("Starting skip battle for whim store")
+        self.log(f"path: {self.automation_path}")
+        cnt = 0
+        sc = Serial_Clicker(self)
+        sc.set_path_and_file(sc_file_name="sc.txt")
+        dw_in_order = [
+            "pre스토리xp","스토리20"
+        ]
+        for dw in dw_in_order:
+            try:
+                print("Starting DW for ", dw)
+                sc.start_serial_click_thread(sc_name=dw)
+            except Exception as e:
+                print(e)
+            while (not sc.serial_click_finished) and self.running:
+                time.sleep(3)
+            if not self.running:
+                break
+        print("Skip battle until whim store")
+        kc = Keep_Clicker(self)
+        kc.start_keep_clicks()
+        while (not self.locator.locate("cmd_later_popup_store")) and self.running:
+            time.sleep(1)
+        cnt += 1
+        print("Succeed to find whim store")
+        if self.running:
+            finish_button.click()
+        kc.close()
+        sc.close()
     def skip_battle(self, rep_time=None, in_call=False):
         self.locator.confidence = 0.95
         if not rep_time:
@@ -591,7 +639,6 @@ class Automator:
         self.running = True
         cnt = 0
         self.log("Starting Daily Work automation")
-        sc_name = self.test_para
         print("Starting Daily Work automation")
         to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2"]
         while not self.locator.locate("menu_mogri_store") and self.running:
@@ -1045,6 +1092,7 @@ class Serial_Clicker():
                 pprev_target = sc_targets[i-2]
                 target = sc_targets[i]
             print(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
+            self.debug(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
             if self.serial_click_running:
                 cs_cnt = 0
                 while self.running:
