@@ -148,3 +148,13 @@ truncate char_list;
 select * from vc_list;
 truncate vc_list;
 select * from operation_list;
+
+drop table if exists guild_members_tb;
+create TABLE guild_members_tb(
+	`seq` int(3) NOT NULL AUTO_INCREMENT,
+    si int(3) default null,
+    inuse char(1) default null,
+    defender_name char(50) default null,
+    PRIMARY KEY (`seq`)
+);
+select * from guild_members_tb where inuse='y';

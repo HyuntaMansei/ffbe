@@ -277,22 +277,20 @@ class Automator:
             self.stop_watch()
             if cnt >= rep_time:
                 break
-
             # Change party
             self.debug("Select next party")
-            select_next_parties = ["select_next_party|select_next_party2#0.97"]
+            select_next_parties = ["select_next_party|select_next_party2#0.98"]
             time.sleep(5)
             while (not self.locator.locate("select_party_scroll")) and self.running:
                 self.debug("Selecting party button")
                 self.locator.locate_and_click("select_party")
                 time.sleep(2)
-            time.sleep(3)
+            time.sleep(5)
             while (not self.locator.locate_and_click(select_next_parties)) and self.running:
                 self.debug("Selecting next party")
                 time.sleep(1)
             self.debug("Next party selected")
             time.sleep(3)
-
         if (finish_button != None) and self.running:
             self.log("Automaiton completed.")
             finish_button.click()
@@ -530,14 +528,15 @@ class Automator:
         self.log(f"path: {self.automation_path}")
         cnt = 0
         sc = Serial_Clicker(self)
-        sc.set_path_and_file(sc_file_name="sc.txt")
+        sc.set_path_and_file(automation_path='./a_orders/whim_store', sc_file_name="sc.txt")
+
         dw_in_order = [
             "pre스토리xp","스토리20"
         ]
         for dw in dw_in_order:
             try:
                 print("Starting DW for ", dw)
-                sc.start_serial_click_thread(sc_name=dw)
+                sc.start_serial_click_thread(sc_name=dw, click_interval=0.2)
             except Exception as e:
                 print(e)
             while (not sc.serial_click_finished) and self.running:
