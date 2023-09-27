@@ -125,7 +125,7 @@ menu_open
 menu_story
 [pre스토리]
 menu_story
-pic_mission_completed_quest
+pic_mission_completed_quest|pic_mission_completed_quest2
 cmd_skip_battle
 [pre스토리xp]
 menu_story
