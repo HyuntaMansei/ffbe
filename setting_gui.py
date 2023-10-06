@@ -14,6 +14,7 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         self.conf = None
         self.checked_boxes = None
         self.checked_rbs = None
+        self.selected_party = None
         self.check_boxes = None
         self.radio_boxes = None
     def test_def(self):
@@ -36,6 +37,7 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         try:
             self.checked_boxes = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
             self.checked_rbs = [s.strip() for s in self.conf['default']['checked_rb'].split('/')]
+            self.selected_party = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
         except Exception as e:
             print(e)
         # print(self.checked_boxes)
@@ -105,12 +107,15 @@ def show_settings_popup():
     result = dialog.exec_()  # Show the dialog and get the result (Accepted/Rejected)
 def main():
     app = QApplication(sys.argv)
-
     # Create your main window (if any)
-    button = QPushButton('Open Settings')
-    button.clicked.connect(show_settings_popup)
-    button.show()
-
+    sd = SettingsDialog()
+    sd.initUi()
+    sd.load_from_file()
+    sd.exec_()
+    print(sd.checked_rbs)
+    print(sd.checked_boxes)
+    print(sd.selected_party)
     sys.exit(app.exec_())
+
 if __name__ == '__main__':
     main()

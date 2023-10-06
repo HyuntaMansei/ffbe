@@ -8,6 +8,10 @@ import inspect
 import threading
 import os
 import re
+
+import setting_gui
+
+
 class Timer:
     def __init__(self):
         self.is_running = False
@@ -41,6 +45,9 @@ class Automator:
         self.running = False
         self.keep_click_running = False
         self.stop_keep_click_index = 1
+        self.checked_boxes = []
+        self.checked_rbs = None
+        self.selected_party = None
         print("Automator has made.")
     def set_msg_handlers(self, log=print, debug=print, error=print):
         self.log = log
@@ -242,6 +249,76 @@ class Automator:
         self.debug("Quit automation.")
         keep_clicker.close()
     def play_quest_with_different_party(self):
+        self.running = True
+        self.locator.confidence = 0.95
+        self.log(f"Starting quest automation with different party.")
+        rep_time = self.rep_time
+        finish_button = self.finish_button
+        keep_clicker = Keep_Clicker(self)
+        keep_clicker.start_keep_clicks()
+        cnt = 0
+        print('a'*100)
+        print(self.selected_party)
+        print('a' * 100)
+        while self.running:
+            # 퀘스트 자동 진행
+            self.debug("Before battle, select party then click sortie")
+            party_list = ['화','빙','풍','토','뇌','수','명','암']
+            img_for_party_dic = {
+                '화':'select_fire_cb_party','빙':'select_ice_cb_party','풍':'select_wind_cb_party','토':'select_earth_cb_party','뇌':'select_lightning_cb_party','수':'select_water_cb_party','명':'select_light_cb_party','암':'select_dark_cb_party'
+            }
+            for party in party_list:
+                if not self.running:
+                    break
+                if not (party in self.selected_party):
+                    continue
+                self.locator.confidence = 0.80
+                select_next_party = img_for_party_dic[party]
+                self.debug(select_next_party)
+                # Change party
+                time.sleep(3)
+                self.debug("Selecting party button")
+                while (not self.locator.locate("select_party_scroll")) and self.running:
+                    self.locator.locate_and_click("select_party")
+                    time.sleep(2)
+                time.sleep(3)
+                self.debug(f"Selecting next party: {select_next_party}")
+                while (not self.locator.locate_and_click(select_next_party)) and self.running:
+                    time.sleep(1)
+                self.debug("Next party selected")
+                time.sleep(3)
+                self.locator.confidence = 0.95
+                # 출격
+                sorties = ["sortie", "sortie_quest", "sortie_eq", "sortie_12", "sortie_confirm"]
+                while (not self.locator.locate('auto')) and self.running:
+                    self.locator.locate_and_click(sorties)
+                    if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
+                        self.locator.click_on_screen('story_skip1')
+                        time.sleep(5)
+                self.debug("In battle stage")
+                self.stop_watch()
+                while (not self.locator.locate('cmd_end_of_quest_popup_quest')) and self.running:
+                    time.sleep(5)
+                self.debug("The Quest ended")
+                while (not self.locator.locate(sorties)) and self.running:
+                    self.locator.locate_and_click('cmd_back_to_sortie_popup_quest')
+                    if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
+                        self.locator.click_on_screen('story_skip1')
+                        self.locator.locate_and_click('yes')
+                        time.sleep(5)
+                cnt += 1
+                self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
+                self.stop_watch()
+                if cnt >= rep_time:
+                    break
+            if cnt >= rep_time:
+                break
+        if (finish_button != None) and self.running:
+            self.log("Automaiton completed.")
+            finish_button.click()
+        self.debug("Quit automation.")
+        keep_clicker.close()
+    def play_quest_with_different_party_backup(self):
         self.running = True
         self.locator.confidence = 0.95
         self.log(f"Starting quest automation with different party.")
@@ -639,13 +716,13 @@ class Automator:
         cnt = 0
         self.log("Starting Daily Work automation")
         print("Starting Daily Work automation")
+        kc = Keep_Clicker(self)
+        kc.start_keep_clicks()
         to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2"]
         while not self.locator.locate("menu_mogri_store") and self.running:
             for t in to_is_targets:
                 self.locator.locate_and_click(t)
                 time.sleep(1)
-        kc = Keep_Clicker(self)
-        kc.start_keep_clicks()
         sc = Serial_Clicker(self)
         sc.set_path_and_file(sc_file_name="sc.txt")
         print("work to do: ",self.checked_boxes)
@@ -681,7 +758,7 @@ class Automator:
                     else:
                         sc.start_serial_click_thread(sc_name=dw)
                 elif dw == '스토리':
-                    if ('파티명:xp' in self.checked_boxes) and (not '이계의성' in self.checked_boxes):
+                    if ('파티명:xp' in self.checked_boxes) and (not ('이계의성' in self.checked_boxes)):
                         sc.start_serial_click_thread(sc_name='pre스토리xp')
                     else:
                         sc.start_serial_click_thread(sc_name='pre스토리')
@@ -709,11 +786,12 @@ class Automator:
             self.finish_button.click()
         kc.close()
         sc.close()
-    def set_dw_settings(self, dw_settings):
-        print("Setting dailywork config")
-        self.checked_boxes = [cb.lower() for cb in dw_settings.checked_boxes]
-        self.checked_rbs = dw_settings.checked_rbs
-        print(self.checked_boxes, " and ",self.checked_rbs)
+    def set_automator_settings(self, automator_settings):
+        print("Setting automator config")
+        self.checked_boxes = [cb.lower() for cb in automator_settings.checked_boxes]
+        self.checked_rbs = automator_settings.checked_rbs
+        self.selected_party = automator_settings.selected_party
+        print(self.checked_boxes, " and ",self.checked_rbs, "and ", self.selected_party)
     def test(self):
         self.running = True
         cnt = 0
@@ -1072,6 +1150,7 @@ class Serial_Clicker():
         else:
             print(f"No target in {sc_file_name}")
             return False
+        self.debug(f"Start SC for {sc_name}")
         locator_sc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_sc.load_conf(self.device_type)
         locator_sc.confidence = self.confidence
@@ -1081,26 +1160,37 @@ class Serial_Clicker():
             if i == 0:
                 prev_target = None
                 pprev_target = None
+                ppprev_target = None
                 target = sc_targets[i]
             elif i == 1:
                 prev_target = sc_targets[i - 1]
                 pprev_target = None
+                ppprev_target = None
+                target = sc_targets[i]
+            elif i == 2:
+                prev_target = sc_targets[i - 1]
+                pprev_target = sc_targets[i-2]
+                ppprev_target = None
                 target = sc_targets[i]
             else:
                 prev_target = sc_targets[i-1]
                 pprev_target = sc_targets[i-2]
+                ppprev_target = sc_targets[i-3]
                 target = sc_targets[i]
             print(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
             self.debug(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
             if self.serial_click_running:
                 cs_cnt = 0
-                while self.running:
+                while self.running and self.serial_click_running:
                     if prev_target:
-                        if locator_sc.locate_and_click(prev_target):
-                            time.sleep(click_interval)
+                        if (cs_cnt>5) and ppprev_target:
+                            if locator_sc.locate_and_click(ppprev_target):
+                                time.sleep(click_interval)
                         if (cs_cnt>2) and pprev_target:
                             if locator_sc.locate_and_click(pprev_target):
                                 time.sleep(click_interval)
+                        if locator_sc.locate_and_click(prev_target):
+                            time.sleep(click_interval)
                     cs_cnt+=1
                     if locator_sc.locate(target):
                         break
@@ -1149,3 +1239,11 @@ class Serial_Clicker():
         print(f"Serial Clicker for [{self.sc_file_name}] in {self.automation_path} stops now.")
         self.running = False
         self.serial_click_running = False
+
+if __name__ == '__main__':
+    automator = Automator()
+    automator_setting = setting_gui.SettingsDialog()
+    automator_setting.initUi()
+    automator_setting.load_from_file()
+    print(automator_setting.selected_party)
+    print("aaa")

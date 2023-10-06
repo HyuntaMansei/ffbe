@@ -32,7 +32,7 @@ class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.test_para = None
-        self.dw_setting = None
+        self.automator_setting = None
         self.init_arguments()
         self.init_preparation()
         self.init_ui()
@@ -259,9 +259,9 @@ class MyWidget(QtWidgets.QWidget):
         self.error_widget.move(800,0)
         self.error_widget.showMinimized()
     def init_setting(self):
-        self.dw_setting = setting_gui.SettingsDialog()
-        self.dw_setting.initUi()
-        print(self.dw_setting.checked_boxes, " and ", self.dw_setting.checked_rbs)
+        self.automator_setting = setting_gui.SettingsDialog()
+        self.automator_setting.initUi()
+        # print(self.automator_setting.checked_boxes, " and ", self.automator_setting.checked_rbs)
     def init_others(self):
         self.device_initiated = False
         print(f"Initial position: {self.initial_x, self.initial_y}")
@@ -356,8 +356,8 @@ class MyWidget(QtWidgets.QWidget):
             self.cb_window_hwnd.setCurrentText(str(self.get_hwnd_by_name(device_name)))
             self.cb_device_type.setCurrentIndex(self.device_index_by_name[device_name])
             self.cb_device_serial.setCurrentText(self.get_serial_by_name(device_name))
-        except:
-            self.error("Error in on_cb_window_name_text_changed")
+        except Exception as e:
+            self.error(f"Error in on_cb_window_name_text_changed: {e}")
         print("Text changed:", text)
     def on_le_test_para_text_finished(self, text):
         self.test_para = text
@@ -379,7 +379,7 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
                                            finish_button=self.sender(), sleep_multiple=self.sleep_multiple, test_para=self.test_para)
-            self.automator.set_dw_settings(self.dw_setting)
+            self.automator.set_automator_settings(self.automator_setting)
             print("Starting automator thread")
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
@@ -452,7 +452,7 @@ class MyWidget(QtWidgets.QWidget):
         cursor.close()
         connection.close()
     def open_settings(self):
-        self.dw_setting.exec_()
+        self.automator_setting.exec_()
 class Output_Widget(QtWidgets.QWidget):
     def __init__(self, width=400, height=400):
         super().__init__()

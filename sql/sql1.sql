@@ -158,3 +158,35 @@ create TABLE guild_members_tb(
     PRIMARY KEY (`seq`)
 );
 select * from guild_members_tb where inuse='y';
+
+drop table if exists opponent_guild_members_tb;
+create TABLE opponent_guild_members_tb(
+	`seq` int(3) NOT NULL AUTO_INCREMENT,
+    si int(3) default null,
+    inuse char(1) default null,		
+    guild_name char(50) DEFAULT NULL,
+    member_name char(50) default null,
+    match_date date DEFAULT NULL,
+    PRIMARY KEY (`seq`)
+);
+select * from opponent_guild_members_tb;
+
+
+drop table if exists guild_battle_log_tb;
+create TABLE guild_battle_log_tb(
+	`seq` int(3) NOT NULL AUTO_INCREMENT,
+    attack_count int(3) DEFAULT NULL,
+    attacker char(50) DEFAULT NULL,
+    defender char(50) DEFAULT NULL,
+    stars int(2) DEFAULT NULL,
+    match_date date DEFAULT NULL,
+    PRIMARY KEY (`seq`)
+);
+select * from guild_battle_log_tb ORDER BY match_date desc, attack_count;
+DELETE FROM guild_battle_log_tb
+WHERE seq NOT IN (
+    SELECT MIN(seq)
+    FROM guild_battle_log_tb
+    GROUP BY attacker, defender, match_date
+);
+

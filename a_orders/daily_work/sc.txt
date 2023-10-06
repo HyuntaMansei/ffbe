@@ -5,7 +5,7 @@ next_popup_background_repetition
 ok_popup_background_repetition
 icon_plus_stamina
 [체력회복]
-icon_plus_stamina
+icon_plus_stamina|cmd_ok_popup_background
 pic_item_popup_stamina
 icon_plus_recover_stamina|icon_plus_off_recover_stamina
 icon_plus_off_recover_stamina
@@ -13,7 +13,7 @@ cmd_recover_popup_recover_stamina|cmd_recover_off_popup_recover_stamina#0.99
 cmd_close_popup_stamina|cmd_ok_popup_recover_stamina|cmd_cancel_popup_recover_stamina
 menu_chocobo
 [초코보]
-menu_chocobo
+ok_popup_background_repetition|menu_chocobo
 cmd_retrieve_items|cmd_retrieve_popup
 text_0_chocobo
 menu_open
@@ -125,11 +125,11 @@ menu_open
 menu_story
 [pre스토리]
 menu_story
-pic_mission_completed_quest
+pic_mission_completed_quest|pic_mission_completed_quest2
 cmd_skip_battle
 [pre스토리xp]
 menu_story
-pic_mission_completed_quest
+pic_mission_completed_quest|pic_mission_completed_quest2
 cb_party_xp_selected|banner_xp_select_party|pic_scroll_up_select_party|cb_select_party_presortie
 cb_party_xp_selected
 cmd_skip_battle
@@ -164,7 +164,7 @@ menu_back
 menu_open
 menu_friend
 [친구]
-menu_friend
+menu_friend|cmd_end_of_quest
 cmd_present_send_and_receive
 cmd_no_present_send_and_receive#0.99
 menu_open

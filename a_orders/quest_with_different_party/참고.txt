@@ -1,4 +1,14 @@
 ---퀘스트다른파티진행---
+완: 1771 / 1600 / 
+select_fire_cb_party
+select_ice_cb_party
+select_wind_cb_party
+select_earth_cb_party
+select_lightning_cb_party
+select_water_cb_party
+select_light_cb_party
+select_dark_cb_party
+
 완: 1600 / 882 / 890
 cmd_end_of_quest_popup_quest
 cmd_back_to_sortie_popup_quest
