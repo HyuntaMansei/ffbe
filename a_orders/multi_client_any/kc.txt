@@ -12,6 +12,7 @@ recruit_list.png#0.99
 yes.png
 not_auto#0.99
 [3]
+ok_result
 host_any_2x.png
 retry.png
 [5]
