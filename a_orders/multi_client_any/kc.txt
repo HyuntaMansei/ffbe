@@ -16,6 +16,7 @@ ok_result
 host_any_2x.png
 retry.png
 [5]
+cmd_ok_popup_result
 host_any.png
 give_up.png
 give_up_multi.png
