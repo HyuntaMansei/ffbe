@@ -3,8 +3,8 @@ skip_video.png
 menu_cancel.png
 cancel.png
 go_back.png
-later.png
-later_chocobo.png
+cmd_later_popup_store
+cmd_later_popup_chocobo
 next.png
 not_auto.png#0.99
 ok.png

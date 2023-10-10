@@ -6,6 +6,7 @@ cmd_ok_popup_download
 cmd_ok_popup_fragment
 cmd_ok_popup_guild_medal
 cmd_ok_popup_skip_battle
+cmd_close_popup_character_quest
 cmd_next_popup_skip_battle
 cmd_cancel_popup_store@text_change_to_gil
 cmd_no_popup_barracks@text_empty_barracks
