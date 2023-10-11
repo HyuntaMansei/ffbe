@@ -14,7 +14,8 @@ story_skip1 = 1380,129
 story_skip2 = 1313,50
 story_skip3 = 1284,50
 [android_q2]
-top_quest = 1349,200
+top_quest = 1349,185
+top_quest_for_tor = 1349,150
 story_skip1 = 1590,139
 story_skip2 = 1534,23
 story_skip3 = 1509,23

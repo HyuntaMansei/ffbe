@@ -193,6 +193,7 @@ class Automator:
         rep_time = self.rep_time
         finish_button = self.finish_button
         is_imgs = ["pic_common_is", "cmd_select_chapter"]
+        is_for_tor = ["cmd_normal_tor", "cmd_hard_tor"]
         # self.start_keep_clicks()
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
@@ -201,7 +202,8 @@ class Automator:
             # 퀘스트 자동 진행
             self.debug("Before battle, trying to click sortie")
             while (not self.locator.locate('auto')) and self.running:
-                if self.locator.locate(is_imgs):
+                if self.locator.locate(is_imgs) or self.locator.locate(is_for_tor):
+                    self.debug("A")
                     if self.locator.locate('scene3_selected'):
                         pass
                     elif self.locator.locate_and_click('scene3_unselected'):
@@ -222,6 +224,9 @@ class Automator:
                         finish_button.click()
                 if self.locator.locate_and_click(is_imgs, target='top_quest'):
                     time.sleep(4)
+                elif self.locator.locate_and_click(is_for_tor, target='top_quest_for_tor'):
+                    self.debug("B")
+                    time.sleep(4)
                 time.sleep(1)
                 if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
@@ -233,7 +238,7 @@ class Automator:
             self.debug("Battle Ended.")
             self.debug("The quest ended")
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
-            while ((not self.locator.locate(is_imgs)) and not self.locator.locate(['sortie', 'sortie_eq'])) and self.running:
+            while (not (self.locator.locate(is_imgs) or self.locator.locate(['sortie', 'sortie_eq']) or self.locator.locate(is_for_tor))) and self.running:
                 self.locator.locate_and_click('end_of_quest')
                 if not self.locator.locate(is_imgs):
                     self.locator.click_on_screen('story_skip1')

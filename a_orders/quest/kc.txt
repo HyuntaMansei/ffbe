@@ -7,6 +7,8 @@ cmd_later_popup_store
 cmd_later_popup_chocobo
 next.png
 not_auto.png#0.99
+cmd_ok_popup_point
+cmd_ok_popup_result
 ok.png
 sortie.png
 sortie_quest.png
@@ -14,4 +16,3 @@ sortie_eq.png
 sortie_confirm.png
 x.png
 yes
-cmd_ok_popup_point
