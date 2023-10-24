@@ -1,5 +1,5 @@
 23/10/24 
----1600, 1791---
+---882, 1600, 1791---
 pic_arrow_down_is_sp_w
 (pic_arrow_down_is_sp_m은 추가해야함)
 
