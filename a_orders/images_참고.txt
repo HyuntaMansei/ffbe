@@ -1,4 +1,4 @@
------1600, 1791
+-----882, 1600, 1791
 select_dark_cb_party
 select_earth_cb_party
 select_fire_cb_party
