@@ -169,7 +169,11 @@ create TABLE opponent_guild_members_tb(
     match_date date DEFAULT NULL,
     PRIMARY KEY (`seq`)
 );
-select * from opponent_guild_members_tb;
+select * from opponent_guild_members_tb ORDER BY match_date DESC;
+select * from opponent_guild_members_tb where match_date = '2023-10-16';
+update opponent_guild_members_tb
+set guild_name = 'holyorder'
+where match_date = '2023-10-16';
 
 
 drop table if exists guild_battle_log_tb;

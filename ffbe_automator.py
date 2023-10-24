@@ -723,7 +723,7 @@ class Automator:
         print("Starting Daily Work automation")
         kc = Keep_Clicker(self)
         kc.start_keep_clicks()
-        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2"]
+        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
         while not self.locator.locate("menu_mogri_store") and self.running:
             for t in to_is_targets:
                 self.locator.locate_and_click(t)
@@ -1155,7 +1155,7 @@ class Serial_Clicker():
         else:
             print(f"No target in {sc_file_name}")
             return False
-        self.debug(f"Start SC for {sc_name}")
+        self.debug(f"-----Start SC for {sc_name}-----")
         locator_sc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_sc.load_conf(self.device_type)
         locator_sc.confidence = self.confidence

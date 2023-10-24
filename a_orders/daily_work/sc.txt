@@ -3,7 +3,6 @@ icon_background_repetition
 next_popup_background_repetition|x_popup_background_repetition
 ok_popup_background_repetition
 icon_plus_stamina
-menu_chocobo
 [체력회복]
 icon_plus_stamina|cmd_ok_popup_background
 pic_item_popup_stamina
