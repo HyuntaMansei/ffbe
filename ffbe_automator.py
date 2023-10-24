@@ -306,6 +306,7 @@ class Automator:
                     time.sleep(5)
                 self.debug("The Quest ended")
                 while (not self.locator.locate(sorties)) and self.running:
+                    print("In while loop of ... ")
                     self.locator.locate_and_click('cmd_back_to_sortie_popup_quest')
                     if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
                         self.locator.click_on_screen('story_skip1')
@@ -314,10 +315,7 @@ class Automator:
                 cnt += 1
                 self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
                 self.stop_watch()
-                if cnt >= rep_time:
-                    break
-            if cnt >= rep_time:
-                break
+        self.debug("Automaiton completed.")
         if (finish_button != None) and self.running:
             self.log("Automaiton completed.")
             finish_button.click()
