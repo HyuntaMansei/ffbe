@@ -7,3 +7,5 @@ select_lightning_cb_party
 select_water_cb_party
 select_light_cb_party
 select_dark_cb_party
+-----1600
+cmd_close_popup_char_quest
