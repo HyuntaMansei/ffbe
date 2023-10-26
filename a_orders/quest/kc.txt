@@ -5,6 +5,7 @@ cancel.png
 go_back.png
 cmd_later_popup_store
 cmd_later_popup_chocobo
+cmd_close_popup_char_quest
 next.png
 not_auto.png#0.99
 cmd_ok_popup_point
