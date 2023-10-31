@@ -452,6 +452,8 @@ class MyWidget(QtWidgets.QWidget):
         cursor.close()
         connection.close()
     def open_settings(self):
+        cur_pos = self.mapToGlobal(self.geometry().topLeft())
+        self.automator_setting.set_position(cur_pos)
         self.automator_setting.exec_()
 class Output_Widget(QtWidgets.QWidget):
     def __init__(self, width=400, height=400):

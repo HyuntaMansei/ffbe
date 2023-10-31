@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QDialog, QPushButton, QVBoxLayout, QFormLayout, QLabel, QLineEdit, QDialogButtonBox, QHBoxLayout, QCheckBox, QRadioButton
+from PyQt5.QtWidgets import QApplication, QDialog, QPushButton, QVBoxLayout, QFormLayout, QLabel, QLineEdit, QDialogButtonBox, QHBoxLayout, QCheckBox, QRadioButton, QDesktopWidget
 from PyQt5.uic import loadUiType
 import configparser
 
@@ -101,6 +101,22 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         else:
             self.cb_hard_quest.setEnabled(True)
             self.cb_party_name_xp.setEnabled(True)
+    def set_position(self, pos):
+        desktop = QDesktopWidget()
+        # Get the screen size of the primary screen
+        primary_screen_size = desktop.screenGeometry()
+        print(primary_screen_size.width())
+        print(primary_screen_size.height())
+        is_4k = True if (primary_screen_size.width() >= 3840) or (primary_screen_size.height() >= 3840) else False
+        print(f"moving to pos:{pos.x(), pos.y()}")
+        if is_4k:
+            new_x = int(pos.x() / 2)
+            new_y = int(pos.y() / 2)
+            self.move(new_x, new_y)
+        else:
+            new_x = int(pos.x())
+            new_y = int(pos.y())
+            self.move(new_x, new_y)
 def show_settings_popup():
     dialog = SettingsDialog()
     dialog.initUi()
