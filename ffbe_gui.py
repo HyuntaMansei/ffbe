@@ -33,6 +33,7 @@ class MyWidget(QtWidgets.QWidget):
         super().__init__()
         self.test_para = None
         self.automator_setting = None
+        self.initial_device_name_hint = None
         self.init_arguments()
         self.init_preparation()
         self.init_ui()
@@ -49,6 +50,12 @@ class MyWidget(QtWidgets.QWidget):
         except:
             self.initial_x = 200
             self.initial_y = 800
+        if len(self.arguments) >= 3:
+            self.device_name_hint = True
+            self.initial_device_name_hint = self.arguments[2]
+        else:
+            self.device_name_hint = False
+            self.initial_device_name_hint = None
         self.ip = ""
     def init_preparation(self):
         # variable settings
@@ -309,6 +316,18 @@ class MyWidget(QtWidgets.QWidget):
         return hwnd
     def get_serial_by_name(self, device_name):
         serial = None
+        if self.initial_device_name_hint:
+            for ns in self.connected_device_name_and_serial:
+                if ns[0] == device_name:
+                    if self.initial_device_name_hint in ns[1]:
+                        serial = ns[1]
+                        print("Fount device with hint")
+                        break
+                    else:
+                        continue
+        if serial:
+            return serial
+        # Hint doesn't exist or Serial of hint doesn't exist
         for ns in self.connected_device_name_and_serial:
             if ns[0] == device_name:
                 serial = ns[1]
