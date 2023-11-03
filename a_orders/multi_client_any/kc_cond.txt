@@ -24,6 +24,7 @@ retry.png
 to_is.png
 x.png
 x_multi.png
+x_popup
 [start]
 ticket_summon_list.png
 [finish]

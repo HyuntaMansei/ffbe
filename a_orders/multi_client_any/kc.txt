@@ -23,3 +23,5 @@ give_up_multi.png
 scroll_down.png
 [7]
 refresh.png
+[10]
+x_popup
