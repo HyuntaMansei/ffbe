@@ -732,8 +732,11 @@ class Automator:
         dw_in_order = [
             "백그라운드","체력회복", "초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물", "멀티클라"
         ]
+        self.debug(f"Works in order: {dw_in_order}")
         for dw in dw_in_order:
             if dw in self.checked_boxes:
+                self.log(f"Starting DW for {dw}")
+                self.debug(f"Starting DW for {dw}")
                 if dw == '백그라운드':
                     time.sleep(5)
                     if self.locator.locate("icon_background_repetition"):
@@ -765,13 +768,14 @@ class Automator:
                         sc.start_serial_click_thread(sc_name='pre스토리xp')
                     else:
                         sc.start_serial_click_thread(sc_name='pre스토리')
+                    while (not sc.serial_click_finished) and self.running:
+                        time.sleep(3)
                     if not ('하드퀘스트' in self.checked_boxes):
                         sc.start_serial_click_thread(sc_name='스토리no하드')
                     else:
                         sc.start_serial_click_thread(sc_name=dw)
                 else:
                     try:
-                        print("Starting DW for ", dw)
                         sc.start_serial_click_thread(sc_name=dw)
                     except Exception as e:
                         print(e)
