@@ -1,11 +1,2 @@
------882, 1600, 1791
-select_fire_cb_party
-select_ice_cb_party
-select_wind_cb_party
-select_earth_cb_party
-select_lightning_cb_party
-select_water_cb_party
-select_light_cb_party
-select_dark_cb_party
 -----1600
 cmd_close_popup_char_quest

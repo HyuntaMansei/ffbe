@@ -315,9 +315,9 @@ class Automator:
                 cnt += 1
                 self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
                 self.stop_watch()
-        self.debug("Automaiton completed.")
+        self.debug("Automation completed.")
         if (finish_button != None) and self.running:
-            self.log("Automaiton completed.")
+            self.log("Automation completed.")
             finish_button.click()
         self.debug("Quit automation.")
         keep_clicker.close()
@@ -722,7 +722,7 @@ class Automator:
         kc = Keep_Clicker(self)
         kc.start_keep_clicks()
         to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
-        while not self.locator.locate("menu_mogri_store") and self.running:
+        while not self.locator.locate("menu_mogri_store#0.99") and self.running:
             for t in to_is_targets:
                 self.locator.locate_and_click(t)
                 time.sleep(1)

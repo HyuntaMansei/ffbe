@@ -1,5 +1,5 @@
 ---퀘스트다른파티진행---
-완: 1771 / 1600 / 
+완: 890/ 1771 / 1600 / 
 select_fire_cb_party
 select_ice_cb_party
 select_wind_cb_party
