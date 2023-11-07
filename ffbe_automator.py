@@ -507,6 +507,8 @@ class Automator:
         print(self.test_para)
         if self.test_para:
             quest_to_play = self.test_para
+        else:
+            quest_to_play = None
         self.running = True
         self.log("Starting multi automation")
         raid_loop_cnt = 0
