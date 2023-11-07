@@ -519,6 +519,7 @@ class Automator:
                 # In story sortie
                 # kc_for_story.start_keep_clicks()
                 print("Try to skip battle for 9 times")
+                self.recover_stamina(recover_cnt=2)
                 self.skip_battle(9, in_call=True)
                 print("Skip battle finished.")
                 print("Let's go to raid")
@@ -693,7 +694,8 @@ class Automator:
         # Recovering
         self.debug("Start recovering stamina")
         targets = ['yes', 'item']
-        keep_clicker.stop_keep_click()
+        if keep_clicker:
+            keep_clicker.stop_keep_click()
         time.sleep(1)
         while (not self.locator.locate('recover_amount')) and self.running:
             self.locator.locate_and_click(targets)
@@ -713,7 +715,8 @@ class Automator:
             self.locator.locate_and_click(recover_targets)
             time.sleep(1)
         self.debug("Finished recovering")
-        keep_clicker.start_keep_click()
+        if keep_clicker:
+            keep_clicker.start_keep_click()
     def daily_work(self):
         self.running = True
         cnt = 0
