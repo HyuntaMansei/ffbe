@@ -519,7 +519,6 @@ class Automator:
                 # In story sortie
                 # kc_for_story.start_keep_clicks()
                 print("Try to skip battle for 9 times")
-                self.recover_stamina(recover_cnt=2)
                 self.skip_battle(9, in_call=True)
                 print("Skip battle finished.")
                 print("Let's go to raid")
@@ -661,6 +660,11 @@ class Automator:
             targets2 = ["cmd_end_of_quest_skip_battle"]
             while (not self.locator.locate(targets)) and self.running:
                 self.locator.locate_and_click(targets2)
+                targets_for_no_stamina = ['select_chapter','pic_common_is']
+                if locator.Locator("targets_for_no_stamina"):
+                    # 체력이 부족해서 팅겨나온 상황
+                    self.recover_stamina(keep_clicker=kc, recover_cnt=8)
+                    self.locator.locate_and_click(["pic_mission_completed_quest", "pic_mission_completed_quest2"])
                 time.sleep(3)
             if cnt >= rep_time:
                 self.log("Automation Completed.")
