@@ -542,7 +542,8 @@ class Automator:
                 if raid_loop_cnt >= rep_time:
                     break
                 print("Let's go to quest")
-                sc.start_serial_click_thread("to_quest")
+                sc.start_serial_click_thread("to_quest_fire_stone")
+                # sc.start_serial_click_thread("to_quest")
                 while self.running:
                     if self.locator.locate('cmd_ok_popup_skip_battle'):
                         print("Try to skip battle for 10 times")
