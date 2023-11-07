@@ -504,6 +504,9 @@ class Automator:
         rep_time = self.rep_time
         num_of_players = self.num_of_players
         finish_button = self.finish_button
+        print(self.test_para)
+        if self.test_para:
+            quest_to_play = self.test_para
         self.running = True
         self.log("Starting multi automation")
         raid_loop_cnt = 0
@@ -542,8 +545,12 @@ class Automator:
                 if raid_loop_cnt >= rep_time:
                     break
                 print("Let's go to quest")
-                sc.start_serial_click_thread("to_quest_fire_stone")
-                # sc.start_serial_click_thread("to_quest")
+                if quest_to_play:
+                    if quest_to_play == 'fire'
+                        to_quest_string =  'to_quest_fire_stone'
+                else:
+                    to_quest_string = 'to_quest'
+                sc.start_serial_click_thread(to_quest_string)
                 while self.running:
                     if self.locator.locate('cmd_ok_popup_skip_battle'):
                         print("Try to skip battle for 10 times")
