@@ -546,8 +546,8 @@ class Automator:
                     break
                 print("Let's go to quest")
                 if quest_to_play:
-                    if quest_to_play == 'fire'
-                        to_quest_string =  'to_quest_fire_stone'
+                    if quest_to_play == 'fire':
+                        to_quest_string = 'to_quest_fire_stone'
                 else:
                     to_quest_string = 'to_quest'
                 sc.start_serial_click_thread(to_quest_string)
@@ -669,7 +669,7 @@ class Automator:
             while (not self.locator.locate(targets)) and self.running:
                 self.locator.locate_and_click(targets2)
                 targets_for_no_stamina = ['select_chapter','pic_common_is']
-                if locator.Locator("targets_for_no_stamina"):
+                if self.locator.locate(targets_for_no_stamina):
                     # 체력이 부족해서 팅겨나온 상황
                     self.recover_stamina(keep_clicker=kc, recover_cnt=8)
                     self.locator.locate_and_click(["pic_mission_completed_quest", "pic_mission_completed_quest2"])

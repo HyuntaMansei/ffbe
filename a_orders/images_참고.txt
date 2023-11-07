@@ -3,5 +3,5 @@
 cmd_close_popup_char_quest
 
 [raid] 
-1600, 892
+1771, 1600, 892
 banner_for_fire_stone
