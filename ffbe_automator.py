@@ -653,6 +653,50 @@ class Automator:
             finish_button.click()
         kc.close()
         sc.close()
+    def reincarnation(self):
+        self.locator.confidence = 0.95
+        rep_time = self.rep_time
+        num_of_players = self.num_of_players
+        finish_button = self.finish_button
+        test_para = self.test_para
+
+        self.running = True
+        self.log("Starting multi automation")
+
+        cnt_reincarnation = 0
+        # kc_for_reincarnation = Keep_Clicker(self)
+        # kc_for_reincarnation.set_target_file(kc_file_name='kc_for_reincarnation.txt')
+        # sc = Serial_Clicker(self)
+
+        while self.running:
+            if self.locator.locate('text_3star_remain_popup2_reincarnation'):
+                while self.running and (not self.locator.locate('cmd_ok_popup_reincarnation')):
+                    self.locator.locate_and_click(['cmd_reinforce_popup_excla', 'cb_stop_reincarnation_unchecked'])
+                    if self.locator.locate('text_stop_reincarnation_checked'):
+                        self.locator.locate_and_click('cmd_reinforce_popup2')
+                while self.running and (not self.locator.locate('text_0star_remain_popup2_reincarnation')):
+                    self.locator.locate_and_click('cmd_ok_popup_reincarnation')
+            cnt_reincarnation += 1
+            self.log(f"윤회 {cnt_reincarnation}회 완료")
+            time.sleep(3)
+            if self.locator.locate('text_0star_remain_popup2_reincarnation'):
+                while self.running and (not self.locator.locate('text_3star_remain_popup2_reincarnation')):
+                    self.locator.locate_and_click('cmd_reincarnate_popup')
+                    time.sleep(2)
+                    self.locator.locate_and_click('cmd_reincarnate_popup2')
+                    time.sleep(2)
+                    self.locator.locate_and_click('cmd_max_popup2_select_item')
+                    time.sleep(2)
+                    self.locator.locate_and_click('cmd_decide_popup2_reincarnation')
+                    time.sleep(2)
+                    self.locator.locate_and_click('cmd_ok_popup_reincarnation')
+                    time.sleep(1)
+            if cnt_reincarnation >= rep_time:
+                break
+        self.log(f"Reincarnation Completed")
+        if self.running:
+            finish_button.click()
+        # kc_for_reincarnation.close()
     def skip_battle(self, rep_time=None, in_call=False):
         self.locator.confidence = 0.95
         if not rep_time:

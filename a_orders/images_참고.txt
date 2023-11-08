@@ -18,3 +18,19 @@ banner_for_light_stone
 890, 1600
 cmd_close_popup_excess_rewards
 text_short_of_stamina
+
+[reincarnation]
+890 / 
+-강화-
+text_3star_remain_popup2_reincarnation
+cmd_reinforce_popup_excla
+text_stop_reincarnation_checked
+cb_stop_reincarnation_unchecked
+cmd_reinforce_popup2
+cmd_ok_popup_reincarnation
+-윤회-
+text_0star_remain_popup2_reincarnation
+cmd_reincarnate_popup
+cmd_reincarnate_popup2
+cmd_max_popup2_select_item
+cmd_decide_popup2_reincarnation
