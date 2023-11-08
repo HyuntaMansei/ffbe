@@ -59,7 +59,7 @@ class MyWidget(QtWidgets.QWidget):
         self.ip = ""
     def init_preparation(self):
         # variable settings
-        self.macro_version = '0.27'
+        self.macro_version = '0.29'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
@@ -207,7 +207,7 @@ class MyWidget(QtWidgets.QWidget):
         # func = 'multi_client_any'
         connection = mysql.connector.connect(host='146.56.43.43',user='ffbeuser',password='leonis',database='ffbe')
         # cursor = connection.cursor()
-        query = "SELECT * FROM operation_list"
+        query = "SELECT * FROM operation_list where in_use = 'y'"
         # cursor.execute(query)
         # results = cursor.fetchall()
         # index = cursor.column_names

@@ -3,9 +3,18 @@
 cmd_close_popup_char_quest
 
 [raid] 
-1771, 1600, 892
+890, 892, 1771, 1600
 banner_for_fire_stone
+890
+banner_for_wind_stone
+banner_for_water_stone
+banner_for_ice_stone
+banner_for_earth_stone
+banner_for_dark_stone
+banner_for_lightening_stone
+banner_for_light_stone
 
 [skip_battle]
 890, 1600
 cmd_close_popup_excess_rewards
+text_short_of_stamina

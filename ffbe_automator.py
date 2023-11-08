@@ -506,7 +506,7 @@ class Automator:
         finish_button = self.finish_button
         print(self.test_para)
         if self.test_para:
-            quest_to_play = self.test_para
+            quest_to_play = self.test_para.lower()
         else:
             quest_to_play = None
         self.running = True
@@ -547,9 +547,18 @@ class Automator:
                 if raid_loop_cnt >= rep_time:
                     break
                 print("Let's go to quest")
+                quest_by_para = {
+                    'fire':'to_quest_fire_stone', 'wind':'to_quest_wind_stone', 'water':'to_quest_water_stone',
+                    'ice':'to_quest_ice_stone','earth':'to_quest_earth_stone','dark':'to_quest_dark_stone',
+                    'lightening':'to_quest_lightening_stone','light':'to_quest_light_stone'
+                }
                 if quest_to_play:
-                    if quest_to_play == 'fire':
-                        to_quest_string = 'to_quest_fire_stone'
+                    try:
+                        to_quest_string = quest_by_para[quest_to_play]
+                    except Exception as e:
+                        print(f"{e} with {quest_to_play}")
+                        self.error(f"{e} with {quest_to_play}")
+                        to_quest_string = 'to_quest'
                 else:
                     to_quest_string = 'to_quest'
                 sc.start_serial_click_thread(to_quest_string)
@@ -664,14 +673,18 @@ class Automator:
             targets = ["cmd_skip_battle", "cmd_skip_battle_quest"]
             while (not self.locator.locate("cmd_end_of_quest_skip_battle")) and self.running:
                 self.locator.locate_and_click(targets)
+                targets_for_no_stamina = 'text_short_of_stamina'
+                if self.locator.locate(targets_for_no_stamina):
+                    # 체력이 부족해서 팅겨나온 상황
+                    self.recover_stamina(keep_clicker=kc, recover_cnt=8)
                 time.sleep(3)
             cnt += 1
             self.log(f"Battle Skipped. {cnt} times. {rep_time - cnt} left.")
             targets2 = ["cmd_end_of_quest_skip_battle"]
             while (not self.locator.locate(targets)) and self.running:
                 self.locator.locate_and_click(targets2)
-                targets_for_no_stamina = ['select_chapter','pic_common_is']
-                if self.locator.locate(targets_for_no_stamina):
+                targets_for_no_stamina2 = ['select_chapter','pic_common_is']
+                if self.locator.locate(targets_for_no_stamina2):
                     # 체력이 부족해서 팅겨나온 상황
                     self.recover_stamina(keep_clicker=kc, recover_cnt=8)
                     self.locator.locate_and_click(["pic_mission_completed_quest", "pic_mission_completed_quest2"])
