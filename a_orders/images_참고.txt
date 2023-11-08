@@ -7,5 +7,5 @@ cmd_close_popup_char_quest
 banner_for_fire_stone
 
 [skip_battle]
-890
+890, 1600
 cmd_close_popup_excess_rewards
