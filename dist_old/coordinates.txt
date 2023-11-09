@@ -1,0 +1,35 @@
+[nox_1920_1080]
+top_quest = 1151,220
+story_skip1 = 1270,149
+story_skip2 = 1210,74
+story_skip3 = 1187,67
+[nox_1280_720]
+top_quest = 1151,220
+story_skip1 = 1270,149
+story_skip2 = 1210,74
+story_skip3 = 1187,67
+[android]
+top_quest = 1151,200
+story_skip1 = 1380,129
+story_skip2 = 1313,50
+story_skip3 = 1284,50
+[android_q2]
+top_quest = 1349,200
+story_skip1 = 1590,139
+story_skip2 = 1534,23
+story_skip3 = 1509,23
+[blue_1280_720]
+top_quest = 1151,220
+story_skip1 = 1270,149
+story_skip2 = 1210,74
+story_skip3 = 1187,67
+[gpg_3840_2160]
+top_quest = 1621,300
+story_skip1 = 1754,161
+story_skip2 = 1534,23
+story_skip3 = 1509,23
+[gpg_1920_1080]
+top_quest = 822, 146
+story_skip1 = 872,78
+story_skip2 = 834,12
+story_skip3 = 816,12

@@ -1,0 +1,5 @@
+백그라운드 반복용:
+icon_background_repetition
+x_popup_background_repetition
+next_popup_background_repetition
+ok_popup_background_repetition

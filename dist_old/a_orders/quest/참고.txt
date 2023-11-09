@@ -1,0 +1,3 @@
+[기타]
+banner_top_chapter
+pic_completed_top_quest

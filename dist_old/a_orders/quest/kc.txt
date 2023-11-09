@@ -1,0 +1,17 @@
+[1]
+skip_video.png
+menu_cancel.png
+cancel.png
+go_back.png
+later.png
+later_chocobo.png
+next.png
+not_auto.png#0.99
+ok.png
+sortie.png
+sortie_quest.png
+sortie_eq.png
+sortie_confirm.png
+x.png
+yes
+cmd_ok_popup_point

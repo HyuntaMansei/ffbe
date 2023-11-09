@@ -69,6 +69,34 @@ class Automator:
         self.test_para = test_para
         print(f" testing para: {self.test_para}")
         print(" >> Finished.")
+    def set_automator_settings(self, automator_settings):
+        print("Setting automator config")
+        self.checked_boxes = [cb.lower() for cb in automator_settings.checked_boxes]
+        self.checked_rbs = automator_settings.checked_rbs
+        self.selected_party = automator_settings.selected_party
+        print(self.checked_boxes, " and ",self.checked_rbs, "and ", self.selected_party)
+    def set_img_base_path(self):
+        device_type = self.device_type
+        self.debug("--In set_params--")
+        self.automation_path = './a_orders/'
+        if device_type == 'nox_1920_1080':
+            self.img_path = './images/1920_1080/'
+        elif device_type == 'nox_1280_720':
+            self.img_path = './images/1280_720/'
+        elif device_type == 'android':
+            self.img_path = './images/1280_720/'
+        elif device_type == 'android_q2':
+            self.img_path = './images/1600_720/'
+        elif device_type == 'blue_1280_720':
+            self.img_path = './images/1280_720_blue/'
+        elif device_type == 'gpg_3840_2160':
+            self.img_path = './images/3840_2160/'
+        elif device_type == 'gpg_1920_1080':
+            self.img_path = './images/1920_1080/'
+        else:
+            self.error(f"No such device type: {device_type}")
+            return False
+        return True
     def init_automation_list(self):
         # Need to add code when add new automation
         self.automation_by_job = {}
@@ -122,28 +150,6 @@ class Automator:
         self.timer = Timer()
         self.limit_timer = Timer()
     # From here, called from start_automation
-    def set_img_base_path(self):
-        device_type = self.device_type
-        self.debug("--In set_params--")
-        self.automation_path = './a_orders/'
-        if device_type == 'nox_1920_1080':
-            self.img_path = './images/1920_1080/'
-        elif device_type == 'nox_1280_720':
-            self.img_path = './images/1280_720/'
-        elif device_type == 'android':
-            self.img_path = './images/1280_720/'
-        elif device_type == 'android_q2':
-            self.img_path = './images/1600_720/'
-        elif device_type == 'blue_1280_720':
-            self.img_path = './images/1280_720_blue/'
-        elif device_type == 'gpg_3840_2160':
-            self.img_path = './images/3840_2160/'
-        elif device_type == 'gpg_1920_1080':
-            self.img_path = './images/1920_1080/'
-        else:
-            self.error(f"No such device type: {device_type}")
-            return False
-        return True
     def create_locator(self):
         self.debug("Starting: def init_locator")
         job = self.job
@@ -550,7 +556,7 @@ class Automator:
                 quest_by_para = {
                     'fire':'to_quest_fire_stone', 'wind':'to_quest_wind_stone', 'water':'to_quest_water_stone',
                     'ice':'to_quest_ice_stone','earth':'to_quest_earth_stone','dark':'to_quest_dark_stone',
-                    'lightening':'to_quest_lightening_stone','light':'to_quest_light_stone'
+                    'lightning':'to_quest_lightning_stone','light':'to_quest_light_stone'
                 }
                 if quest_to_play:
                     try:
@@ -592,22 +598,6 @@ class Automator:
         print("Starting skip battle for whim store")
         self.log(f"path: {self.automation_path}")
         cnt = 0
-        # sc = Serial_Clicker(self)
-        # sc.set_path_and_file(sc_file_name="sc.txt")
-        # dw_in_order = [
-        #     "pre스토리xp","스토리20"
-        # ]
-        # for dw in dw_in_order:
-        #     try:
-        #         print("Starting DW for ", dw)
-        #         sc.start_serial_click_thread(sc_name=dw)
-        #     except Exception as e:
-        #         print(e)
-        #     while (not sc.serial_click_finished) and self.running:
-        #         time.sleep(3)
-        #     if not self.running:
-        #         break
-        # print("Skip battle until whim store")
         kc = Keep_Clicker(self)
         kc.start_keep_clicks()
         while (not self.locator.locate("cmd_later_popup_store")) and self.running:
@@ -697,6 +687,28 @@ class Automator:
         if self.running:
             finish_button.click()
         # kc_for_reincarnation.close()
+    def sample_automation(self):
+        self.locator.confidence = 0.95
+        rep_time = self.rep_time
+        num_of_players = self.num_of_players
+        finish_button = self.finish_button
+        test_para = self.test_para
+
+        self.running = True
+        self.log("Starting SampleAutomation")
+
+        cnt_reincarnation = 0
+        kc_for_reincarnation = Keep_Clicker(self)
+        kc_for_reincarnation.set_target_file(kc_file_name='kc_for_reincarnation.txt')
+        sc = Serial_Clicker(self)
+
+        while self.running:
+            if cnt_reincarnation >= rep_time:
+                break
+        self.log(f"SampleAutomation Completed")
+        if self.running:
+            finish_button.click()
+        kc_for_reincarnation.close()
     def skip_battle(self, rep_time=None, in_call=False):
         self.locator.confidence = 0.95
         if not rep_time:
@@ -717,7 +729,7 @@ class Automator:
             targets = ["cmd_skip_battle", "cmd_skip_battle_quest"]
             while (not self.locator.locate("cmd_end_of_quest_skip_battle")) and self.running:
                 self.locator.locate_and_click(targets)
-                targets_for_no_stamina = 'text_short_of_stamina'
+                targets_for_no_stamina = ['text_short_of_stamina', 'select_chapter','pic_common_is']
                 if self.locator.locate(targets_for_no_stamina):
                     # 체력이 부족해서 팅겨나온 상황
                     self.recover_stamina(keep_clicker=kc, recover_cnt=8)
@@ -727,7 +739,7 @@ class Automator:
             targets2 = ["cmd_end_of_quest_skip_battle"]
             while (not self.locator.locate(targets)) and self.running:
                 self.locator.locate_and_click(targets2)
-                targets_for_no_stamina2 = ['select_chapter','pic_common_is']
+                targets_for_no_stamina2 = ['text_short_of_stamina', 'select_chapter','pic_common_is']
                 if self.locator.locate(targets_for_no_stamina2):
                     # 체력이 부족해서 팅겨나온 상황
                     self.recover_stamina(keep_clicker=kc, recover_cnt=8)
@@ -764,27 +776,42 @@ class Automator:
     def recover_stamina(self, keep_clicker=None, recover_cnt=8):
         # Recovering
         self.debug("Start recovering stamina")
-        targets = ['yes', 'item']
         if keep_clicker:
             keep_clicker.stop_keep_click()
         time.sleep(1)
-        while (not self.locator.locate('recover_amount')) and self.running:
-            self.locator.locate_and_click(targets)
-            time.sleep(0.5)
-        time.sleep(2)
-        # self.debug("Trying to swipe up")
-        # self.my_device.shell("input swipe 900 600 900 300 1000")
-        # time.sleep(2)
-        for cnt in range(recover_cnt):
-            self.locator.locate_and_click('120')
-            time.sleep(0.5)
-        # while (not self.locator.locate('sortie')) and self.running:
-        recover_targets = ["recover", "ok_recover"]
-        for c in range(10):
-            if self.locator.locate('dismiss') or (not self.running):
-                break
-            self.locator.locate_and_click(recover_targets)
-            time.sleep(1)
+
+        if recover_cnt >= 8:
+            sc = Serial_Clicker(self)
+            sc.set_path_and_file(automation_path='./a_orders/', sc_file_name="sc_for_recover_stamina.txt")
+
+            sc.start_serial_click_thread(sc_name='체력회복')
+            while self.running and (not sc.serial_click_finished):
+                time.sleep(1)
+            for i in range(3):
+                self.locator.locate_and_click("cmd_close_popup_stamina|cmd_ok_popup_recover_stamina|cmd_cancel_popup_recover_stamina")
+                time.sleep(1)
+        else:
+            targets = 'yes|item|icon_plus_stamina'
+            while (not self.locator.locate('recover_amount')) and self.running:
+                self.locator.locate_and_click(targets)
+                time.sleep(0.5)
+            time.sleep(2)
+            # self.debug("Trying to swipe up")
+            # self.my_device.shell("input swipe 900 600 900 300 1000")
+            # time.sleep(2)
+            for cnt in range(recover_cnt):
+                self.locator.locate_and_click('120')
+                time.sleep(0.5)
+            # while (not self.locator.locate('sortie')) and self.running:
+            recover_targets = ["recover", "ok_recover"]
+            while (self.locator.locate(['ok_recover', 'recover_amount'])) and self.running:
+                self.locator.locate_and_click(recover_targets)
+                time.sleep(1)
+            # for c in range(2):
+            #     if (not self.locator.locate('recover_amount')) or (not self.running):
+            #         break
+            #     self.locator.locate_and_click(recover_targets)
+
         self.debug("Finished recovering")
         if keep_clicker:
             keep_clicker.start_keep_click()
@@ -854,6 +881,8 @@ class Automator:
                     except Exception as e:
                         print(e)
                 while (not sc.serial_click_finished) and self.running:
+                    if dw == '백그라운드':
+                        self.locator.locate_and_click('cmd_ok_popup_background')
                     time.sleep(3)
                 if not self.running:
                     break
@@ -867,54 +896,14 @@ class Automator:
             self.finish_button.click()
         kc.close()
         sc.close()
-    def set_automator_settings(self, automator_settings):
-        print("Setting automator config")
-        self.checked_boxes = [cb.lower() for cb in automator_settings.checked_boxes]
-        self.checked_rbs = automator_settings.checked_rbs
-        self.selected_party = automator_settings.selected_party
-        print(self.checked_boxes, " and ",self.checked_rbs, "and ", self.selected_party)
     def test(self):
         self.running = True
         cnt = 0
         self.log("Testing!!")
-        sc_name = self.test_para
-        print("Testing"*50)
-        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is"]
-        while not self.locator.locate("menu_mogri_store") and self.running:
-            for t in to_is_targets:
-                self.locator.locate_and_click(t)
-                time.sleep(1)
-        kc = Keep_Clicker(self)
-        kc.start_keep_clicks()
-        # sc_name = 'test'
-        sc = Serial_Clicker(self)
-        sc.set_path_and_file(sc_file_name="sc.txt")
-        # sc.set_path_and_file(sc_file_name="test.txt")
-        # sc.start_serial_clicks()
-        if sc_name == ''or 'all':
-            sc_names = [
-                "chocobo", "summon","store", "guild", "pvp", "another_world", "story", "friend", "mission", "stamp", "present"
-            ]
-        else:
-            sc_names = [s.strip() for s in sc_name.split(',')]
-        print(f"sc_names: [{sc_names}]")
-        for s in sc_names:
-            sc.start_serial_click_thread(sc_name=s)
-            while (not sc.serial_click_finished) and self.running:
-                time.sleep(3)
-            if not self.running:
-                break
-            # else:
-            # sc.start_serial_click_thread(sc_name=sc_name)
-        while self.running:
-            if sc.serial_click_finished:
-                break
-            time.sleep(1)
+        self.recover_stamina(recover_cnt=1)
         print("Func. test finished")
         if self.running:
             self.finish_button.click()
-        kc.close()
-        sc.close()
     def test2(self):
         self.running = True
         cnt = 0
