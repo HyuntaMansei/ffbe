@@ -20,7 +20,7 @@ cmd_close_popup_excess_rewards
 text_short_of_stamina
 
 [reincarnation]
-890 / 
+890 / 882 / 1600
 -강화-
 text_3star_remain_popup2_reincarnation
 cmd_reinforce_popup_excla
