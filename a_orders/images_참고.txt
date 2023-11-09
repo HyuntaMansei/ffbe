@@ -13,11 +13,15 @@ banner_for_earth_stone
 banner_for_dark_stone
 banner_for_lightening_stone
 banner_for_light_stone
+1600
+level6_banner_stone_quest
 
 [skip_battle]
 890, 1600
 cmd_close_popup_excess_rewards
 text_short_of_stamina
+1600
+cmd_no_popup_short_of_stamina
 
 [reincarnation]
 890 / 882 / 1600
