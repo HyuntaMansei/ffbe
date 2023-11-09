@@ -1,0 +1,7 @@
+[체력회복]
+icon_plus_stamina|cmd_ok_popup_background
+pic_item_popup_stamina
+icon_plus_recover_stamina|icon_plus_off_recover_stamina
+icon_plus_off_recover_stamina
+cmd_recover_popup_recover_stamina|cmd_recover_off_popup_recover_stamina#0.99
+cmd_close_popup_stamina|cmd_ok_popup_recover_stamina|cmd_cancel_popup_recover_stamina
