@@ -775,10 +775,13 @@ class Automator:
         kc.close()
     def recover_stamina(self, keep_clicker=None, recover_cnt=8):
         # Recovering
-        self.debug("Start recovering stamina")
+        self.debug("---Start recovering stamina---")
         if keep_clicker:
             keep_clicker.stop_keep_click()
         time.sleep(1)
+
+        while self.running and (self.locator.locate('text_short_of_stamina')):
+            self.locator.locate_and_click('cmd_no_popup_short_of_stamina')
 
         if recover_cnt >= 8:
             sc = Serial_Clicker(self)
@@ -803,8 +806,9 @@ class Automator:
                 self.locator.locate_and_click('120')
                 time.sleep(0.5)
             # while (not self.locator.locate('sortie')) and self.running:
-            recover_targets = ["recover", "ok_recover"]
-            while (self.locator.locate(['ok_recover', 'recover_amount'])) and self.running:
+            time.sleep(2)
+            recover_targets = ["recover", "ok_recover",'cmd_ok_popup_recover_stamina']
+            while (self.locator.locate(['ok_recover', 'recover_amount','cmd_ok_popup_recover_stamina'])) and self.running:
                 self.locator.locate_and_click(recover_targets)
                 time.sleep(1)
             # for c in range(2):
@@ -900,7 +904,8 @@ class Automator:
         self.running = True
         cnt = 0
         self.log("Testing!!")
-        self.recover_stamina(recover_cnt=1)
+        self.recover_stamina(recover_cnt=2)
+        # self.skip_battle(rep_time=2, in_call=True)
         print("Func. test finished")
         if self.running:
             self.finish_button.click()
