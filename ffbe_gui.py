@@ -59,7 +59,7 @@ class MyWidget(QtWidgets.QWidget):
         self.ip = ""
     def init_preparation(self):
         # variable settings
-        self.macro_version = '0.29'
+        self.macro_version = '0.30'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
@@ -169,7 +169,7 @@ class MyWidget(QtWidgets.QWidget):
             return False
         print(f"Server connected. Version: {self.macro_version}")
     def match_version(self, server_version):
-        if server_version[:3] == self.macro_version[:3]:
+        if server_version[:3] <= self.macro_version[:3]:
             return True
         else:
             return False
