@@ -22,6 +22,8 @@ cmd_close_popup_excess_rewards
 890, 1600
 text_short_of_stamina
 cmd_no_popup_short_of_stamina
+890 (이미지 수정필요)
+icon_plus_stamina
 
 [reincarnation]
 890 / 882 / 1600
