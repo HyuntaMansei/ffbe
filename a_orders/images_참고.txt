@@ -1,10 +1,14 @@
 [다양]
-1600
+882 / 890 / 1600
 cmd_close_popup_char_quest
 882 / 890 / 1600
 cmd_ok_popup_background
 
-[raid] 
+[raid]
+882
+cmd_retry_failed_raid
+banner_for_goldenroom
+
 882 / 890 / 1600 /
 banner_for_fire_stone
 banner_for_wind_stone
@@ -28,12 +32,13 @@ banner_for_trustone_b
 [skip_battle]
 890, 1600
 cmd_close_popup_excess_rewards
-890
+882 / 890
 cmd_ok_popup_excess_rewards
 890, 1600
 text_short_of_stamina
 cmd_no_popup_short_of_stamina
-890 (이미지 수정필요)
+882 / 890 
+(이미지 수정)
 icon_plus_stamina
 
 [reincarnation]
