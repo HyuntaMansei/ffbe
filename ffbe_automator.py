@@ -556,7 +556,8 @@ class Automator:
                 quest_by_para = {
                     'fire':'to_quest_fire_stone', 'wind':'to_quest_wind_stone', 'water':'to_quest_water_stone',
                     'ice':'to_quest_ice_stone','earth':'to_quest_earth_stone','dark':'to_quest_dark_stone',
-                    'lightning':'to_quest_lightning_stone','light':'to_quest_light_stone'
+                    'lightning':'to_quest_lightning_stone','light':'to_quest_light_stone',
+                    'gold':'to_quest_golden_room'
                 }
                 if quest_to_play:
                     try:
