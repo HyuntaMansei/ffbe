@@ -8,6 +8,7 @@ cmd_ok_popup_background
 882
 cmd_retry_failed_raid
 banner_for_goldenroom
+banner_hardest_golden_room
 
 882 / 890 / 1600 /
 banner_for_fire_stone
@@ -18,7 +19,7 @@ banner_for_earth_stone
 banner_for_dark_stone
 banner_for_lightning_stone
 banner_for_light_stone
-level6_banner_stone_quest
+banner_level6_stone_quest
 882 / 890
 banner_for_trustone
 pic_scroll_down_daily2
@@ -37,7 +38,7 @@ cmd_ok_popup_excess_rewards
 882, 890, 1600
 text_short_of_stamina
 cmd_no_popup_short_of_stamina
-882 / 890 
+882 / 890 ffbe
 (이미지 수정)
 icon_plus_stamina
 
