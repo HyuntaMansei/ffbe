@@ -1,6 +1,0 @@
-[1]
-cmd_decide_popup_skip_battle
-cmd_ok_popup_skip_battle
-cmd_next_popup_skip_battle
-cmd_later_popup_store
-cmd_later_popup_chocobo

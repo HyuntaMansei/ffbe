@@ -1,7 +1,0 @@
-[1]
-give_up.png
-go_back.png
-next.png
-ok.png
-sortie_confirm.png
-yes.png

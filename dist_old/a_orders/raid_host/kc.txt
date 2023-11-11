@@ -1,7 +1,0 @@
-[1]
-cmd_sortie_raid
-cmd_sortie_popup_confirm
-cmd_next_popup_after_battle
-cmd_end_of_quest_after_battle
-cmd_get_reward_and_try_next_raid
-cmd_ok_popup
