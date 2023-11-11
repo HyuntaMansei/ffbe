@@ -34,7 +34,7 @@ banner_for_trustone_b
 cmd_close_popup_excess_rewards
 882 / 890
 cmd_ok_popup_excess_rewards
-890, 1600
+882, 890, 1600
 text_short_of_stamina
 cmd_no_popup_short_of_stamina
 882 / 890 
