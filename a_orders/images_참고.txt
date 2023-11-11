@@ -1,20 +1,30 @@
 [다양]
 1600
 cmd_close_popup_char_quest
+1600 / 882
+cmd_ok_popup_background
 
 [raid] 
-890, 892, 1771, 1600
+882 / 890 / 1600 /
 banner_for_fire_stone
-890 / 1600
 banner_for_wind_stone
 banner_for_water_stone
 banner_for_ice_stone
 banner_for_earth_stone
 banner_for_dark_stone
-banner_for_lightening_stone
+banner_for_lightning_stone
 banner_for_light_stone
-890 / 1600
 level6_banner_stone_quest
+882
+banner_for_trustone
+pic_scroll_down_daily2
+banner_for_trustone_i
+banner_for_trustone_a
+banner_for_trustone_l
+banner_for_trustone_t
+banner_for_trustone_p
+banner_for_trustone_b
+
 
 [skip_battle]
 890, 1600
