@@ -520,7 +520,7 @@ class Automator:
         raid_loop_cnt = 0
         cnt = 0
         kc_for_raid = Keep_Clicker(self)
-        kc_for_raid.set_target_file(kc_file_name='kc_for_raid.txt', kc_cond_file_name='kc_cond_for_raid')
+        kc_for_raid.set_target_file(kc_file_name='kc_for_raid.txt', kc_cond_file_name='kc_cond_for_raid.txt')
         sc = Serial_Clicker(self)
 
         while self.running:
