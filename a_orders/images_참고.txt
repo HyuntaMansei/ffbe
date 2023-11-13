@@ -5,11 +5,13 @@ cmd_close_popup_char_quest
 cmd_ok_popup_background
 
 [raid]
-882
+882 / 1600
 text_short_of_bead_popup_raid
 cmd_yes_popup_short_of_bead_raid
 pic_item_popup_raid_bead
 cmd_recover_popup2_raid_bead
+pic_full_beads_raid
+
 882 / 890 / 1600
 cmd_retry_failed_raid
 banner_for_goldenroom
