@@ -4,7 +4,7 @@ next_popup_background_repetition|x_popup_background_repetition
 ok_popup_background_repetition
 icon_plus_stamina
 [체력회복]
-icon_plus_stamina|cmd_ok_popup_background
+icon_plus_stamina|cmd_ok_popup_background#0.8
 pic_item_popup_stamina
 icon_plus_recover_stamina|icon_plus_off_recover_stamina
 icon_plus_off_recover_stamina
