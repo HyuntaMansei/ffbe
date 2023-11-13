@@ -13,3 +13,4 @@ cmd_no_popup_barracks@text_empty_barracks
 cmd_skip_ani_summon
 cmd_later_popup_store
 cmd_later_popup_chocobo
+cmd_decide_popup_food_supply@text_excess_food_popup
