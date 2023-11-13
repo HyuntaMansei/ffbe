@@ -53,7 +53,7 @@ menu_open|menu_guild
 menu_barracks
 cmd_food_supply
 cmd_supply_all
-cmd_supply_all_popup
+cmd_supply_all_popup2|cmd_supply_all_popup
 x_guild_present
 menu_open
 menu_pvp
