@@ -2,6 +2,7 @@
 text_short_of_bead_popup_raid
 [finish]
 cmd_retry_failed_raid
+cmd_sortie_raid
 [1]
 cmd_yes_popup_short_of_bead_raid
 pic_item_popup_raid_bead
