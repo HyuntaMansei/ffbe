@@ -154,7 +154,7 @@ menu_vision_card
 cmd_skip_all_hard_quest
 cmd_decide_popup_skip_quest
 cmd_end_of_quest
-x_popup
+x_popup_hardquest|x_popup
 menu_open
 menu_friend
 [스토리no하드]
