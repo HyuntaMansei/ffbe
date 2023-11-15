@@ -854,7 +854,7 @@ class Automator:
                 si = df[df['dw'] == dw]['si'].iloc[0]
             except Exception as e:
                 print(e)
-                si = 999.0
+                si = 0
             return si
         si_to_start = get_si(self.oper_option, df)
         for dw in dw_to_do:
