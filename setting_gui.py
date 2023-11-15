@@ -114,8 +114,8 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
             new_y = int((pos.y() / 2)-400)
             self.move(new_x, new_y)
         else:
-            new_x = int(pos.x())
-            new_y = int(pos.y()-400)
+            new_x = int(pos.x() / 2)
+            new_y = int((pos.y() / 2)-400)
             self.move(new_x, new_y)
         print(f"moved to pos:{new_x, new_y}")
 def show_settings_popup():

@@ -8,10 +8,9 @@ import inspect
 import threading
 import os
 import re
+import pandas as pd
 
 import setting_gui
-
-
 class Timer:
     def __init__(self):
         self.is_running = False
@@ -42,6 +41,12 @@ class Automator:
         # Define all internal variables
         self.device_type = None
         self.job = None
+        self.rep_time = None
+        self.num_of_players = None
+        self.finish_button = None
+        self.sleep_mul = None
+        self.oper_option = None
+        self.test_para = None
         self.running = False
         self.keep_click_running = False
         self.stop_keep_click_index = 1
@@ -60,12 +65,13 @@ class Automator:
         self.init_device(window_name=window_name, window_hwnd=window_hwnd, device_serial=device_serial)
     def set_job(self, job=None):
         self.job = job
-    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5, test_para=None):
+    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5, oper_option = None, test_para=None):
         print("In def, set_user_params", end='')
         self.rep_time = rep_time
         self.num_of_players = num_of_players
         self.finish_button = finish_button
         self.sleep_mul = sleep_multiple
+        self.oper_option = oper_option
         self.test_para = test_para
         print(f" testing para: {self.test_para}")
         print(" >> Finished.")
@@ -838,8 +844,22 @@ class Automator:
         dw_in_order = [
             "백그라운드","체력회복", "초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물", "멀티클라"
         ]
-        self.debug(f"Works in order: {dw_in_order}")
-        for dw in dw_in_order:
+        si_for_dw = [float(i) for i in range(1, len(dw_in_order) + 1)]
+        df = pd.DataFrame({'dw': dw_in_order, 'si': si_for_dw})
+        df = df.sort_values(by='si', ascending=True)
+        dw_to_do = df['dw'].tolist()
+        self.debug(f"Works in order: {dw_to_do}")
+        def get_si(dw: str, df: pd.DataFrame):
+            try:
+                si = df[df['dw'] == dw]['si'].iloc[0]
+            except Exception as e:
+                print(e)
+                si = 999.0
+            return si
+        si_to_start = get_si(self.oper_option, df)
+        for dw in dw_to_do:
+            if get_si(dw, df) < si_to_start:
+                continue
             if dw in self.checked_boxes:
                 self.log(f"Starting DW for {dw}")
                 self.debug(f"Starting DW for {dw}")

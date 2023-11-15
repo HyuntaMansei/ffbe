@@ -16,7 +16,16 @@ import mysql.connector
 import requests
 import psutil
 import setting_gui
+import configparser
 
+def config_to_dict(config):
+    config_dict = {}
+    for section_name in config.sections():
+        section_dict = {}
+        for key, value in config[section_name].items():
+            section_dict[key] = value
+        config_dict[section_name] = section_dict
+    return config_dict
 def get_public_ip():
     try:
         response = requests.get('https://ipinfo.io/json')
@@ -31,9 +40,27 @@ class MsgEvent(QEvent):
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        self.macro_version = '0.32'
+        self.is_automator_initiated = None
+        self.device_names = []
+        self.device_types = []
+        self.device_index_by_name = {}
+        self.window_name = None
+        self.window_hwnd = None
+        self.device_type = None
+        self.device_serial = None
+        # Automator settings
+        self.rep_time = None
+        self.num_of_players = None
+        self.sleep_multiple = None
+        self.oper_option = None
         self.test_para = None
-        self.automator_setting = None
+        self.ffbe_setting = None
         self.initial_device_name_hint = None
+        # Widget Objects
+        self.ffbe_setting = None
+        self.dic_of_text_lists_for_cb_oper_option = {}
+        self.cb_oper_option = None
         self.init_arguments()
         self.init_preparation()
         self.init_ui()
@@ -65,8 +92,14 @@ class MyWidget(QtWidgets.QWidget):
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
         self.device_index_by_name = {'leonis':2,'jchoi82kor':2, 'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
         self.add_device_name_and_type()
-        print(self.device_names)
-        print(self.device_index_by_name)
+        # Read config_oper_option
+        config_for_oper_option = configparser.ConfigParser()
+        try:
+            config_for_oper_option.read("config_for_oper_option.txt", encoding='UTF-8')
+        except Exception as e:
+            print(e)
+            return False
+        self.dic_of_text_lists_for_cb_oper_option = config_to_dict(config_for_oper_option)
     def add_device_name_and_type(self):
         # find window hwnd using process name
         blue_stack_hwnds = self.get_hwnd_by_process_name("HD-Player.exe")
@@ -103,7 +136,7 @@ class MyWidget(QtWidgets.QWidget):
         self.connected_device_name_and_handle = [] #(name, hwnd), name is window title
         self.connected_device_name_and_serial = [] #(name, serial, device)
         windows = gw.getAllWindows()
-        print(f"DeviceNames: {self.device_names}")
+        # print(f"DeviceNames: {self.device_names}")
         for window in windows:
             # print(f"HWND: {window._hWnd} and Window Name: {window.title}")
             if window.title in self.device_names:
@@ -236,6 +269,7 @@ class MyWidget(QtWidgets.QWidget):
         # Connect the slot function to the currentTextChanged signal
         self.cb_window_name.currentTextChanged.connect(self.on_cb_window_name_text_changed)
         self.cb_operation.currentTextChanged.connect(self.on_cb_operation_text_changed)
+        # self.cb_oper_option.currentTextChanged.connect(self.on_cb_operation_text_changed)
         self.le_rep.setText("300")
         self.le_players.setText("4")
         self.le_sleep_multiple.setText("3")
@@ -249,25 +283,25 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_log = self.log_widget.obj_output
         self.log_widget.setWindowTitle("Log")
         self.log_widget.show()
-        self.log_widget.move(1500,300)
+        self.log_widget.move(1500+self.initial_x,0+self.initial_y)
         self.log_widget.showMinimized()
 
         self.debug_widget = Output_Widget(1000,600)
         self.obj_debug = self.debug_widget.obj_output
         self.debug_widget.setWindowTitle("Debug")
         self.debug_widget.show()
-        self.debug_widget.move(400,0)
+        self.debug_widget.move(400+self.initial_x,0+self.initial_y)
         self.debug_widget.showMinimized()
 
         self.error_widget = Output_Widget()
         self.obj_error = self.error_widget.obj_output
         self.error_widget.setWindowTitle("Error")
         self.error_widget.show()
-        self.error_widget.move(800,0)
+        self.error_widget.move(800+self.initial_x,0+self.initial_y)
         self.error_widget.showMinimized()
     def init_setting(self):
-        self.automator_setting = setting_gui.SettingsDialog()
-        self.automator_setting.initUi()
+        self.ffbe_setting = setting_gui.SettingsDialog()
+        self.ffbe_setting.initUi()
         # print(self.automator_setting.checked_boxes, " and ", self.automator_setting.checked_rbs)
     def init_others(self):
         self.device_initiated = False
@@ -368,6 +402,18 @@ class MyWidget(QtWidgets.QWidget):
                 self.pb_operation.setText(text)
         except:
             self.error(f"Error in on_cb_operation_text_changed, text: {text}")
+        # For cb_oper_option
+        # dic_of_text_lists_for_cb_oper_option = {
+        #     '일퀘하기':['처음부터','친구']
+        # }
+        cb_text = self.cb_operation.currentText()
+        if cb_text in self.dic_of_text_lists_for_cb_oper_option.keys():
+            self.cb_oper_option.clear()
+            option_list = [i.strip() for i in self.dic_of_text_lists_for_cb_oper_option[cb_text]['option_list'].split(',')]
+            self.cb_oper_option.addItems([""]+option_list)
+        else:
+            self.cb_oper_option.clear()
+            self.cb_oper_option.addItems([""])
     def on_cb_window_name_text_changed(self, text):
         #hwnd, device_type, serial
         device_name = text
@@ -397,8 +443,8 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
-                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, test_para=self.test_para)
-            self.automator.set_automator_settings(self.automator_setting)
+                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, oper_option=self.oper_option ,test_para=self.test_para)
+            self.automator.set_automator_settings(self.ffbe_setting)
             print("Starting automator thread")
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
@@ -413,6 +459,7 @@ class MyWidget(QtWidgets.QWidget):
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
         self.sleep_multiple = int(self.le_sleep_multiple.text())
+        self.oper_option = self.cb_oper_option.currentText()
         self.test_para = self.le_test_para.text()
     def log(self, msg):
         self.log_list.append(f"{msg}")
@@ -472,8 +519,8 @@ class MyWidget(QtWidgets.QWidget):
         connection.close()
     def open_settings(self):
         cur_pos = self.mapToGlobal(self.geometry().topLeft())
-        self.automator_setting.set_position(cur_pos)
-        self.automator_setting.exec_()
+        self.ffbe_setting.set_position(cur_pos)
+        self.ffbe_setting.exec_()
 class Output_Widget(QtWidgets.QWidget):
     def __init__(self, width=400, height=400):
         super().__init__()
