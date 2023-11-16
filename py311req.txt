@@ -25,3 +25,5 @@ flask
 streamlit
 pyinstaller
 mss
+screeninfo
+mysql.connector
