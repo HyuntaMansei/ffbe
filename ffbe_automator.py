@@ -9,8 +9,9 @@ import threading
 import os
 import re
 import pandas as pd
-
 import setting_gui
+import operation_status_checker as osc
+from typing import Type
 class Timer:
     def __init__(self):
         self.is_running = False
@@ -45,8 +46,9 @@ class Automator:
         self.num_of_players = None
         self.finish_button = None
         self.sleep_mul = None
-        self.oper_option = None
+        self.operation_option = None
         self.test_para = None
+        self.operation_status_checker: Type[osc.OperationStatusChecker] = None
         self.running = False
         self.keep_click_running = False
         self.stop_keep_click_index = 1
@@ -65,13 +67,16 @@ class Automator:
         self.init_device(window_name=window_name, window_hwnd=window_hwnd, device_serial=device_serial)
     def set_job(self, job=None):
         self.job = job
-    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5, oper_option = None, test_para=None):
+    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5, operation_option=None, operation_status_checker=None ,test_para=None):
         print("In def, set_user_params", end='')
         self.rep_time = rep_time
         self.num_of_players = num_of_players
         self.finish_button = finish_button
         self.sleep_mul = sleep_multiple
-        self.oper_option = oper_option
+        self.operation_option = operation_option
+        self.operation_status_checker = operation_status_checker
+        print('+'*100)
+        print(operation_status_checker)
         self.test_para = test_para
         print(f" testing para: {self.test_para}")
         print(" >> Finished.")
@@ -155,11 +160,11 @@ class Automator:
         self.init_automation_list()
         self.timer = Timer()
         self.limit_timer = Timer()
+        # self.operation_status_checker = operation_status_checker.OperationStatusChecker()
     # From here, called from start_automation
     def create_locator(self):
         self.debug("Starting: def init_locator")
         job = self.job
-
         if 'gpg' in self.device_type:
             _,_,w,h = win32gui.GetClientRect(self.my_hwnd)
             img_path = f"./images/{w}_{h}"
@@ -171,6 +176,7 @@ class Automator:
         self.automation_path = os.path.join(self.automation_path, job.replace('play_', ''))
         self.locator = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         self.locator.load_conf(self.device_type)
+        self.locator.set_operation_status_checker(self.operation_status_checker)
         self.locator.confidence = self.confidence
         self.time_limit = 300
         if not 'gpg' in self.device_type:
@@ -467,10 +473,11 @@ class Automator:
         self.running = True
         self.locator.confidence = 0.95
         self.log("Starting multi_client automation")
-        keep_clicker = Keep_Clicker(self)
+        keep_clicker_for_PMCA = Keep_Clicker(self)
+        keep_clicker_for_PMCA.set_operation_status_checker(self.operation_status_checker)
         if inCall:
-            keep_clicker.set_automation_path('a_orders\multi_client_any')
-        keep_clicker.start_keep_clicks()
+            keep_clicker_for_PMCA.set_automation_path('a_orders\multi_client_any')
+        keep_clicker_for_PMCA.start_keep_clicks()
         cnt = 0
         exit_targets = ['cancel_ready','exit_room','ok','ok_multi','x','x_multi','next']
         exit_finish = ['refresh','recruit_list', 'auto', 'cancel', 'cancel_multi']
@@ -483,11 +490,11 @@ class Automator:
                 print(f"Limit_timer: {limit_time}")
                 if limit_time > 600:
                     self.debug("In exit code")
-                    keep_clicker.stop_keep_click()
+                    keep_clicker_for_PMCA.stop_keep_click()
                     while (not self.locator.locate(exit_finish)) and (not self.locator.locate('auto')) and self.running:
                         self.locator.locate_and_click(exit_targets)
                         time.sleep(3)
-                    keep_clicker.start_keep_click()
+                    keep_clicker_for_PMCA.start_keep_click()
                     self.limit_timer.restart()
             self.debug("In battle stage.")
             while (not self.locator.locate('cancel_ready')) and self.running:
@@ -495,7 +502,7 @@ class Automator:
             cnt += 1
             self.debug("After battle stage.")
             self.log(f"Completed {cnt} times.")
-        keep_clicker.close()
+        keep_clicker_for_PMCA.close()
     def play_raid_host(self):
         self.locator.confidence = 0.95
         rep_time = self.rep_time
@@ -832,6 +839,7 @@ class Automator:
         self.log("Starting Daily Work automation")
         print("Starting Daily Work automation")
         kc = Keep_Clicker(self)
+        kc.set_operation_status_checker(self.operation_status_checker)
         kc.start_keep_clicks()
         to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
         while not self.locator.locate("menu_mogri_store#0.99") and self.running:
@@ -856,7 +864,7 @@ class Automator:
                 print(e)
                 si = 0
             return si
-        si_to_start = get_si(self.oper_option, df)
+        si_to_start = get_si(self.operation_option, df)
         for dw in dw_to_do:
             if get_si(dw, df) < si_to_start:
                 continue
@@ -980,6 +988,7 @@ class Keep_Clicker:
         self.confidence = 0.95
         self.device_type = None
         self.my_device = None
+        self.operation_status_checker = None
         self.running = True
         self.keep_click_running = False
         self.stop_keep_click_index = 1
@@ -1004,6 +1013,8 @@ class Keep_Clicker:
             self.kc_file_name = kc_file_name
         if kc_cond_file_name:
             self.kc_cond_file_name = kc_cond_file_name
+    def set_operation_status_checker(self, operation_status_checker):
+        self.operation_status_checker = operation_status_checker
     def start_keep_clicks(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
@@ -1063,6 +1074,7 @@ class Keep_Clicker:
             sleep_time = 1
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_kc.load_conf(self.device_type)
+        locator_kc.set_operation_status_checker(self.operation_status_checker)
         locator_kc.confidence = self.confidence
         if not ('gpg' in self.device_type):
             locator_kc.connect_click_method(self.my_device.input_tap)
@@ -1089,6 +1101,7 @@ class Keep_Clicker:
             sleep_time = 1
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_kc.load_conf(self.device_type)
+        locator_kc.set_operation_status_checker(self.operation_status_checker)
         locator_kc.confidence = self.confidence
         if not 'gpg' in self.device_type:
             locator_kc.connect_click_method(self.my_device.input_tap)
@@ -1186,6 +1199,7 @@ class Keep_Clicker:
             print(f"Stopping keep_clicker for [{self.kc_file_name}] in {self.automation_path}")
         self.running = False
         self.keep_click_running = False
+        self.operation_status_checker.stop()
 class Serial_Clicker():
     def __init__(self, automator:Automator=None):
         self.log = print
@@ -1249,6 +1263,7 @@ class Serial_Clicker():
         self.debug(f"-----Start SC for {sc_name}-----")
         locator_sc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_sc.load_conf(self.device_type)
+        locator_sc.set_operation_status_checker(self.operation_status_checker)
         locator_sc.confidence = self.confidence
         if not ('gpg' in self.device_type):
             locator_sc.connect_click_method(self.my_device.input_tap)

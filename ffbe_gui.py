@@ -18,7 +18,8 @@ import psutil
 import setting_gui
 import configparser
 import inspect
-
+from typing import Type
+import operation_status_checker as osc
 def config_to_dict(config):
     config_dict = {}
     for section_name in config.sections():
@@ -50,17 +51,19 @@ class MyWidget(QtWidgets.QWidget):
         self.window_hwnd = None
         self.device_type = None
         self.device_serial = None
+        self.initial_device_name_hint = None
         # Automator settings
         self.rep_time = None
         self.num_of_players = None
         self.sleep_multiple = None
         self.test_para = None
-        self.initial_device_name_hint = None
-        # Widget Objects
-        self.setting_dialog = None
-        self.dic_of_text_lists_for_cb_operation_option = {}
         self.operation2 = None
         self.cb_operation_option = None
+        # Widget Objects
+        self.setting_dialog = None
+        self.operation_status_checker: Type[osc.OperationStatusChecker] = None
+        self.automator = None
+        self.dic_of_text_lists_for_cb_operation_option = {}
         self.init_arguments()
         self.init_preparation()
         self.init_ui()
@@ -306,6 +309,7 @@ class MyWidget(QtWidgets.QWidget):
         self.device_initiated = False
         print(f"Initial position: {self.initial_x, self.initial_y}")
         self.move(self.initial_x,self.initial_y)
+        self.operation_status_checker = osc.OperationStatusChecker()
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
         # if event.eventType() == MsgEvent.Type:
@@ -384,10 +388,22 @@ class MyWidget(QtWidgets.QWidget):
             self.set_device_name_and_type()
             self.pb_operation.setText(self.cb_operation.currentText())
             return True
+        elif sender_name.lower() == 'pb_pause':
+            try:
+                self.operation_status_checker.pause()
+                if 'off' in self.sender().text().lower():
+                    self.sender().setText('Pause:On')
+                else:
+                    self.sender().setText('Pause:Off')
+            except Exception as e:
+                self.error_handler(e)
         else:
             self.set_params()
             # Automatic btns.
             try:
+                if 'on' in self.pb_pause.Text().lower():
+                    self.sender().setText('Pause:Off')
+                self.operation_status_checker.reset()
                 self.start_automator(sender_name=sender_name, btn_text=btn_text)
                 found = True
             except Exception as e:
@@ -409,11 +425,11 @@ class MyWidget(QtWidgets.QWidget):
             try:
                 operation2_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['operation2_list'].split(',')]
             except Exception as e:
-                self.error_handle(e)
+                self.error_handler(e)
             try:
                 option_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['option_list'].split(',')]
             except Exception as e:
-                self.error_handle(e)
+                self.error_handler(e)
             self.cb_operation2.addItems([""] + operation2_list)
             self.cb_operation_option.addItems([""] + option_list)
         else:
@@ -445,12 +461,13 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.stop()
             self.sender().setText(off_text)
         else:
+            self.operation_status_checker = osc.OperationStatusChecker()
             self.automator = ffbe_automator.Automator()
             self.automator.set_msg_handlers(log=self.log, debug=self.debug, error=self.error)
             self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
-                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, oper_option=self.operation_option, test_para=self.test_para)
+                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, operation_option=self.operation_option, operation_status_checker=self.operation_status_checker, test_para=self.test_para)
             self.automator.set_automator_settings(self.setting_dialog)
             print("Starting automator thread")
             target = self.automator.start_automation
@@ -530,7 +547,7 @@ class MyWidget(QtWidgets.QWidget):
         self.setting_dialog.set_position(cur_pos)
         self.setting_dialog.initUi()
         self.setting_dialog.exec_()
-    def error_handle(self, msg=None):
+    def error_handler(self, msg=None):
         caller = inspect.currentframe().f_back.f_code.co_name
         if msg:
             text = f"Exception in {caller} as : {msg}"

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1113</width>
-    <height>404</height>
+    <width>1119</width>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -385,12 +385,12 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,4">
+         <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,4,0">
           <item>
            <widget class="QLabel" name="label_5">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
+              <horstretch>1</horstretch>
               <verstretch>1</verstretch>
              </sizepolicy>
             </property>
@@ -420,7 +420,7 @@
            <widget class="QLineEdit" name="le_test_para">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
+              <horstretch>3</horstretch>
               <verstretch>1</verstretch>
              </sizepolicy>
             </property>
@@ -446,18 +446,39 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="pb_pause">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>새굴림</family>
+              <pointsize>14</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Pause:OFF</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,3">
+       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,1,1,2">
         <item>
          <widget class="QComboBox" name="cb_operation">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>2</horstretch>
-            <verstretch>0</verstretch>
+            <verstretch>1</verstretch>
            </sizepolicy>
           </property>
           <property name="maximumSize">
@@ -481,7 +502,7 @@
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
+            <verstretch>1</verstretch>
            </sizepolicy>
           </property>
           <property name="maximumSize">
@@ -510,7 +531,7 @@
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
+              <verstretch>1</verstretch>
              </sizepolicy>
             </property>
             <property name="font">
@@ -531,7 +552,7 @@
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
+              <verstretch>1</verstretch>
              </sizepolicy>
             </property>
             <property name="maximumSize">
@@ -557,7 +578,7 @@
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
+            <verstretch>1</verstretch>
            </sizepolicy>
           </property>
           <property name="font">
@@ -589,8 +610,8 @@
    <slot>on_le_test_para_text_finished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>343</x>
-     <y>268</y>
+     <x>292</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
      <x>351</x>
@@ -605,8 +626,8 @@
    <slot>open_settings()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>925</x>
-     <y>45</y>
+     <x>1088</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>1014</x>

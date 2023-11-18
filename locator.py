@@ -8,6 +8,9 @@ from PIL import Image
 import pyautogui
 import time
 import configparser
+import operation_status_checker as osc
+from typing import Type
+
 class Locator:
     def __init__(self, hwnd:str=None, automation_path='./a_orders', img_path='./images/', confidence=0.95, debug=print, log=print, error=print):
         print("---Initiating Locator---")
@@ -16,6 +19,7 @@ class Locator:
         self.log = log
         self.error = error
         self.xys = {}
+        self.operation_status_checker: Type[osc.OperationStatusChecker] = None
         self.sct = mss.mss()
         self.basic_init(automation_path, img_path, confidence)
         if hwnd != None:
@@ -23,6 +27,10 @@ class Locator:
         th_rect_checker = threading.Thread(target=self.rect_checker)
         th_rect_checker.start()
         print("---End of Initializing Locator---")
+    def set_operation_status_checker(self, operation_status_checker):
+        self.operation_status_checker = operation_status_checker
+        print('-'*100)
+        print(f"OSC made: {self.operation_status_checker}")
     def basic_init(self, automation_path, img_path, confidence=0.95):
         print("In basic_init of Locator")
         self.confidence = confidence
@@ -96,6 +104,8 @@ class Locator:
         :param target: 클릭할 좌표 | None
         :return: 클릭한 좌표값
         """
+        if not self.shouldLocate():
+            return False
         # t_str이 리스트라면 재귀 호출
         if type(t_str) == list:
             res_list =[]
@@ -145,6 +155,8 @@ class Locator:
         :param t_str: 단일 이미지 이름 | list of 이미지이름
         :return: window 기준 중심 좌표
         """
+        if not self.shouldLocate():
+            return False
         if not win32gui.IsWindowVisible(self.hwnd):
             self.error("Window is not visible. return None")
             return None
@@ -282,3 +294,8 @@ class Locator:
         if content:
             config_dict[cur_label] = content
         return config_dict
+    def shouldLocate(self):
+        if self.operation_status_checker:
+            return self.operation_status_checker.shouldLocate()
+        else:
+            return True
