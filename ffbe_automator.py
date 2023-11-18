@@ -77,7 +77,7 @@ class Automator:
         print(" >> Finished.")
     def set_automator_settings(self, automator_settings):
         print("Setting automator config")
-        self.checked_boxes = [cb.lower() for cb in automator_settings.checked_boxes]
+        self.checked_boxes = [cb.lower() for cb in automator_settings.checked_cbs]
         self.checked_rbs = automator_settings.checked_rbs
         self.selected_party = automator_settings.selected_party
         print(self.checked_boxes, " and ",self.checked_rbs, "and ", self.selected_party)

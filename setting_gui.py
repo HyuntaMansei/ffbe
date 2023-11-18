@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QDialog, QPushButton, QVBoxLayout, QFormLayout, QLabel, QLineEdit, QDialogButtonBox, QHBoxLayout, QCheckBox, QRadioButton, QDesktopWidget
+from PyQt5.QtWidgets import QApplication, QDialog, QPushButton, QVBoxLayout, QFormLayout, QLabel, QLineEdit, QDialogButtonBox, QHBoxLayout, QCheckBox, QRadioButton, QDesktopWidget, QGridLayout, QTabWidget
 from PyQt5.uic import loadUiType
 import configparser
 
@@ -12,16 +12,58 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         self.setupUi(self)
         self.file_path = 'macro_settings.txt'
         self.conf = None
-        self.checked_boxes = None
+        self.tabs = None
+        self.checked_cbs = None
         self.checked_rbs = None
         self.selected_party = None
+        self.gridLayout_DW = None
+        self.gridLayout_PQDP = None
+        self.check_boxes_DW = None
+        self.radio_boxes_DW = None
+        self.check_boxes_PQDP = None
+        self.radio_boxes_PQDP = None
         self.check_boxes = None
         self.radio_boxes = None
     def test_def(self):
         pass
+    def print_objects_in_layout(self, layout):
+        for i in range(layout.count()):
+            item = layout.itemAt(i)
+            if item is not None:
+                widget = item.widget()
+                if widget is not None:
+                    print(f"Widget name: {widget.objectName()}, Widget type: {type(widget).__name__}")
+    def find_objects_in_layout(self, layout, object_type=None):
+        objs = []
+        for i in range(layout.count()):
+            item = layout.itemAt(i)
+            if item is not None:
+                widget = item.widget()
+                if widget is not None:
+                    if object_type:
+                        if isinstance(widget, object_type):
+                            objs.append(widget)
+                    else:
+                        objs.append(widget)
+                    # print(f"Widget name: {widget.objectName()}, Widget type: {type(widget).__name__}")
+        return objs
     def initUi(self):
+        self.check_boxes = []
+        self.radio_boxes = []
+        # self.tabs = self.findChildren(QTabWidget)
+        # for tab in self.tabs:
+        #     self.check_boxes += tab.findChildren(QCheckBox)
+        #     self.radio_boxes += tab.findChildren(QRadioButton)
         self.check_boxes = self.findChildren(QCheckBox)
         self.radio_boxes = self.findChildren(QRadioButton)
+        # for cb in self.check_boxes:
+        #     print(cb.text())
+        self.gridLayout_DW = self.findChild(QGridLayout, 'gridLayout_DW')
+        self.gridLayout_PQDP = self.findChild(QGridLayout, 'gridLayout_PQDP')
+        self.check_boxes_DW = self.find_objects_in_layout(self.gridLayout_DW, QCheckBox)
+        self.radio_boxes_DW = self.find_objects_in_layout(self.gridLayout_DW, QRadioButton)
+        self.check_boxes_PQDP = self.find_objects_in_layout(self.gridLayout_PQDP, QCheckBox)
+        self.radio_boxes_PQDP = self.find_objects_in_layout(self.gridLayout_PQDP, QRadioButton)
         self.load_from_file()
         self.initial_check()
     def load_from_file(self):
@@ -32,10 +74,10 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
             print(e)
         # print(self.conf['default']['checked_box'])
         # print(self.conf['default']['checked_rb'])
-        self.checked_boxes = []
+        self.checked_cbs = []
         self.checked_rbs = []
         try:
-            self.checked_boxes = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
+            self.checked_cbs = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
             self.checked_rbs = [s.strip() for s in self.conf['default']['checked_rb'].split('/')]
             self.selected_party = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
         except Exception as e:
@@ -45,7 +87,7 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
     def initial_check(self):
         # print("Initial Checking")
         for c in self.check_boxes:
-            if c.text() in self.checked_boxes:
+            if c.text() in self.checked_cbs:
                 c.setChecked(True)
                 # print(f"Checking: {c.text()}")
         for c in self.radio_boxes:
@@ -54,12 +96,12 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         if not self.cb_story.isChecked():
             self.cb_story_changed(0)
     def custom_accept(self):
-        self.checked_boxes = []
+        self.checked_cbs = []
         self.checked_rbs = []
-        for order in self.check_boxes:
-            if order.isChecked():
-                self.checked_boxes.append(order.text())
-        # print("Checked Box: ", self.checked_boxes)
+        for cb in self.check_boxes:
+            if cb.isChecked():
+                self.checked_cbs.append(cb.text())
+        print("Checked Box: ", self.checked_cbs)
         for rb in self.radio_boxes:
             if rb.isChecked():
                 self.checked_rbs.append(rb.text())
@@ -67,22 +109,28 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         self.save_to_file()
         self.accept()
     def save_to_file(self):
-        str_checked_boxes = '/'.join(self.checked_boxes)
+        str_checked_cbs = '/'.join(self.checked_cbs)
         str_checked_rbs = '/'.join(self.checked_rbs)
         if self.conf.has_section('default'):
-            self.conf['default']['checked_box'] = str_checked_boxes
+            self.conf['default']['checked_box'] = str_checked_cbs
             self.conf['default']['checked_rb'] = str_checked_rbs
         else:
             self.conf.add_section('default')
-            self.conf['default']['checked_box'] = str_checked_boxes
+            self.conf['default']['checked_box'] = str_checked_cbs
             self.conf['default']['checked_rb'] = str_checked_rbs
         with open(self.file_path, 'w', encoding='UTF-8') as configfile:
             self.conf.write(configfile)
-    def select_all(self):
-        for cb in self.check_boxes:
+    def select_all_DW(self):
+        for cb in self.check_boxes_DW:
             cb.setChecked(True)
-    def deselect_all(self):
-        for cb in self.check_boxes:
+    def deselect_all_DW(self):
+        for cb in self.check_boxes_DW:
+            cb.setChecked(False)
+    def select_all_PQDP(self):
+        for cb in self.check_boxes_PQDP:
+            cb.setChecked(True)
+    def deselect_all_PQDP(self):
+        for cb in self.check_boxes_PQDP:
             cb.setChecked(False)
     def cb_story_changed(self, state):
         # print(state)
@@ -127,11 +175,10 @@ def main():
     # Create your main window (if any)
     sd = SettingsDialog()
     sd.initUi()
-    sd.load_from_file()
     sd.exec_()
-    print(sd.checked_rbs)
-    print(sd.checked_boxes)
-    print(sd.selected_party)
+    # print(sd.checked_rbs)
+    # print(sd.checked_cbs)
+    # print(sd.selected_party)
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>968</width>
-    <height>307</height>
+    <width>1113</width>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>10</y>
-     <width>906</width>
-     <height>281</height>
+     <x>20</x>
+     <y>20</y>
+     <width>1071</width>
+     <height>381</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -160,7 +160,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="2,1">
+     <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,2">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1,1">
         <item>
@@ -451,12 +451,12 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0,3">
+       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0,3">
         <item>
          <widget class="QComboBox" name="cb_operation">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>2</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
@@ -473,6 +473,33 @@
             <weight>75</weight>
             <bold>true</bold>
            </font>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cb_operation2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>새굴림</family>
+            <pointsize>15</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToMinimumContentsLength</enum>
           </property>
          </widget>
         </item>
@@ -500,7 +527,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="cb_oper_option">
+           <widget class="QComboBox" name="cb_operation_option">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>

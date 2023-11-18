@@ -17,6 +17,7 @@ import requests
 import psutil
 import setting_gui
 import configparser
+import inspect
 
 def config_to_dict(config):
     config_dict = {}
@@ -53,14 +54,13 @@ class MyWidget(QtWidgets.QWidget):
         self.rep_time = None
         self.num_of_players = None
         self.sleep_multiple = None
-        self.oper_option = None
         self.test_para = None
-        self.ffbe_setting = None
         self.initial_device_name_hint = None
         # Widget Objects
-        self.ffbe_setting = None
-        self.dic_of_text_lists_for_cb_oper_option = {}
-        self.cb_oper_option = None
+        self.setting_dialog = None
+        self.dic_of_text_lists_for_cb_operation_option = {}
+        self.operation2 = None
+        self.cb_operation_option = None
         self.init_arguments()
         self.init_preparation()
         self.init_ui()
@@ -93,13 +93,13 @@ class MyWidget(QtWidgets.QWidget):
         self.device_index_by_name = {'leonis':2,'jchoi82kor':2, 'initiator':2, 'terminator':2, 'facebook':0, 'boringstock2':0, 'SM-N950N':1, 'SM-G950N':1, "SM-A826S":3}
         self.add_device_name_and_type()
         # Read config_oper_option
-        config_for_oper_option = configparser.ConfigParser()
+        config_for_operation_option = configparser.ConfigParser()
         try:
-            config_for_oper_option.read("config_for_oper_option.txt", encoding='UTF-8')
+            config_for_operation_option.read("config_for_operation_option.txt", encoding='UTF-8')
         except Exception as e:
             print(e)
             return False
-        self.dic_of_text_lists_for_cb_oper_option = config_to_dict(config_for_oper_option)
+        self.dic_of_text_lists_for_cb_operation_option = config_to_dict(config_for_operation_option)
     def add_device_name_and_type(self):
         # find window hwnd using process name
         blue_stack_hwnds = self.get_hwnd_by_process_name("HD-Player.exe")
@@ -269,7 +269,6 @@ class MyWidget(QtWidgets.QWidget):
         # Connect the slot function to the currentTextChanged signal
         self.cb_window_name.currentTextChanged.connect(self.on_cb_window_name_text_changed)
         self.cb_operation.currentTextChanged.connect(self.on_cb_operation_text_changed)
-        # self.cb_oper_option.currentTextChanged.connect(self.on_cb_operation_text_changed)
         self.le_rep.setText("300")
         self.le_players.setText("4")
         self.le_sleep_multiple.setText("3")
@@ -300,8 +299,8 @@ class MyWidget(QtWidgets.QWidget):
         self.error_widget.move(800+self.initial_x,0+self.initial_y)
         self.error_widget.showMinimized()
     def init_setting(self):
-        self.ffbe_setting = setting_gui.SettingsDialog()
-        self.ffbe_setting.initUi()
+        self.setting_dialog = setting_gui.SettingsDialog()
+        self.setting_dialog.initUi()
         # print(self.automator_setting.checked_boxes, " and ", self.automator_setting.checked_rbs)
     def init_others(self):
         self.device_initiated = False
@@ -400,20 +399,28 @@ class MyWidget(QtWidgets.QWidget):
         try:
             if not ('on' in cur_text) and not (cur_text.lower() == 'init') and not (cur_text.lower() == '초기화') :
                 self.pb_operation.setText(text)
-        except:
-            self.error(f"Error in on_cb_operation_text_changed, text: {text}")
-        # For cb_oper_option
-        # dic_of_text_lists_for_cb_oper_option = {
-        #     '일퀘하기':['처음부터','친구']
-        # }
+        except Exception as e:
+            self.error(f"Error in on_cb_operation_text_changed, text: {text} with {e}")
+
         cb_text = self.cb_operation.currentText()
-        if cb_text in self.dic_of_text_lists_for_cb_oper_option.keys():
-            self.cb_oper_option.clear()
-            option_list = [i.strip() for i in self.dic_of_text_lists_for_cb_oper_option[cb_text]['option_list'].split(',')]
-            self.cb_oper_option.addItems([""]+option_list)
+        if cb_text in self.dic_of_text_lists_for_cb_operation_option.keys():
+            self.cb_operation2.clear()
+            self.cb_operation_option.clear()
+            try:
+                operation2_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['operation2_list'].split(',')]
+            except Exception as e:
+                self.error_handle(e)
+            try:
+                option_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['option_list'].split(',')]
+            except Exception as e:
+                self.error_handle(e)
+            self.cb_operation2.addItems([""] + operation2_list)
+            self.cb_operation_option.addItems([""] + option_list)
         else:
-            self.cb_oper_option.clear()
-            self.cb_oper_option.addItems([""])
+            self.cb_operation2.clear()
+            self.cb_operation2.addItems([""])
+            self.cb_operation_option.clear()
+            self.cb_operation_option.addItems([""])
     def on_cb_window_name_text_changed(self, text):
         #hwnd, device_type, serial
         device_name = text
@@ -443,8 +450,8 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
             self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
-                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, oper_option=self.oper_option ,test_para=self.test_para)
-            self.automator.set_automator_settings(self.ffbe_setting)
+                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, oper_option=self.operation_option, test_para=self.test_para)
+            self.automator.set_automator_settings(self.setting_dialog)
             print("Starting automator thread")
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
@@ -459,7 +466,8 @@ class MyWidget(QtWidgets.QWidget):
         self.rep_time = int(self.le_rep.text())
         self.num_of_players = int(self.le_players.text())
         self.sleep_multiple = int(self.le_sleep_multiple.text())
-        self.oper_option = self.cb_oper_option.currentText()
+        self.operation2 = self.cb_operation2.currentText()
+        self.operation_option = self.cb_operation_option.currentText()
         self.test_para = self.le_test_para.text()
     def log(self, msg):
         self.log_list.append(f"{msg}")
@@ -519,8 +527,17 @@ class MyWidget(QtWidgets.QWidget):
         connection.close()
     def open_settings(self):
         cur_pos = self.mapToGlobal(self.geometry().topLeft())
-        self.ffbe_setting.set_position(cur_pos)
-        self.ffbe_setting.exec_()
+        self.setting_dialog.set_position(cur_pos)
+        self.setting_dialog.initUi()
+        self.setting_dialog.exec_()
+    def error_handle(self, msg=None):
+        caller = inspect.currentframe().f_back.f_code.co_name
+        if msg:
+            text = f"Exception in {caller} as : {msg}"
+        else:
+            text = f"Exception in {caller}"
+        print(text)
+        self.error(text)
 class Output_Widget(QtWidgets.QWidget):
     def __init__(self, width=400, height=400):
         super().__init__()

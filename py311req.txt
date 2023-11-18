@@ -27,3 +27,4 @@ pyinstaller
 mss
 screeninfo
 mysql.connector
+inspector
