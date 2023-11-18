@@ -192,8 +192,8 @@ class Locator:
                 else:
                     print('C')
                     loc = pyautogui.locate(img_path, pil_img)
-        except Exception as e:
-            print(f"Exception in B: {e} with t_str:{t_str} in locate")
+        except pyautogui.ImageNotFoundException:
+            pass
         if loc:
             center = (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
             return center
