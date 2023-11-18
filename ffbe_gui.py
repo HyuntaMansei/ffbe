@@ -310,6 +310,9 @@ class MyWidget(QtWidgets.QWidget):
         if self.initial_x:
             print(f"Initial position: {self.initial_x, self.initial_y}")
             self.move(self.initial_x,self.initial_y)
+        else:
+            cur_pos = self.mapToGlobal(self.geometry().topLeft())
+            self.initial_x, self.initial_y = cur_pos.x(), cur_pos.y()
         self.operation_status_checker = osc.OperationStatusChecker()
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
