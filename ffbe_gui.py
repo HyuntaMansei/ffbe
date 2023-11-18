@@ -281,6 +281,9 @@ class MyWidget(QtWidgets.QWidget):
         self.debug_list = []
         self.error_list = []
 
+        if not self.initial_x:
+            cur_pos = self.mapToGlobal(self.geometry().topLeft())
+            self.initial_x, self.initial_y = cur_pos.x(), cur_pos.y()
         self.log_widget = Output_Widget(650,300)
         self.obj_log = self.log_widget.obj_output
         self.log_widget.setWindowTitle("Log")
