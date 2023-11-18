@@ -184,13 +184,10 @@ class Locator:
         try:
             if img_path:
                 if confidence:
-                    print('A')
                     loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
                 elif self.confidence:
-                    print('B', img_path, pil_img)
                     loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
                 else:
-                    print('C')
                     loc = pyautogui.locate(img_path, pil_img)
         except pyautogui.ImageNotFoundException:
             pass
