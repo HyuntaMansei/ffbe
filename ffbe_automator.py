@@ -1218,7 +1218,7 @@ class Serial_Clicker():
         self.confidence = 0.95
         self.device_type = None
         self.my_device = None
-        self.set_operation_status_checker:Type[osc.OperationStatusChecker] = None
+        self.operation_status_checker:Type[osc.OperationStatusChecker] = None
         self.running = True
         self.serial_click_running = True
         self.serial_click_finished = True
