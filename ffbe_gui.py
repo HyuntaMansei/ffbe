@@ -401,7 +401,7 @@ class MyWidget(QtWidgets.QWidget):
             self.set_params()
             # Automatic btns.
             try:
-                if 'on' in self.pb_pause.Text().lower():
+                if 'on' in self.pb_pause.text().lower():
                     self.sender().setText('Pause:Off')
                 self.operation_status_checker.reset()
                 self.start_automator(sender_name=sender_name, btn_text=btn_text)
