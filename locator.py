@@ -179,15 +179,21 @@ class Locator:
         loc = None
         try:
             img_path = self.get_path(res["target"])
+        except Exception as e:
+            print(f"Exception in A: {e} with t_str:{t_str} in locate")
+        try:
             if img_path:
                 if confidence:
+                    print('A')
                     loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
                 elif self.confidence:
+                    print('B')
                     loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
                 else:
+                    print('C')
                     loc = pyautogui.locate(img_path, pil_img)
         except Exception as e:
-            print(f"Exception: {e} with t_str:{t_str} in locate")
+            print(f"Exception in B: {e} with t_str:{t_str} in locate")
         if loc:
             center = (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
             return center
