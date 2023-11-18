@@ -1270,7 +1270,7 @@ class Serial_Clicker():
         self.debug(f"-----Start SC for {sc_name}-----")
         locator_sc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_sc.load_conf(self.device_type)
-        if self.set_operation_status_checker():
+        if self.operation_status_checker:
             locator_sc.set_operation_status_checker(self.operation_status_checker)
         locator_sc.confidence = self.confidence
         if not ('gpg' in self.device_type):
