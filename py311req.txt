@@ -5,6 +5,7 @@ pandas
 numpy
 matplotlib
 opencv-contrib-python
+opencv-python
 openpyxl
 outcome
 Pillow

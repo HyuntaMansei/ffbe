@@ -176,7 +176,8 @@ class Automator:
         self.automation_path = os.path.join(self.automation_path, job.replace('play_', ''))
         self.locator = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         self.locator.load_conf(self.device_type)
-        self.locator.set_operation_status_checker(self.operation_status_checker)
+        if self.operation_status_checker:
+            self.locator.set_operation_status_checker(self.operation_status_checker)
         self.locator.confidence = self.confidence
         self.time_limit = 300
         if not 'gpg' in self.device_type:
@@ -848,6 +849,7 @@ class Automator:
                 time.sleep(1)
         sc = Serial_Clicker(self)
         sc.set_path_and_file(sc_file_name="sc.txt")
+        sc.set_operation_status_checker(self.operation_status_checker)
         print("work to do: ",self.checked_boxes)
         dw_in_order = [
             "백그라운드","체력회복", "초코보", "소환", "상점", "길드", "pvp", "이계의성", "스토리", "친구", "미션", "스탬프", "선물", "멀티클라"
@@ -1074,7 +1076,8 @@ class Keep_Clicker:
             sleep_time = 1
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_kc.load_conf(self.device_type)
-        locator_kc.set_operation_status_checker(self.operation_status_checker)
+        if self.operation_status_checker:
+            locator_kc.set_operation_status_checker(self.operation_status_checker)
         locator_kc.confidence = self.confidence
         if not ('gpg' in self.device_type):
             locator_kc.connect_click_method(self.my_device.input_tap)
@@ -1101,7 +1104,8 @@ class Keep_Clicker:
             sleep_time = 1
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_kc.load_conf(self.device_type)
-        locator_kc.set_operation_status_checker(self.operation_status_checker)
+        if self.operation_status_checker:
+            locator_kc.set_operation_status_checker(self.operation_status_checker)
         locator_kc.confidence = self.confidence
         if not 'gpg' in self.device_type:
             locator_kc.connect_click_method(self.my_device.input_tap)
@@ -1214,6 +1218,7 @@ class Serial_Clicker():
         self.confidence = 0.95
         self.device_type = None
         self.my_device = None
+        self.set_operation_status_checker:Type[osc.OperationStatusChecker] = None
         self.running = True
         self.serial_click_running = True
         self.serial_click_finished = True
@@ -1237,6 +1242,8 @@ class Serial_Clicker():
             self.automation_path = automation_path
         if sc_file_name:
             self.sc_file_name = sc_file_name
+    def set_operation_status_checker(self, set_operation_status_checker):
+        self.set_operation_status_checker = set_operation_status_checker
     def start_serial_click_thread(self, sc_name=None, click_interval=2):
         target_thread = self.start_serial_click
         args = (sc_name, click_interval)
@@ -1263,7 +1270,8 @@ class Serial_Clicker():
         self.debug(f"-----Start SC for {sc_name}-----")
         locator_sc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
         locator_sc.load_conf(self.device_type)
-        locator_sc.set_operation_status_checker(self.operation_status_checker)
+        if self.set_operation_status_checker():
+            locator_sc.set_operation_status_checker(self.operation_status_checker)
         locator_sc.confidence = self.confidence
         if not ('gpg' in self.device_type):
             locator_sc.connect_click_method(self.my_device.input_tap)

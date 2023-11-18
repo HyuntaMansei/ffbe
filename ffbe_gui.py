@@ -78,8 +78,8 @@ class MyWidget(QtWidgets.QWidget):
             self.initial_x = int(self.arguments[0])
             self.initial_y = int(self.arguments[1])
         except:
-            self.initial_x = 200
-            self.initial_y = 800
+            self.initial_x = None
+            self.initial_y = None
         if len(self.arguments) >= 3:
             self.device_name_hint = True
             self.initial_device_name_hint = self.arguments[2]
@@ -307,8 +307,9 @@ class MyWidget(QtWidgets.QWidget):
         # print(self.automator_setting.checked_boxes, " and ", self.automator_setting.checked_rbs)
     def init_others(self):
         self.device_initiated = False
-        print(f"Initial position: {self.initial_x, self.initial_y}")
-        self.move(self.initial_x,self.initial_y)
+        if self.initial_x:
+            print(f"Initial position: {self.initial_x, self.initial_y}")
+            self.move(self.initial_x,self.initial_y)
         self.operation_status_checker = osc.OperationStatusChecker()
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
