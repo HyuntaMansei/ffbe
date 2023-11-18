@@ -188,7 +188,8 @@ class Locator:
                     loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
                 elif self.confidence:
                     print('B')
-                    loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
+                    # loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
+                    loc = pyautogui.locate(img_path, pil_img)
                 else:
                     print('C')
                     loc = pyautogui.locate(img_path, pil_img)
