@@ -44,6 +44,7 @@ class MyWidget(QtWidgets.QWidget):
         super().__init__()
         self.macro_version = '0.32'
         self.is_automator_initiated = None
+        self.adb_devices = None
         self.device_names = []
         self.device_types = []
         self.device_index_by_name = {}
@@ -150,9 +151,9 @@ class MyWidget(QtWidgets.QWidget):
             adb = AdbClient(host="127.0.0.1", port=5037)
             # adb.remote_connect(host="127.0.0.1", port=59666)
             # Get the device list
-            devices = adb.devices()
+            self.adb_devices = adb.devices()
             # Print the serial numbers and names of connected devices
-            for device in devices:
+            for device in self.adb_devices:
                     device_name = device.shell("getprop ro.product.model").strip()
                     self.connected_device_name_and_serial.append((device_name, device.serial, device))
         except Exception as e:
@@ -404,6 +405,29 @@ class MyWidget(QtWidgets.QWidget):
                     self.sender().setText('Pause:Off')
             except Exception as e:
                 self.error_handler(e)
+        elif sender_name.lower() == 'pb_esc':
+            try:
+                print("ESC"*100)
+            except Exception as e:
+                self.error_handler(e)
+        elif sender_name.lower() == 'pb_a':
+            try:
+                self.operation_status_checker.pause()
+                if 'off' in self.sender().text().lower():
+                    self.sender().setText('Pause:On')
+                else:
+                    self.sender().setText('Pause:Off')
+            except Exception as e:
+                self.error_handler(e)
+        elif sender_name.lower() == 'pb_b':
+            try:
+                self.operation_status_checker.pause()
+                if 'off' in self.sender().text().lower():
+                    self.sender().setText('Pause:On')
+                else:
+                    self.sender().setText('Pause:Off')
+            except Exception as e:
+                self.error_handler(e)
         else:
             self.set_params()
             # Automatic btns.
@@ -493,6 +517,12 @@ class MyWidget(QtWidgets.QWidget):
         self.operation2 = self.cb_operation2.currentText()
         self.operation_option = self.cb_operation_option.currentText()
         self.test_para = self.le_test_para.text()
+    def close_all_apps(self):
+        serial = self.cb_device_serial.currentText()
+        for dev in self.adb_devices:
+            if serial == dev.serial:
+                pass
+
     def log(self, msg):
         self.log_list.append(f"{msg}")
         msg_event = MsgEvent()
