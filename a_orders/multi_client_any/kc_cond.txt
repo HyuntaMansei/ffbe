@@ -2,7 +2,6 @@
 another_world.png
 return_to_multi_quest.png
 is.png
-to_is.png
 multi.png
 select_quest.png
 select_play_style.png

@@ -72,14 +72,14 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
             self.conf.read(self.file_path, encoding='UTF-8')
         except Exception as e:
             print(e)
-        # print(self.conf['default']['checked_box'])
-        # print(self.conf['default']['checked_rb'])
+        # print(self.conf['DEFAULT']['checked_box'])
+        # print(self.conf['DEFAULT']['checked_rb'])
         self.checked_cbs = []
         self.checked_rbs = []
         try:
-            self.checked_cbs = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
-            self.checked_rbs = [s.strip() for s in self.conf['default']['checked_rb'].split('/')]
-            self.selected_party = [s.strip() for s in self.conf['default']['checked_box'].split('/')]
+            self.checked_cbs = [s.strip() for s in self.conf['DEFAULT']['checked_box'].split('/')]
+            self.checked_rbs = [s.strip() for s in self.conf['DEFAULT']['checked_rb'].split('/')]
+            self.selected_party = [s.strip() for s in self.conf['DEFAULT']['selected_party'].split('/')]
         except Exception as e:
             print(e)
         # print(self.checked_boxes)
@@ -98,28 +98,38 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
     def custom_accept(self):
         self.checked_cbs = []
         self.checked_rbs = []
+        self.selected_party = []
         for cb in self.check_boxes:
             if cb.isChecked():
                 self.checked_cbs.append(cb.text())
+        self.selected_party = self.checked_cbs
         print("Checked Box: ", self.checked_cbs)
+        print("Selected Parties: ", self.selected_party)
         for rb in self.radio_boxes:
             if rb.isChecked():
                 self.checked_rbs.append(rb.text())
-        # print("Checked radio_btns: ", self.checked_rbs)
+        print("Checked radio_btns: ", self.checked_rbs)
         self.save_to_file()
         self.accept()
     def save_to_file(self):
+        print("Saving setting")
         str_checked_cbs = '/'.join(self.checked_cbs)
         str_checked_rbs = '/'.join(self.checked_rbs)
-        if self.conf.has_section('default'):
-            self.conf['default']['checked_box'] = str_checked_cbs
-            self.conf['default']['checked_rb'] = str_checked_rbs
-        else:
-            self.conf.add_section('default')
-            self.conf['default']['checked_box'] = str_checked_cbs
-            self.conf['default']['checked_rb'] = str_checked_rbs
+        str_selected_party = '/'.join(self.selected_party)
+        self.conf['DEFAULT']['checked_box'] = str_checked_cbs
+        self.conf['DEFAULT']['checked_rb'] = str_checked_rbs
+        self.conf['DEFAULT']['selected_party'] = str_selected_party
+        # if self.conf.has_section('DEFAULT'):
+        #     self.conf['DEFAULT']['checked_box'] = str_checked_cbs
+        #     self.conf['DEFAULT']['checked_rb'] = str_checked_rbs
+        # else:
+        #     self.conf.add_section('DEFAULT')
+        #     self.conf['DEFAULT']['checked_box'] = str_checked_cbs
+        #     self.conf['DEFAULT']['checked_rb'] = str_checked_rbs
+        print("Saving setting")
         with open(self.file_path, 'w', encoding='UTF-8') as configfile:
             self.conf.write(configfile)
+        print("Saving setting")
     def select_all_DW(self):
         for cb in self.check_boxes_DW:
             cb.setChecked(True)

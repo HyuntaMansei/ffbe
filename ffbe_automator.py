@@ -12,6 +12,10 @@ import pandas as pd
 import setting_gui
 import operation_status_checker as osc
 from typing import Type
+from ffbe_gui import AutomatorParas
+import copy
+def print_for_debug():
+    print('*'*100)
 class Timer:
     def __init__(self):
         self.is_running = False
@@ -37,17 +41,10 @@ class Automator:
         self.log = print
         self.debug = print
         self.error = print
-        self.init_internal_vars()
-        self.init_other()
         # Define all internal variables
         self.device_type = None
         self.job = None
-        self.rep_time = None
-        self.num_of_players = None
         self.finish_button = None
-        self.sleep_mul = None
-        self.operation_option = None
-        self.test_para = None
         self.operation_status_checker: Type[osc.OperationStatusChecker] = None
         self.running = False
         self.keep_click_running = False
@@ -55,6 +52,9 @@ class Automator:
         self.checked_boxes = []
         self.checked_rbs = None
         self.selected_party = None
+        self.automator_paras = AutomatorParas()
+        self.init_internal_vars()
+        self.init_other()
         print("Automator has made.")
     def set_msg_handlers(self, log=print, debug=print, error=print):
         self.log = log
@@ -67,19 +67,25 @@ class Automator:
         self.init_device(window_name=window_name, window_hwnd=window_hwnd, device_serial=device_serial)
     def set_job(self, job=None):
         self.job = job
-    def set_user_params(self, rep_time, num_of_players, finish_button, sleep_multiple=5, operation_option=None, operation_status_checker=None ,test_para=None):
+    def set_user_params(self, automator_paras:AutomatorParas=None, operation_status_checker=None, finish_button=None):
+        if automator_paras:
+            self.automator_paras = automator_paras
+            self.automator_paras.show_yourself()
+        if operation_status_checker:
+            self.operation_status_checker = operation_status_checker
+        if finish_button:
+            self.finish_button = finish_button
+    def set_user_params_backup(self, rep_time, num_of_players, finish_button, sleep_multiple=5, operation_option1=None,operation_option2=None, operation_status_checker=None ,test_para=None):
         print("In def, set_user_params", end='')
-        self.rep_time = rep_time
-        self.num_of_players = num_of_players
+        self.automator_paras.rep_time = rep_time
+        self.automator_paras.num_of_players = num_of_players
+        self.automator_paras.sleep_mul = sleep_multiple
+        self.automator_paras.operation_option1 = operation_option1
+        self.automator_paras.operation_option2 = operation_option2
+        self.automator_paras.test_para = test_para
+
         self.finish_button = finish_button
-        self.sleep_mul = sleep_multiple
-        self.operation_option = operation_option
         self.operation_status_checker = operation_status_checker
-        print('+'*100)
-        print(operation_status_checker)
-        self.test_para = test_para
-        print(f" testing para: {self.test_para}")
-        print(" >> Finished.")
     def set_automator_settings(self, automator_settings):
         print("Setting automator config")
         self.checked_boxes = [cb.lower() for cb in automator_settings.checked_cbs]
@@ -88,7 +94,7 @@ class Automator:
         print(self.checked_boxes, " and ",self.checked_rbs, "and ", self.selected_party)
     def set_img_base_path(self):
         device_type = self.device_type
-        self.debug("--In set_params--")
+        self.debug("--set_img_base_path--")
         self.automation_path = './a_orders/'
         if device_type == 'nox_1920_1080':
             self.img_path = './images/1920_1080/'
@@ -154,7 +160,7 @@ class Automator:
         self.debug(f"With window name {window_name}, found device: {self.my_device} and hwnd: {self.my_hwnd}.")
     def init_internal_vars(self):
         self.confidence = 0.95
-        self.sleep_mul = 5
+        self.automator_paras.sleep_mul = 5
     def init_other(self):
         self.stop_watch_started = False
         self.init_automation_list()
@@ -206,14 +212,70 @@ class Automator:
             self.stop_watch_started = False
     # From here, specific automation
     def play_quest(self):
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
+        print(f"option1:{option1}")
+        print(f"option2:{option2}")
+        if option1 == '이벤트':
+            if option2 == '파티별':
+                pass
+            else:
+                self.play_quest_event(inCall=True)
+        elif option2 == '파티별':
+            self.play_quest_with_different_party(inCall=True)
+        else:
+            self.play_quest_plain(inCall=True)
+    def play_quest_event(self, inCall=False):
+        self.running = True
+        self.locator.confidence = 0.95
+        self.log(f"Starting event quest automation.")
+        rep_time = self.automator_paras.rep_time
+        finish_button = self.finish_button
+        is_imgs = ["pic_common_is", "cmd_select_chapter"]
+        is_for_tor = ["cmd_normal_tor", "cmd_hard_tor"]
+        self.set_automation_path('quest_event')
+        keep_clicker = Keep_Clicker(self)
+        keep_clicker.start_keep_clicks()
+        cnt = 0
+        while self.running:
+            # 이벤트 퀘스트 자동 진행
+            self.debug("Before battle, trying to click sortie")
+            while (not self.locator.locate('auto')) and self.running:
+                banner_for_new_quest = ['banner_new_quest']
+                if self.locator.locate_and_click(is_imgs, target=banner_for_new_quest):
+                    time.sleep(2)
+                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_party']):
+                    self.locator.click_on_screen('story_skip1')
+                    time.sleep(2)
+            self.debug("In battle stage")
+            while (not self.locator.locate('end_of_quest')) and self.running:
+                time.sleep(5)
+            self.debug("Battle Ended.")
+            self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
+            while (not (self.locator.locate(is_imgs) or self.locator.locate(['sortie', 'sortie_eq']) or self.locator.locate(is_for_tor))) and self.running:
+                self.locator.locate_and_click('end_of_quest')
+                if not self.locator.locate(is_imgs):
+                    self.locator.click_on_screen('story_skip1')
+                    time.sleep(5)
+            cnt += 1
+            self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
+            if cnt >= rep_time:
+                break
+        if (finish_button != None) and self.running:
+            self.log("Automaiton completed.")
+            finish_button.click()
+        self.debug("Quit automation.")
+        keep_clicker.close()
+    def play_quest_plain(self, inCall = False):
         self.running = True
         self.locator.confidence = 0.95
         self.log(f"Starting quest automation.")
-        rep_time = self.rep_time
+        rep_time = self.automator_paras.rep_time
         finish_button = self.finish_button
         is_imgs = ["pic_common_is", "cmd_select_chapter"]
         is_for_tor = ["cmd_normal_tor", "cmd_hard_tor"]
         # self.start_keep_clicks()
+        self.set_automation_path('quest_plain')
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
         cnt = 0
@@ -272,79 +334,86 @@ class Automator:
             finish_button.click()
         self.debug("Quit automation.")
         keep_clicker.close()
-    def play_quest_with_different_party(self):
+    def play_quest_with_different_party(self, inCall=False, rep_time=None):
         self.running = True
         self.locator.confidence = 0.95
         self.log(f"Starting quest automation with different party.")
-        rep_time = self.rep_time
+        if not rep_time:
+            rep_time = self.automator_paras.rep_time
         finish_button = self.finish_button
+        self.set_automation_path('quest_with_different_party')
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
         cnt = 0
         print('a'*100)
         print(self.selected_party)
         print('a' * 100)
-        while self.running:
-            # 퀘스트 자동 진행
-            self.debug("Before battle, select party then click sortie")
-            party_list = ['화','빙','풍','토','뇌','수','명','암']
-            img_for_party_dic = {
-                '화':'select_fire_cb_party','빙':'select_ice_cb_party','풍':'select_wind_cb_party','토':'select_earth_cb_party','뇌':'select_lightning_cb_party','수':'select_water_cb_party','명':'select_light_cb_party','암':'select_dark_cb_party'
-            }
-            for party in party_list:
-                if not self.running:
-                    break
-                if not (party in self.selected_party):
-                    continue
-                self.locator.confidence = 0.80
-                select_next_party = img_for_party_dic[party]
-                self.debug(select_next_party)
-                # Change party
-                time.sleep(3)
-                self.debug("Selecting party button")
-                while (not self.locator.locate("select_party_scroll")) and self.running:
-                    self.locator.locate_and_click("select_party")
-                    time.sleep(2)
-                time.sleep(3)
-                self.debug(f"Selecting next party: {select_next_party}")
-                while (not self.locator.locate_and_click(select_next_party)) and self.running:
-                    time.sleep(1)
-                self.debug("Next party selected")
-                time.sleep(3)
-                self.locator.confidence = 0.95
-                # 출격
-                sorties = ["sortie", "sortie_quest", "sortie_eq", "sortie_12", "sortie_confirm"]
-                while (not self.locator.locate('auto')) and self.running:
-                    self.locator.locate_and_click(sorties)
-                    if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
-                        self.locator.click_on_screen('story_skip1')
-                        time.sleep(5)
-                self.debug("In battle stage")
-                self.stop_watch()
-                while (not self.locator.locate('cmd_end_of_quest_popup_quest')) and self.running:
+        # 퀘스트 자동 진행
+        self.debug("Before battle, select party then click sortie")
+        party_list = ['화','빙','풍','토','뇌','수','명','암']
+        img_for_party_dic = {
+            '화':'select_fire_cb_party','빙':'select_ice_cb_party','풍':'select_wind_cb_party','토':'select_earth_cb_party','뇌':'select_lightning_cb_party','수':'select_water_cb_party','명':'select_light_cb_party','암':'select_dark_cb_party'
+        }
+        time.sleep(2)
+        self.locator.locate_and_click('cb_select_party')
+        time.sleep(2)
+        for i in range(3):
+            self.locator.locate_and_click('pic_scroll_up_select_party')
+            time.sleep(2)
+        for party in party_list:
+            if not self.running:
+                break
+            if not (party in self.selected_party):
+                continue
+            self.locator.confidence = 0.80
+            select_next_party = img_for_party_dic[party]
+            self.debug(select_next_party)
+            # Change party
+            time.sleep(3)
+            self.debug("Selecting party button")
+            while (not self.locator.locate("pic_opened_cb_select_party")) and self.running:
+                self.locator.locate_and_click("select_party")
+                time.sleep(2)
+            time.sleep(3)
+            self.debug(f"Selecting next party: {select_next_party}")
+            while (not self.locator.locate_and_click(select_next_party)) and self.running:
+                time.sleep(1)
+            self.debug("Next party selected")
+            time.sleep(3)
+            self.locator.confidence = 0.95
+            # 출격
+            sorties = ["sortie", "sortie_quest", "sortie_eq", "sortie_12", "sortie_confirm"]
+            while (not self.locator.locate('auto')) and self.running:
+                self.locator.locate_and_click(sorties)
+                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
+                    self.locator.click_on_screen('story_skip1')
                     time.sleep(5)
-                self.debug("The Quest ended")
-                while (not self.locator.locate(sorties)) and self.running:
-                    print("In while loop of ... ")
-                    self.locator.locate_and_click('cmd_back_to_sortie_popup_quest')
-                    if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
-                        self.locator.click_on_screen('story_skip1')
-                        self.locator.locate_and_click('yes')
-                        time.sleep(5)
-                cnt += 1
-                self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
-                self.stop_watch()
+            self.debug("In battle stage")
+            self.stop_watch()
+            while (not self.locator.locate('cmd_end_of_quest_popup_quest')) and self.running:
+                time.sleep(5)
+            self.debug("The Quest ended")
+            while (not self.locator.locate(sorties)) and self.running:
+                print("In while loop of ... ")
+                self.locator.locate_and_click('cmd_back_to_sortie_popup_quest')
+                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
+                    self.locator.click_on_screen('story_skip1')
+                    self.locator.locate_and_click('yes')
+                    time.sleep(5)
+            cnt += 1
+            self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
+            self.stop_watch()
         self.debug("Automation completed.")
         if (finish_button != None) and self.running:
             self.log("Automation completed.")
             finish_button.click()
         self.debug("Quit automation.")
         keep_clicker.close()
-    def play_quest_with_different_party_backup(self):
+    def play_quest_with_different_party_backup(self, inCall = False):
         self.running = True
         self.locator.confidence = 0.95
         self.log(f"Starting quest automation with different party.")
-        rep_time = self.rep_time
+        rep_time = self.automator_paras.rep_time
         finish_button = self.finish_button
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
@@ -397,8 +466,8 @@ class Automator:
         keep_clicker.close()
     def play_multi(self):
         self.locator.confidence = 0.95
-        rep_time = self.rep_time
-        num_of_players = self.num_of_players
+        rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
         self.running = True
         self.time_limit = 900
@@ -449,14 +518,14 @@ class Automator:
                 # Recover Stamina if needed
                 if self.locator.locate(['short_of_stamina', 'item']):
                     self.recover_stamina(keep_clicker=keep_clicker)
-                time.sleep(self.sleep_mul)
+                time.sleep(self.automator_paras.sleep_mul)
             self.debug("\n'Auto' is located. In battle stage")
             self.timer.restart()
             targets = ['organize']
             cancels = ["cancel", "cancel_friend", "cancel_multi", "cmd_cancel_popup_multi"]
             while (not self.locator.locate(targets)) and self.running:
                 self.locator.locate_and_click(cancels)
-                time.sleep(self.sleep_mul * 5)
+                time.sleep(self.automator_paras.sleep_mul * 5)
             # after battle stage
             self.debug("After battle stage")
             cnt += 1
@@ -506,8 +575,8 @@ class Automator:
         keep_clicker_for_PMCA.close()
     def play_raid_host(self):
         self.locator.confidence = 0.95
-        rep_time = self.rep_time
-        num_of_players = self.num_of_players
+        rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
         self.running = True
         self.log("Starting multi automation")
@@ -521,12 +590,12 @@ class Automator:
         keep_clicker.close()
     def play_raid_full_auto(self):
         self.locator.confidence = 0.95
-        rep_time = self.rep_time
-        num_of_players = self.num_of_players
+        rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
-        print(self.test_para)
-        if self.test_para:
-            quest_to_play = self.test_para.lower()
+        print(self.automator_paras.test_para)
+        if self.automator_paras.test_para:
+            quest_to_play = self.automator_paras.test_para.lower()
         else:
             quest_to_play = None
         self.running = True
@@ -660,10 +729,10 @@ class Automator:
         sc.close()
     def reincarnation(self):
         self.locator.confidence = 0.95
-        rep_time = self.rep_time
-        num_of_players = self.num_of_players
+        rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
-        test_para = self.test_para
+        test_para = self.automator_paras.test_para
 
         self.running = True
         self.log("Starting multi automation")
@@ -704,10 +773,10 @@ class Automator:
         # kc_for_reincarnation.close()
     def sample_automation(self):
         self.locator.confidence = 0.95
-        rep_time = self.rep_time
-        num_of_players = self.num_of_players
+        rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
-        test_para = self.test_para
+        test_para = self.automator_paras.test_para
 
         self.running = True
         self.log("Starting SampleAutomation")
@@ -727,8 +796,8 @@ class Automator:
     def skip_battle(self, rep_time=None, in_call=False):
         self.locator.confidence = 0.95
         if not rep_time:
-            rep_time = self.rep_time
-        num_of_players = self.num_of_players
+            rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
         self.running = True
 
@@ -767,7 +836,7 @@ class Automator:
                 break
         kc.close()
     def gil_summon(self):
-        rep_time = self.rep_time
+        rep_time = self.automator_paras.rep_time
         finish_button = self.finish_button
         self.running = True
         self.log("Starting Gil-summon automation")
@@ -866,7 +935,7 @@ class Automator:
                 print(e)
                 si = 0
             return si
-        si_to_start = get_si(self.operation_option, df)
+        si_to_start = get_si(self.automator_paras.operation_option2, df)
         for dw in dw_to_do:
             if get_si(dw, df) < si_to_start:
                 continue
@@ -931,6 +1000,9 @@ class Automator:
             self.finish_button.click()
         kc.close()
         sc.close()
+    def set_automation_path(self, work_name):
+        self.automation_path = os.path.join('./a_orders', work_name)
+        print(f"Setting automation_path as :{self.automation_path}")
     def test(self):
         self.running = True
         cnt = 0
@@ -1000,10 +1072,10 @@ class Keep_Clicker:
         self.log = automator.log
         self.debug = automator.debug
         self.error = automator.error
-        self.sleep_mul = automator.sleep_mul
         self.automation_path = automator.automation_path
         self.img_path = automator.img_path
         self.my_hwnd = automator.my_hwnd
+        self.sleep_mul = automator.automator_paras.sleep_multiple
         self.confidence = automator.confidence
         self.device_type = automator.device_type
         self.my_device = automator.my_device
@@ -1229,7 +1301,7 @@ class Serial_Clicker():
         self.log = automator.log
         self.debug = automator.debug
         self.error = automator.error
-        self.sleep_mul = automator.sleep_mul
+        self.sleep_mul = automator.automator_paras.sleep_mul
         self.automation_path = automator.automation_path
         self.img_path = automator.img_path
         self.my_hwnd = automator.my_hwnd

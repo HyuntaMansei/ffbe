@@ -39,6 +39,20 @@ def get_public_ip():
 class MsgEvent(QEvent):
     def __init__(self):
         super().__init__(QEvent.User)
+class AutomatorParas:
+    def __init__(self):
+        self.rep_time = None
+        self.num_of_players = None
+        self.sleep_multiple = None
+        self.operation_option1 = None
+        self.operation_option2 = None
+        self.test_para = None
+    def show_yourself(self):
+        print('='*50)
+        print(f"rep_time:{self.rep_time}, num_of_players:{self.num_of_players}, sleep_multiple:{self.sleep_multiple}")
+        print(f"operation_option1:{self.operation_option1}, operation_option2:{self.operation_option2}, test_para:{self.test_para}")
+        print('=' * 50)
+
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -54,12 +68,13 @@ class MyWidget(QtWidgets.QWidget):
         self.device_serial = None
         self.initial_device_name_hint = None
         # Automator settings
+        self.automator_paras = AutomatorParas()
         self.rep_time = None
         self.num_of_players = None
         self.sleep_multiple = None
         self.test_para = None
-        self.operation2 = None
-        self.cb_operation_option = None
+        self.operation_option1 = None
+        self.operation_option2 = None
         # Widget Objects
         self.setting_dialog = None
         self.operation_status_checker: Type[osc.OperationStatusChecker] = None
@@ -451,23 +466,23 @@ class MyWidget(QtWidgets.QWidget):
 
         cb_text = self.cb_operation.currentText()
         if cb_text in self.dic_of_text_lists_for_cb_operation_option.keys():
-            self.cb_operation2.clear()
-            self.cb_operation_option.clear()
+            self.cb_operation_option1.clear()
+            self.cb_operation_option2.clear()
             try:
-                operation2_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['operation2_list'].split(',')]
+                option1_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['option1_list'].split(',')]
             except Exception as e:
                 self.error_handler(e)
             try:
-                option_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['option_list'].split(',')]
+                option2_list = [i.strip() for i in self.dic_of_text_lists_for_cb_operation_option[cb_text]['option2_list'].split(',')]
             except Exception as e:
                 self.error_handler(e)
-            self.cb_operation2.addItems([""] + operation2_list)
-            self.cb_operation_option.addItems([""] + option_list)
+            self.cb_operation_option1.addItems([""] + option1_list)
+            self.cb_operation_option2.addItems([""] + option2_list)
         else:
-            self.cb_operation2.clear()
-            self.cb_operation2.addItems([""])
-            self.cb_operation_option.clear()
-            self.cb_operation_option.addItems([""])
+            self.cb_operation_option1.clear()
+            self.cb_operation_option1.addItems([""])
+            self.cb_operation_option2.clear()
+            self.cb_operation_option2.addItems([""])
     def on_cb_window_name_text_changed(self, text):
         #hwnd, device_type, serial
         device_name = text
@@ -497,8 +512,9 @@ class MyWidget(QtWidgets.QWidget):
             self.automator.set_msg_handlers(log=self.log, debug=self.debug, error=self.error)
             self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
-            self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
-                                           finish_button=self.sender(), sleep_multiple=self.sleep_multiple, operation_option=self.operation_option, operation_status_checker=self.operation_status_checker, test_para=self.test_para)
+            self.automator.set_user_params(automator_paras=self.automator_paras, operation_status_checker=self.operation_status_checker, finish_button=self.sender())
+            # self.automator.set_user_params(rep_time=self.rep_time, num_of_players=self.num_of_players,
+            #                                finish_button=self.sender(), sleep_multiple=self.sleep_multiple,operation_option1=self.operation_option1, operation_option2=self.operation_option2, operation_status_checker=self.operation_status_checker, test_para=self.test_para)
             self.automator.set_automator_settings(self.setting_dialog)
             print("Starting automator thread")
             target = self.automator.start_automation
@@ -511,12 +527,12 @@ class MyWidget(QtWidgets.QWidget):
         self.device_type = self.cb_device_type.currentText()
         self.device_serial = self.cb_device_serial.currentText()
         print(f"Setting parameters: ", self.window_name, self.window_hwnd, self.device_type, self.device_serial)
-        self.rep_time = int(self.le_rep.text())
-        self.num_of_players = int(self.le_players.text())
-        self.sleep_multiple = int(self.le_sleep_multiple.text())
-        self.operation2 = self.cb_operation2.currentText()
-        self.operation_option = self.cb_operation_option.currentText()
-        self.test_para = self.le_test_para.text()
+        self.automator_paras.rep_time = int(self.le_rep.text())
+        self.automator_paras.num_of_players = int(self.le_players.text())
+        self.automator_paras.sleep_multiple = int(self.le_sleep_multiple.text())
+        self.automator_paras.operation_option1 = self.cb_operation_option1.currentText()
+        self.automator_paras.operation_option2 = self.cb_operation_option2.currentText()
+        self.automator_paras.test_para = self.le_test_para.text()
     def close_all_apps(self):
         serial = self.cb_device_serial.currentText()
         for dev in self.adb_devices:
