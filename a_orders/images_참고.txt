@@ -13,14 +13,13 @@ cmd_decide_popup_food_supply
 text_excess_food_popup
 cmd_supply_all_popup2
 [quest]
-1771
+1600 / 1771
 banner_new_quest
 [다양]
 882 / 890 / 1600
 cmd_close_popup_char_quest
 882 / 890 / 1600
 cmd_ok_popup_background
-
 [raid]
 882 / 890 /1600
 cmd_retry_failed_raid_with_full_beads

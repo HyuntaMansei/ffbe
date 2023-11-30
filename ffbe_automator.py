@@ -79,7 +79,7 @@ class Automator:
         print("In def, set_user_params", end='')
         self.automator_paras.rep_time = rep_time
         self.automator_paras.num_of_players = num_of_players
-        self.automator_paras.sleep_mul = sleep_multiple
+        self.automator_paras.sleep_multipletiple = sleep_multiple
         self.automator_paras.operation_option1 = operation_option1
         self.automator_paras.operation_option2 = operation_option2
         self.automator_paras.test_para = test_para
@@ -160,7 +160,7 @@ class Automator:
         self.debug(f"With window name {window_name}, found device: {self.my_device} and hwnd: {self.my_hwnd}.")
     def init_internal_vars(self):
         self.confidence = 0.95
-        self.automator_paras.sleep_mul = 5
+        self.automator_paras.sleep_multipletiple = 5
     def init_other(self):
         self.stop_watch_started = False
         self.init_automation_list()
@@ -518,14 +518,14 @@ class Automator:
                 # Recover Stamina if needed
                 if self.locator.locate(['short_of_stamina', 'item']):
                     self.recover_stamina(keep_clicker=keep_clicker)
-                time.sleep(self.automator_paras.sleep_mul)
+                time.sleep(self.automator_paras.sleep_multipletipletiple)
             self.debug("\n'Auto' is located. In battle stage")
             self.timer.restart()
             targets = ['organize']
             cancels = ["cancel", "cancel_friend", "cancel_multi", "cmd_cancel_popup_multi"]
             while (not self.locator.locate(targets)) and self.running:
                 self.locator.locate_and_click(cancels)
-                time.sleep(self.automator_paras.sleep_mul * 5)
+                time.sleep(self.automator_paras.sleep_multipletiple * 5)
             # after battle stage
             self.debug("After battle stage")
             cnt += 1
@@ -1075,7 +1075,7 @@ class Keep_Clicker:
         self.automation_path = automator.automation_path
         self.img_path = automator.img_path
         self.my_hwnd = automator.my_hwnd
-        self.sleep_mul = automator.automator_paras.sleep_multiple
+        self.sleep_mul = automator.automator_paras.sleep_multipletiple
         self.confidence = automator.confidence
         self.device_type = automator.device_type
         self.my_device = automator.my_device
@@ -1301,7 +1301,7 @@ class Serial_Clicker():
         self.log = automator.log
         self.debug = automator.debug
         self.error = automator.error
-        self.sleep_mul = automator.automator_paras.sleep_mul
+        self.sleep_mul = automator.automator_paras.sleep_multiple
         self.automation_path = automator.automation_path
         self.img_path = automator.img_path
         self.my_hwnd = automator.my_hwnd
