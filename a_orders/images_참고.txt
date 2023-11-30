@@ -13,7 +13,7 @@ cmd_decide_popup_food_supply
 text_excess_food_popup
 cmd_supply_all_popup2
 [quest]
-1600 / 1771
+882 / 1600 / 1771
 banner_new_quest
 [다양]
 882 / 890 / 1600
