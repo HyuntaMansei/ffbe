@@ -1,3 +1,5 @@
+import time
+
 import pandas
 import win32gui
 import win32process
@@ -498,12 +500,16 @@ class MyWidget(QtWidgets.QWidget):
     def on_pb_a(self):
         my_device = self.my_dev
         my_device.input_keyevent(3)
+        time.sleep(1)
         my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
+        time.sleep(1)
         my_device.input_tap(300, 80)
     def on_pb_b(self):
         my_device = self.my_dev
         my_device.input_keyevent(3)
+        time.sleep(1)
         my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
+        time.sleep(1)
         my_device.input_tap(600, 80)
     def on_cb_operation_text_changed(self, text):
         cur_text = self.pb_operation.text()
