@@ -105,7 +105,8 @@ class Locator:
         :return: 클릭한 좌표값
         """
         if not self.shouldLocate():
-            return False
+            time.sleep(3)
+            return None
         # t_str이 리스트라면 재귀 호출
         if type(t_str) == list:
             res_list =[]
@@ -156,7 +157,8 @@ class Locator:
         :return: window 기준 중심 좌표
         """
         if not self.shouldLocate():
-            return False
+            time.sleep(3)
+            return None
         if not win32gui.IsWindowVisible(self.hwnd):
             self.error("Window is not visible. return None")
             return None

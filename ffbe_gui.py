@@ -20,6 +20,23 @@ import configparser
 import inspect
 from typing import Type
 import operation_status_checker as osc
+def get_window_rect(hwnd):
+    rect = win32gui.GetWindowRect(hwnd)
+    x, y, width, height = rect
+    return x, y, x + width, y + height
+def calculate_center_distance(hwnd1, hwnd2):
+    # Get window rectangles
+    x1, y1, right1, bottom1 = get_window_rect(hwnd1)
+    x2, y2, right2, bottom2 = get_window_rect(hwnd2)
+
+    # Calculate center points
+    center_x1, center_y1 = (x1 + right1) // 2, (y1 + bottom1) // 2
+    center_x2, center_y2 = (x2 + right2) // 2, (y2 + bottom2) // 2
+
+    # Calculate distance between centers
+    distance = ((center_x2 - center_x1)**2 + (center_y2 - center_y1)**2)**0.5
+
+    return distance
 def config_to_dict(config):
     config_dict = {}
     for section_name in config.sections():
@@ -36,6 +53,21 @@ def get_public_ip():
         return public_ip
     except requests.RequestException:
         return "Unable to get public IP address"
+def close_all_apps_backup(device):
+    print(f"Closing apps on device: {device.serial}")
+    device.shell("am kill-all")
+def close_all_apps(device):
+    print(f"Closing apps on device: {device.serial}")
+    # Get the list of running processes
+    processes = device.shell("ps")
+    print(processes)
+    processes = device.shell("ps").splitlines()
+    print(processes)
+    # Extract package names from the processes
+    package_names = [line.split()[-1] for line in processes if len(line.split()) > 1]
+    # Close each app
+    for package_name in set(package_names):
+        device.shell(f"am force-stop {package_name}")
 class MsgEvent(QEvent):
     def __init__(self):
         super().__init__(QEvent.User)
@@ -52,13 +84,13 @@ class AutomatorParas:
         print(f"rep_time:{self.rep_time}, num_of_players:{self.num_of_players}, sleep_multiple:{self.sleep_multiple}")
         print(f"operation_option1:{self.operation_option1}, operation_option2:{self.operation_option2}, test_para:{self.test_para}")
         print('=' * 50)
-
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.macro_version = '0.32'
         self.is_automator_initiated = None
         self.adb_devices = None
+        self.my_dev = None
         self.device_names = []
         self.device_types = []
         self.device_index_by_name = {}
@@ -67,6 +99,8 @@ class MyWidget(QtWidgets.QWidget):
         self.device_type = None
         self.device_serial = None
         self.initial_device_name_hint = None
+        self.connected_device_name_and_handle = [] #(name, hwnd), name is window title
+        self.connected_device_name_and_serial = [] #(name, serial, device)
         # Automator settings
         self.automator_paras = AutomatorParas()
         self.rep_time = None
@@ -152,15 +186,13 @@ class MyWidget(QtWidgets.QWidget):
                     pass
                 break
     def init_device_list(self):
-        self.connected_device_name_and_handle = [] #(name, hwnd), name is window title
-        self.connected_device_name_and_serial = [] #(name, serial, device)
         windows = gw.getAllWindows()
         # print(f"DeviceNames: {self.device_names}")
         for window in windows:
             # print(f"HWND: {window._hWnd} and Window Name: {window.title}")
             if window.title in self.device_names:
                 self.connected_device_name_and_handle.append((window.title, window._hWnd))
-        print("Connected Devices: ", self.connected_device_name_and_handle)
+        # print("Connected Devices: ", self.connected_device_name_and_handle)
         # Connect to the ADB server
         try:
             adb = AdbClient(host="127.0.0.1", port=5037)
@@ -169,8 +201,8 @@ class MyWidget(QtWidgets.QWidget):
             self.adb_devices = adb.devices()
             # Print the serial numbers and names of connected devices
             for device in self.adb_devices:
-                    device_name = device.shell("getprop ro.product.model").strip()
-                    self.connected_device_name_and_serial.append((device_name, device.serial, device))
+                device_name = device.shell("getprop ro.product.model").strip()
+                self.connected_device_name_and_serial.append((device_name, device.serial, device))
         except Exception as e:
             print(f"Exception:{e}")
         # for Google Play Games
@@ -345,6 +377,9 @@ class MyWidget(QtWidgets.QWidget):
         self.init_device_list()
         device_name = self.find_device_name()
         self.cb_window_name.setCurrentText(device_name)
+        nearest_hwnd = self.get_nearest_hwnd()
+        if nearest_hwnd:
+            self.cb_window_hwnd.setCurrentText(str(nearest_hwnd))
         self.device_initiated = True
     def find_device_name(self):
         try:
@@ -400,6 +435,14 @@ class MyWidget(QtWidgets.QWidget):
         except:
             self.error("No such device name in the list")
             return None
+    def get_nearest_hwnd(self):
+        print("Finding Nearest hwnd")
+        myHwnd = self.winId()
+        device_name = self.cb_window_name.currentText()
+        hwnds = set([nh[1] for nh in self.connected_device_name_and_handle if nh[0] == device_name])
+        hwnd_and_distance = sorted([(hwnd, calculate_center_distance(myHwnd, hwnd)) for hwnd in hwnds], key=lambda x:x[1])
+        print(hwnd_and_distance[0][0])
+        return hwnd_and_distance[0][0]
     def on_button_clicked(self):
         sender_name = self.sender().objectName()
         btn_text = self.sender().text()
@@ -422,25 +465,17 @@ class MyWidget(QtWidgets.QWidget):
                 self.error_handler(e)
         elif sender_name.lower() == 'pb_esc':
             try:
-                print("ESC"*100)
+                self.on_pb_ese()
             except Exception as e:
                 self.error_handler(e)
         elif sender_name.lower() == 'pb_a':
             try:
-                self.operation_status_checker.pause()
-                if 'off' in self.sender().text().lower():
-                    self.sender().setText('Pause:On')
-                else:
-                    self.sender().setText('Pause:Off')
+                self.on_pb_a()
             except Exception as e:
                 self.error_handler(e)
         elif sender_name.lower() == 'pb_b':
             try:
-                self.operation_status_checker.pause()
-                if 'off' in self.sender().text().lower():
-                    self.sender().setText('Pause:On')
-                else:
-                    self.sender().setText('Pause:Off')
+                self.on_pb_b()
             except Exception as e:
                 self.error_handler(e)
         else:
@@ -456,6 +491,20 @@ class MyWidget(QtWidgets.QWidget):
                 self.error(f"Exception:{e}. in on_button_clicked. Btn Clicked: {btn_text}")
                 found = False
             return found
+    def on_pb_ese(self):
+        my_device = self.my_dev
+        my_device.input_keyevent(3)
+        my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
+    def on_pb_a(self):
+        my_device = self.my_dev
+        my_device.input_keyevent(3)
+        my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
+        my_device.input_tap(300, 80)
+    def on_pb_b(self):
+        my_device = self.my_dev
+        my_device.input_keyevent(3)
+        my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
+        my_device.input_tap(600, 80)
     def on_cb_operation_text_changed(self, text):
         cur_text = self.pb_operation.text()
         try:
@@ -493,6 +542,9 @@ class MyWidget(QtWidgets.QWidget):
         except Exception as e:
             self.error(f"Error in on_cb_window_name_text_changed: {e}")
         print("Text changed:", text)
+    def on_cb_device_serial_text_changed(self, text):
+        self.device_serial = self.cb_device_serial.currentText()
+        self.set_my_device(self.device_serial)
     def on_le_test_para_text_finished(self, text):
         self.test_para = text
         print(text)
@@ -526,6 +578,7 @@ class MyWidget(QtWidgets.QWidget):
         self.window_hwnd = self.cb_window_hwnd.currentText()
         self.device_type = self.cb_device_type.currentText()
         self.device_serial = self.cb_device_serial.currentText()
+        self.set_my_device(self.device_serial)
         print(f"Setting parameters: ", self.window_name, self.window_hwnd, self.device_type, self.device_serial)
         self.automator_paras.rep_time = int(self.le_rep.text())
         self.automator_paras.num_of_players = int(self.le_players.text())
@@ -533,12 +586,19 @@ class MyWidget(QtWidgets.QWidget):
         self.automator_paras.operation_option1 = self.cb_operation_option1.currentText()
         self.automator_paras.operation_option2 = self.cb_operation_option2.currentText()
         self.automator_paras.test_para = self.le_test_para.text()
-    def close_all_apps(self):
-        serial = self.cb_device_serial.currentText()
-        for dev in self.adb_devices:
-            if serial == dev.serial:
-                pass
-
+    def set_my_device(self, serial=None):
+        if not serial:
+            serial = self.cb_device_serial.currentText()
+        my_dev = None
+        if self.adb_devices:
+            for dev in self.adb_devices:
+                if dev.serial == serial:
+                    my_dev = dev
+        if my_dev:
+            self.my_dev = my_dev
+            return True
+        else:
+            return False
     def log(self, msg):
         self.log_list.append(f"{msg}")
         msg_event = MsgEvent()

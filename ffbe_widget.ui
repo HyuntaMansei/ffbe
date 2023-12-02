@@ -727,8 +727,8 @@
    <slot>on_le_test_para_text_finished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>292</x>
-     <y>396</y>
+     <x>257</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>351</x>
@@ -749,6 +749,22 @@
     <hint type="destinationlabel">
      <x>1014</x>
      <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_device_serial</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>Form</receiver>
+   <slot>on_cb_device_serial_text_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>549</x>
+     <y>50</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>556</y>
     </hint>
    </hints>
   </connection>
@@ -773,5 +789,6 @@
  <slots>
   <slot>on_le_test_para_text_finished()</slot>
   <slot>open_settings()</slot>
+  <slot>on_cb_device_serial_text_changed()</slot>
  </slots>
 </ui>

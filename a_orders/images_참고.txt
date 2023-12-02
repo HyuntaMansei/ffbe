@@ -12,6 +12,13 @@ x_popup_hardquest
 cmd_decide_popup_food_supply
 text_excess_food_popup
 cmd_supply_all_popup2
+1600
+text_terminate_bg_rep
+cmd_yes_popup_terminate_bg_rep
+text_excess_stamina_warning
+cmd_yes_popup_excess_stamina_warning
+cmd_next_popup_bg_rep
+cmd_ok_popup_bg_rep
 [quest]
 882 / 1600 / 1771
 banner_new_quest

@@ -25,7 +25,7 @@ class OperationStatusChecker:
         return False
     def start(self):
         self.running = True
-        self.paused = True
+        self.paused = False
     def stop(self):
         self.running = False
     def finish(self):

@@ -137,7 +137,7 @@ cb_party_xp_selected|banner_xp_select_party|pic_scroll_up_select_party|cb_select
 cb_party_xp_selected
 cmd_skip_battle
 [스토리]
-cmd_skip_battle
+cmd_skip_battle|cmd_next_popup_bg_rep|cmd_ok_popup_bg_rep
 icon_minus_popup_skip_quest|icon_minus_off_popup_skip_quest
 text_1_skip_quest
 cmd_decide_popup_skip_quest
@@ -158,7 +158,7 @@ x_popup_hardquest|x_popup
 menu_open
 menu_friend
 [스토리no하드]
-cmd_skip_battle
+cmd_skip_battle|cmd_next_popup_bg_rep|cmd_ok_popup_bg_rep
 icon_minus_popup_skip_quest|icon_minus_off_popup_skip_quest
 text_1_skip_quest
 cmd_decide_popup_skip_quest

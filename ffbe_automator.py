@@ -1314,8 +1314,8 @@ class Serial_Clicker():
             self.automation_path = automation_path
         if sc_file_name:
             self.sc_file_name = sc_file_name
-    def set_operation_status_checker(self, set_operation_status_checker):
-        self.set_operation_status_checker = set_operation_status_checker
+    def set_operation_status_checker(self, operation_status_checker):
+        self.operation_status_checker = operation_status_checker
     def start_serial_click_thread(self, sc_name=None, click_interval=2):
         target_thread = self.start_serial_click
         args = (sc_name, click_interval)
