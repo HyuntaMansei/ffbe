@@ -217,12 +217,11 @@ class Automator:
         print(f"option1:{option1}")
         print(f"option2:{option2}")
         if option1 == '이벤트':
-            if option2 == '파티별':
-                pass
-            else:
-                self.play_quest_event(inCall=True)
+            self.play_quest_event(inCall=True)
         elif option2 == '파티별':
             self.play_quest_with_different_party(inCall=True)
+        elif option1 == '이벤트(파티별)':
+            self.play_event_quest_with_different_party(inCall=True)
         else:
             self.play_quest_plain(inCall=True)
     def play_quest_event(self, inCall=False):
@@ -241,6 +240,47 @@ class Automator:
             # 이벤트 퀘스트 자동 진행
             self.debug("Before battle, trying to click sortie")
             while (not self.locator.locate('auto')) and self.running:
+                banner_for_new_quest = ['banner_new_quest']
+                if self.locator.locate_and_click(is_imgs, target=banner_for_new_quest):
+                    time.sleep(2)
+                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_party']):
+                    self.locator.click_on_screen('story_skip1')
+                    time.sleep(2)
+            self.debug("In battle stage")
+            while (not self.locator.locate('end_of_quest')) and self.running:
+                time.sleep(5)
+            self.debug("Battle Ended.")
+            self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
+            while (not (self.locator.locate(is_imgs) or self.locator.locate(['sortie', 'sortie_eq']) or self.locator.locate(is_for_tor))) and self.running:
+                self.locator.locate_and_click('end_of_quest')
+                if not self.locator.locate(is_imgs):
+                    self.locator.click_on_screen('story_skip1')
+                    time.sleep(5)
+            cnt += 1
+            self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
+            if cnt >= rep_time:
+                break
+        if (finish_button != None) and self.running:
+            self.log("Automaiton completed.")
+            finish_button.click()
+        self.debug("Quit automation.")
+        keep_clicker.close()
+    def play_event_quest_with_different_party(self, inCall=False):
+        self.running = True
+        self.locator.confidence = 0.95
+        self.log(f"Starting event quest with different party automation.")
+        rep_time = self.automator_paras.rep_time
+        finish_button = self.finish_button
+        is_imgs = ["pic_common_is", "cmd_select_chapter"]
+        is_for_tor = ["cmd_normal_tor", "cmd_hard_tor"]
+        # self.set_automation_path('quest_event')
+        # keep_clicker = Keep_Clicker(self)
+        # keep_clicker.start_keep_clicks()
+        cnt = 0
+        while self.running:
+            # 이벤트 퀘스트 자동 진행
+            self.debug("Before battle, trying to click sortie")
+            while (not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_party'])) and self.running:
                 banner_for_new_quest = ['banner_new_quest']
                 if self.locator.locate_and_click(is_imgs, target=banner_for_new_quest):
                     time.sleep(2)

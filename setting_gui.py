@@ -11,19 +11,17 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
         super().__init__()
         self.setupUi(self)
         self.file_path = 'macro_settings.txt'
+        self.section_name = None
         self.conf = None
         self.tabs = None
-        self.checked_cbs = None
-        self.checked_rbs = None
+        self.tab_names = []
+        self.gridLayout = {}
+        self.check_boxes = {}
+        self.radio_boxes = {}
+        self.checked_cbs = {}
+        self.checked_rbs = {}
         self.selected_party = None
-        self.gridLayout_DW = None
-        self.gridLayout_PQDP = None
-        self.check_boxes_DW = None
-        self.radio_boxes_DW = None
-        self.check_boxes_PQDP = None
-        self.radio_boxes_PQDP = None
-        self.check_boxes = None
-        self.radio_boxes = None
+
     def test_def(self):
         pass
     def print_objects_in_layout(self, layout):
@@ -47,23 +45,20 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
                         objs.append(widget)
                     # print(f"Widget name: {widget.objectName()}, Widget type: {type(widget).__name__}")
         return objs
-    def initUi(self):
-        self.check_boxes = []
-        self.radio_boxes = []
-        # self.tabs = self.findChildren(QTabWidget)
-        # for tab in self.tabs:
-        #     self.check_boxes += tab.findChildren(QCheckBox)
-        #     self.radio_boxes += tab.findChildren(QRadioButton)
-        self.check_boxes = self.findChildren(QCheckBox)
-        self.radio_boxes = self.findChildren(QRadioButton)
-        # for cb in self.check_boxes:
-        #     print(cb.text())
-        self.gridLayout_DW = self.findChild(QGridLayout, 'gridLayout_DW')
-        self.gridLayout_PQDP = self.findChild(QGridLayout, 'gridLayout_PQDP')
-        self.check_boxes_DW = self.find_objects_in_layout(self.gridLayout_DW, QCheckBox)
-        self.radio_boxes_DW = self.find_objects_in_layout(self.gridLayout_DW, QRadioButton)
-        self.check_boxes_PQDP = self.find_objects_in_layout(self.gridLayout_PQDP, QCheckBox)
-        self.radio_boxes_PQDP = self.find_objects_in_layout(self.gridLayout_PQDP, QRadioButton)
+    def initUi(self, serial=None):
+        self.section_name = serial
+        print(f"Sectin Name: {serial}")
+        self.tab_names = ["DW", "PQDP"]
+        self.gridLayout['DW'] = self.findChild(QGridLayout, 'gridLayout_DW')
+        self.gridLayout['PQDP'] = self.findChild(QGridLayout, 'gridLayout_PQDP')
+        self.check_boxes['DW'] = self.find_objects_in_layout(self.gridLayout['DW'], QCheckBox)
+        self.radio_boxes['DW'] = self.find_objects_in_layout(self.gridLayout['DW'], QRadioButton)
+        self.check_boxes['PQDP'] = self.find_objects_in_layout(self.gridLayout['PQDP'], QCheckBox)
+        self.radio_boxes['PQDP'] = self.find_objects_in_layout(self.gridLayout['PQDP'], QRadioButton)
+
+        for t in self.tab_names:
+            self.checked_cbs[t] = []
+            self.checked_rbs[t] = []
         self.load_from_file()
         self.initial_check()
     def load_from_file(self):
@@ -72,75 +67,84 @@ class SettingsDialog(QDialog, Ui_SettingsDialog):
             self.conf.read(self.file_path, encoding='UTF-8')
         except Exception as e:
             print(e)
-        # print(self.conf['DEFAULT']['checked_box'])
-        # print(self.conf['DEFAULT']['checked_rb'])
-        self.checked_cbs = []
-        self.checked_rbs = []
+        section_name = 'DEFAULT'
+        if self.section_name in self.conf.sections():
+            section_name = self.section_name
         try:
-            self.checked_cbs = [s.strip() for s in self.conf['DEFAULT']['checked_box'].split('/')]
-            self.checked_rbs = [s.strip() for s in self.conf['DEFAULT']['checked_rb'].split('/')]
-            self.selected_party = [s.strip() for s in self.conf['DEFAULT']['selected_party'].split('/')]
+            for t in self.tab_names:
+                self.checked_cbs[t] = [s.strip() for s in self.conf[section_name]['checked_cb_'+t].split('/')]
+                self.checked_rbs[t] = [s.strip() for s in self.conf[section_name]['checked_rb_'+t].split('/')]
         except Exception as e:
             print(e)
-        # print(self.checked_boxes)
+        # print(self.checked_cbs)
         # print(self.checked_rbs)
     def initial_check(self):
         # print("Initial Checking")
-        for c in self.check_boxes:
-            if c.text() in self.checked_cbs:
-                c.setChecked(True)
-                # print(f"Checking: {c.text()}")
-        for c in self.radio_boxes:
-            if c.text() in self.checked_rbs:
-                c.setChecked(True)
+        for t in self.tab_names:
+            for c in self.check_boxes[t]:
+                try:
+                    if c.text() in self.checked_cbs[t]:
+                        c.setChecked(True)
+                except Exception as e:
+                    print(e, f" with {c}")
+            for r in self.radio_boxes[t]:
+                try:
+                    if r.text() in self.checked_rbs[t]:
+                        r.setChecked(True)
+                except Exception as e:
+                    print(e, f" with {r}")
+        if not (self.rb_pvp_1.isChecked() or self.rb_pvp_5.isChecked()):
+            self.rb_pvp_5.setChecked(True)
         if not self.cb_story.isChecked():
             self.cb_story_changed(0)
     def custom_accept(self):
-        self.checked_cbs = []
-        self.checked_rbs = []
-        self.selected_party = []
-        for cb in self.check_boxes:
-            if cb.isChecked():
-                self.checked_cbs.append(cb.text())
-        self.selected_party = self.checked_cbs
+        print("In custom_accept")
+        self.checked_cbs = {}
+        self.checked_rbs = {}
+        for t in self.tab_names:
+            self.checked_cbs[t] = []
+            self.checked_rbs[t] = []
+            for cb in self.check_boxes[t]:
+                if cb.isChecked():
+                    self.checked_cbs[t].append(cb.text())
+            for rb in self.radio_boxes[t]:
+                if rb.isChecked():
+                    self.checked_rbs[t].append(rb.text())
         print("Checked Box: ", self.checked_cbs)
-        print("Selected Parties: ", self.selected_party)
-        for rb in self.radio_boxes:
-            if rb.isChecked():
-                self.checked_rbs.append(rb.text())
-        print("Checked radio_btns: ", self.checked_rbs)
+        print("Checked RadioBtns: ", self.checked_rbs)
         self.save_to_file()
         self.accept()
     def save_to_file(self):
-        print("Saving setting")
-        str_checked_cbs = '/'.join(self.checked_cbs)
-        str_checked_rbs = '/'.join(self.checked_rbs)
-        str_selected_party = '/'.join(self.selected_party)
-        self.conf['DEFAULT']['checked_box'] = str_checked_cbs
-        self.conf['DEFAULT']['checked_rb'] = str_checked_rbs
-        self.conf['DEFAULT']['selected_party'] = str_selected_party
-        # if self.conf.has_section('DEFAULT'):
-        #     self.conf['DEFAULT']['checked_box'] = str_checked_cbs
-        #     self.conf['DEFAULT']['checked_rb'] = str_checked_rbs
-        # else:
-        #     self.conf.add_section('DEFAULT')
-        #     self.conf['DEFAULT']['checked_box'] = str_checked_cbs
-        #     self.conf['DEFAULT']['checked_rb'] = str_checked_rbs
+        print("Saving Setting")
+        str_checked_cbs = {}
+        str_checked_rbs = {}
+        section_name = 'DEFAULT'
+        print(self.section_name)
+        if self.section_name:
+            section_name = self.section_name
+            if not (section_name in self.conf.sections()):
+                self.conf.add_section(section_name)
+        print(f"Section Name: {section_name}")
+        for t in self.tab_names:
+            str_checked_cbs[t] = '/'.join(self.checked_cbs[t])
+            str_checked_rbs[t] = '/'.join(self.checked_rbs[t])
+            self.conf[section_name]['checked_cb_'+t] = str_checked_cbs[t]
+            self.conf[section_name]['checked_rb_'+t] = str_checked_rbs[t]
         print("Saving setting")
         with open(self.file_path, 'w', encoding='UTF-8') as configfile:
             self.conf.write(configfile)
         print("Saving setting")
     def select_all_DW(self):
-        for cb in self.check_boxes_DW:
+        for cb in self.check_boxes['DW']:
             cb.setChecked(True)
     def deselect_all_DW(self):
-        for cb in self.check_boxes_DW:
+        for cb in self.check_boxes['DW']:
             cb.setChecked(False)
     def select_all_PQDP(self):
-        for cb in self.check_boxes_PQDP:
+        for cb in self.check_boxes['PQDP']:
             cb.setChecked(True)
     def deselect_all_PQDP(self):
-        for cb in self.check_boxes_PQDP:
+        for cb in self.check_boxes['PQDP']:
             cb.setChecked(False)
     def cb_story_changed(self, state):
         # print(state)

@@ -122,7 +122,7 @@ class MyWidget(QtWidgets.QWidget):
         self.init_device_list()
         self.init_server_connection()
         self.init_msg_boxes()
-        self.init_setting()
+        self.init_setting_gui()
         self.init_others()
     def init_arguments(self):
         self.arguments = sys.argv[1:]
@@ -354,10 +354,6 @@ class MyWidget(QtWidgets.QWidget):
         self.error_widget.show()
         self.error_widget.move(800+self.initial_x,0+self.initial_y)
         self.error_widget.showMinimized()
-    def init_setting(self):
-        self.setting_dialog = setting_gui.SettingsDialog()
-        self.setting_dialog.initUi()
-        # print(self.automator_setting.checked_boxes, " and ", self.automator_setting.checked_rbs)
     def init_others(self):
         self.device_initiated = False
         if self.initial_x:
@@ -367,6 +363,15 @@ class MyWidget(QtWidgets.QWidget):
             cur_pos = self.mapToGlobal(self.geometry().topLeft())
             self.initial_x, self.initial_y = cur_pos.x(), cur_pos.y()
         self.operation_status_checker = osc.OperationStatusChecker()
+    def init_setting_gui(self):
+        serial = self.cb_device_serial.currentText()
+        self.setting_dialog = setting_gui.SettingsDialog()
+        print(f"serial: {serial}")
+        if serial:
+            print(f"Initiaing with serial - {serial}")
+            self.setting_dialog.initUi(serial)
+        else:
+            self.setting_dialog.initUi()
     def event(self, event: QEvent) -> bool:
         # print(f"Handling events, type: {event.type()}, and msgEvent type: {MsgEvent.Type}")
         # if event.eventType() == MsgEvent.Type:
@@ -664,7 +669,7 @@ class MyWidget(QtWidgets.QWidget):
     def open_settings(self):
         cur_pos = self.mapToGlobal(self.geometry().topLeft())
         self.setting_dialog.set_position(cur_pos)
-        self.setting_dialog.initUi()
+        self.init_setting_gui()
         self.setting_dialog.exec_()
     def error_handler(self, msg=None):
         caller = inspect.currentframe().f_back.f_code.co_name

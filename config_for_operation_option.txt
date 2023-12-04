@@ -3,5 +3,5 @@
 option1_list = testing
 option2_list = 백그라운드,체력회복, 초코보, 소환, 상점, 길드, pvp, 이계의성, 스토리, 친구, 미션, 스탬프, 선물, 멀티클라
 [퀘스트]
-option1_list = 이벤트
-option2_list = 파티별
+option1_list = 파티별, 이벤트, 이벤트(파티별)
+option2_list =
