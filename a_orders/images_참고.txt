@@ -1,3 +1,11 @@
+[EQ as PQDP]
+1771
+cmd_yes_popup_confirm
+cmd_yes_popup_confirm_empty_slot
+text_empty_slot
+cmd_give_up_popup_quest
+1600 / 1771
+cmd_back_top_left
 [PQDP]
 
 [다양]

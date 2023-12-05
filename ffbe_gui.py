@@ -111,6 +111,7 @@ class MyWidget(QtWidgets.QWidget):
         self.test_para = None
         self.operation_option1 = None
         self.operation_option2 = None
+        self.device_mode = None
         # Widget Objects
         self.setting_dialog = None
         self.operation_status_checker: Type[osc.OperationStatusChecker] = None
@@ -325,6 +326,11 @@ class MyWidget(QtWidgets.QWidget):
         self.le_rep.setText("300")
         self.le_players.setText("4")
         self.le_sleep_multiple.setText("3")
+        self.cb_gui_mode.addItem('E')
+        self.cb_gui_mode.addItem('A')
+        self.cb_gui_mode.addItem('B')
+        self.cb_gui_mode.setCurrentText('E')
+        self.device_mode = 'E'
         self.show()
     def init_msg_boxes(self):
         self.log_list = []
@@ -338,21 +344,21 @@ class MyWidget(QtWidgets.QWidget):
         self.obj_log = self.log_widget.obj_output
         self.log_widget.setWindowTitle("Log")
         self.log_widget.show()
-        self.log_widget.move(1500+self.initial_x,0+self.initial_y)
+        self.log_widget.move(self.initial_x,self.initial_y)
         self.log_widget.showMinimized()
 
         self.debug_widget = Output_Widget(1000,600)
         self.obj_debug = self.debug_widget.obj_output
         self.debug_widget.setWindowTitle("Debug")
         self.debug_widget.show()
-        self.debug_widget.move(400+self.initial_x,0+self.initial_y)
+        self.debug_widget.move(self.initial_x,self.initial_y)
         self.debug_widget.showMinimized()
 
         self.error_widget = Output_Widget()
         self.obj_error = self.error_widget.obj_output
         self.error_widget.setWindowTitle("Error")
         self.error_widget.show()
-        self.error_widget.move(800+self.initial_x,0+self.initial_y)
+        self.error_widget.move(self.initial_x,self.initial_y)
         self.error_widget.showMinimized()
     def init_others(self):
         self.device_initiated = False
@@ -366,10 +372,15 @@ class MyWidget(QtWidgets.QWidget):
     def init_setting_gui(self):
         serial = self.cb_device_serial.currentText()
         self.setting_dialog = setting_gui.SettingsDialog()
-        print(f"serial: {serial}")
         if serial:
-            print(f"Initiaing with serial - {serial}")
-            self.setting_dialog.initUi(serial)
+            gui_mode = self.cb_gui_mode.currentText()
+            if gui_mode == 'E':
+                setting_section_name = serial
+            else:
+                setting_section_name = serial + '_' + self.cb_gui_mode.currentText()
+            print(f"serial: {setting_section_name}")
+            print(f"Initiate with serial - {setting_section_name}")
+            self.setting_dialog.initUi(setting_section_name)
         else:
             self.setting_dialog.initUi()
     def event(self, event: QEvent) -> bool:
@@ -502,7 +513,11 @@ class MyWidget(QtWidgets.QWidget):
         my_device = self.my_dev
         my_device.input_keyevent(3)
         my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
+        self.device_mode = 'E'
+        self.cb_gui_mode.setCurrentText('E')
     def on_pb_a(self):
+        self.device_mode = 'A'
+        self.cb_gui_mode.setCurrentText('A')
         my_device = self.my_dev
         my_device.input_keyevent(3)
         time.sleep(1)
@@ -510,6 +525,8 @@ class MyWidget(QtWidgets.QWidget):
         time.sleep(1)
         my_device.input_tap(300, 80)
     def on_pb_b(self):
+        self.device_mode = 'B'
+        self.cb_gui_mode.setCurrentText('B')
         my_device = self.my_dev
         my_device.input_keyevent(3)
         time.sleep(1)
