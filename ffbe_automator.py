@@ -217,7 +217,7 @@ class Automator:
         print(f"option2:{option2}")
         if option1 == '이벤트':
             self.play_quest_event(inCall=True)
-        elif option2 == '파티별':
+        elif option1 == '파티별':
             self.play_quest_with_different_party(inCall=True)
         elif option1 == '이벤트(파티별)':
             self.play_quest_event_with_different_party(inCall=True)

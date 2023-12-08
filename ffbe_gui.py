@@ -512,12 +512,14 @@ class MyWidget(QtWidgets.QWidget):
     def on_pb_ese(self):
         my_device = self.my_dev
         my_device.input_keyevent(3)
+        self.init_setting_gui()
         my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
         self.device_mode = 'E'
         self.cb_gui_mode.setCurrentText('E')
     def on_pb_a(self):
         self.device_mode = 'A'
         self.cb_gui_mode.setCurrentText('A')
+        self.init_setting_gui()
         my_device = self.my_dev
         my_device.input_keyevent(3)
         time.sleep(1)
@@ -527,6 +529,7 @@ class MyWidget(QtWidgets.QWidget):
     def on_pb_b(self):
         self.device_mode = 'B'
         self.cb_gui_mode.setCurrentText('B')
+        self.init_setting_gui()
         my_device = self.my_dev
         my_device.input_keyevent(3)
         time.sleep(1)
