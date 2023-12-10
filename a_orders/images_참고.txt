@@ -11,22 +11,20 @@ pic_scroll_down_bg_rep
 cmd_configure_popup2_bg_rep
 cmd_start_popup_bg_rep
 [EQ as PQDP]
-1771
+890 / 1771
 cmd_yes_popup_confirm
 cmd_yes_popup_confirm_empty_slot
 text_empty_slot
 cmd_give_up_popup_quest
-1600 / 1771
+890 / 1600 / 1771
 cmd_back_top_left
-[PQDP]
-
 [다양]
 1600
 cmd_close_popup_open_char_quest
 1600 / 1771
 cmd_ok_popup_result_point
 [DW]
-882 / 1600
+882 / 890 / 1600
 x_popup_hardquest
 882 / 890
 cmd_decide_popup_food_supply
@@ -39,9 +37,6 @@ text_excess_stamina_warning
 cmd_yes_popup_excess_stamina_warning
 cmd_next_popup_bg_rep
 cmd_ok_popup_bg_rep
-[quest]
-882 / 1600 / 1771
-banner_new_quest
 [다양]
 882 / 890 / 1600
 cmd_close_popup_char_quest
@@ -107,3 +102,8 @@ cmd_reincarnate_popup
 cmd_reincarnate_popup2
 cmd_max_popup2_select_item
 cmd_decide_popup2_reincarnation
+
+---------완료---------
+[event quest]
+882 / 890 / 1600 / 1771
+banner_new_quest
