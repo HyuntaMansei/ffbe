@@ -1,3 +1,15 @@
+[bg_rep]
+1600
+cmd_bg_rep
+cmd_start_measure_popup_bg_rep
+cmd_yes_popup_empty_slot
+text_empty_slot_bg_rep
+cmd_configure_popup_bg_rep
+icon_plus_popup_bg_rep
+icon_plus_off_popup_bg_rep
+pic_scroll_down_bg_rep
+cmd_configure_popup2_bg_rep
+cmd_start_popup_bg_rep
 [EQ as PQDP]
 1771
 cmd_yes_popup_confirm

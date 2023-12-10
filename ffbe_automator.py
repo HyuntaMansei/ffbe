@@ -905,7 +905,7 @@ class Automator:
         sc.set_operation_status_checker(self.operation_status_checker)
         print("work to do: ", self.checked_cbs)
         dw_in_order = [
-            "백그라운드","체력회복", "초코보", "소환", "상점", "길드", "PVP", "이계의성", "스토리", "친구", "미션", "스탬프", "선물", "멀티클라"
+            "백그라운드","체력회복", "초코보", "소환", "상점", "길드", "PVP", "이계의성", "스토리", "친구", "미션", "스탬프", "선물", "백그라운드반복", "멀티클라"
         ]
         si_for_dw = [float(i) for i in range(1, len(dw_in_order) + 1)]
         df = pd.DataFrame({'dw': dw_in_order, 'si': si_for_dw})
