@@ -1,6 +1,6 @@
 [from_is_to_menu]
-1600
-cmd_close_popup_is_premium_goods
+882/890/1600
+cmd_later_popup_is_premium_package
 icon_x_popup_is_sp1
 icon_x_popup_is_sp2
 icon_x_popup_is_sp3
