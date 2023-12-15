@@ -21,7 +21,6 @@ class Timer:
         self.is_running = False
         self.elap_times = []
         self.start_time = None
-
     def click(self):
         if self.is_running == True:
             elap_time = time.time() - self.start_time
@@ -30,7 +29,6 @@ class Timer:
         else:
             self.is_running = True
             self.start_time = time.time()
-
     def restart(self):
         self.is_running = True
         self.elap_times = []
@@ -76,17 +74,6 @@ class Automator:
             self.operation_status_checker = operation_status_checker
         if finish_button:
             self.finish_button = finish_button
-    def set_user_params_backup(self, rep_time, num_of_players, finish_button, sleep_multiple=5, operation_option1=None,operation_option2=None, operation_status_checker=None ,test_para=None):
-        print("In def, set_user_params", end='')
-        self.automator_paras.rep_time = rep_time
-        self.automator_paras.num_of_players = num_of_players
-        self.automator_paras.sleep_multiple = sleep_multiple
-        self.automator_paras.operation_option1 = operation_option1
-        self.automator_paras.operation_option2 = operation_option2
-        self.automator_paras.test_para = test_para
-
-        self.finish_button = finish_button
-        self.operation_status_checker = operation_status_checker
     def set_automator_settings(self, automator_settings):
         print("Setting automator config")
         # self.checked_cbs = [cb.lower() for cb in automator_settings.checked_cbs]
@@ -302,6 +289,10 @@ class Automator:
             cnt += 1
             self.log(f"Completed: {cnt} times.")
             if cnt >= rep_time:
+                break
+            time.sleep(1)
+            if self.locator.locate(is_imgs) and (not self.locator.locate(banner_for_new_quest)):
+                print(f"Event quest with different party Finished")
                 break
         if (finish_button != None) and self.running and inCall==False:
             self.log("Automation completed.")
@@ -663,7 +654,30 @@ class Automator:
             finish_button.click()
         kc_for_raid.close()
         sc.close()
-    def whim_store(self, inCall=False):
+    def whim_store(self):
+        self.locator.confidence = 0.95
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
+        finish_button = self.finish_button
+        self.running = True
+        if option1 == '변덕런(풀)':
+            self.whim_store_full(inCall=True)
+        elif option1 == '초코보':
+            self.whim_store_plain(inCall=True, target='chocobo')
+        elif option1 == '초코보(풀)':
+            self.whim_store_full(inCall=True, target='chocobo')
+        else:
+            self.whim_store_plain(inCall=True)
+        self.finishing_automation()
+    def finishing_automation(self):
+        if self.finish_button and self.running:
+            print(f"Finishing Automation")
+            self.finish_button.click()
+        elif not self.running:
+            print(f"Automation already stopped")
+        elif not self.finish_button:
+            print(f"No finish button. Unable to stop")
+    def whim_store_plain(self, inCall=False, target='whim_store'):
         self.locator.confidence = 0.95
         finish_button = self.finish_button
         self.running = True
@@ -674,15 +688,19 @@ class Automator:
         kc = Keep_Clicker(self)
         kc.set_automation_path("./a_orders/whim_store")
         kc.start_keep_clicks()
-        while (not self.locator.locate("cmd_later_popup_store")) and self.running:
+        finish_target = 'cmd_later_popup_store' if target == 'whim_store' else 'cmd_later_popup_chocobo'
+        while (not self.locator.locate(finish_target)) and self.running:
             time.sleep(1)
         cnt += 1
-        print("Succeed to find whim store")
+        if target == 'whim_store':
+            print("Succeed to find whim store")
+        else:
+            print("Succeed to find fever run")
         if self.running and (not inCall):
             finish_button.click()
         kc.close()
         # sc.close()
-    def whim_store_full(self):
+    def whim_store_full(self, inCall=False, target = 'whim_store'):
         self.locator.confidence = 0.95
         finish_button = self.finish_button
         self.running = True
@@ -692,31 +710,25 @@ class Automator:
         cnt = 0
         sc = Serial_Clicker(self)
         sc.set_path_and_file(automation_path='./a_orders/whim_store', sc_file_name="sc.txt")
-
         dw_in_order = [
             "pre스토리xp","스토리20"
         ]
+        self.from_is_to_menu()
         for dw in dw_in_order:
             try:
                 print("Starting DW for ", dw)
-                sc.start_serial_click_thread(sc_name=dw, click_interval=0.2)
+                sc.start_serial_click_thread(sc_name=dw, click_interval=0.1)
             except Exception as e:
                 print(e)
             while (not sc.serial_click_finished) and self.running:
                 time.sleep(3)
             if not self.running:
                 break
-        print("Skip battle until whim store")
-        # kc = Keep_Clicker(self)
-        # kc.start_keep_clicks()
-        # while (not self.locator.locate("cmd_later_popup_store")) and self.running:
-        #     time.sleep(1)
-        # cnt += 1
-        self.whim_store(inCall=True)
-        print("Succeed to find whim store")
-        if self.running:
+        print("Skip battle until whim store or fever run")
+        self.whim_store_plain(inCall=True, target=target)
+        print("Succeed to find whim store or fever run")
+        if self.running and (not inCall):
             finish_button.click()
-        # kc.close()
         sc.close()
     def reincarnation(self):
         self.locator.confidence = 0.95
@@ -762,20 +774,23 @@ class Automator:
         if self.running:
             finish_button.click()
         # kc_for_reincarnation.close()
-    def sample_automation(self):
+    def template_automation(self):
         self.locator.confidence = 0.95
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
         rep_time = self.automator_paras.rep_time
         num_of_players = self.automator_paras.num_of_players
-        finish_button = self.finish_button
         test_para = self.automator_paras.test_para
+        finish_button = self.finish_button
 
         self.running = True
         self.log("Starting SampleAutomation")
 
         cnt_reincarnation = 0
-        kc_for_reincarnation = Keep_Clicker(self)
-        kc_for_reincarnation.set_target_file(kc_file_name='kc_for_reincarnation.txt')
-        sc = Serial_Clicker(self)
+        template_kc = Keep_Clicker(self)
+        template_kc.set_target_file(kc_file_name='template_kc.txt')
+        template_sc = Serial_Clicker(self)
+        template_sc.set_path_and_file(automation_path='template', sc_file_name='template_sc')
 
         while self.running:
             if cnt_reincarnation >= rep_time:
@@ -783,7 +798,7 @@ class Automator:
         self.log(f"SampleAutomation Completed")
         if self.running:
             finish_button.click()
-        kc_for_reincarnation.close()
+        template_kc.close()
     def skip_battle(self, rep_time=None, in_call=False):
         self.locator.confidence = 0.95
         if not rep_time:
@@ -911,6 +926,21 @@ class Automator:
             self.daily_work_plain(inCall=False)
         if finish_button and self.running:
             self.finish_button.click()
+    def from_is_to_menu(self, inCall=True):
+        self.running = True
+        cnt = 0
+        self.log("Starting from_is_to_menu")
+        print("Starting from_is_to_menu")
+        kc = Keep_Clicker(self)
+        kc.set_automation_path('daily_work')
+        kc.set_operation_status_checker(self.operation_status_checker)
+        kc.start_keep_clicks()
+        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
+        while (not (self.locator.locate("menu_mogri_store#0.99") or self.locator.locate("menu_present#0.99"))) and self.running:
+            for t in to_is_targets:
+                self.locator.locate_and_click(t)
+                time.sleep(1)
+        print("Arrived to menu screen")
     def daily_work_plain(self, inCall=False):
         self.running = True
         cnt = 0
@@ -1329,7 +1359,10 @@ class Serial_Clicker():
         self.running = True
     def set_path_and_file(self, automation_path=None, sc_file_name=None):
         if automation_path:
-            self.automation_path = automation_path
+            if 'a_orders' in automation_path:
+                self.automation_path = automation_path
+            else:
+                self.automation_path = os.path.join('./a_orders' ,automation_path)
         if sc_file_name:
             self.sc_file_name = sc_file_name
     def set_operation_status_checker(self, operation_status_checker):

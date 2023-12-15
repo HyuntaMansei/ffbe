@@ -130,8 +130,8 @@ class MyWidget(QtWidgets.QWidget):
             self.initial_x = int(self.arguments[0])
             self.initial_y = int(self.arguments[1])
         except:
-            self.initial_x = int(1920/2)
-            self.initial_y = int(800)
+            self.initial_x = int(1920/3)
+            self.initial_y = int(1080/3)
         if len(self.arguments) >= 3:
             self.device_name_hint = True
             self.initial_device_name_hint = self.arguments[2]
