@@ -1,5 +1,4 @@
 import time
-
 import pandas
 import win32gui
 import win32process
@@ -131,8 +130,8 @@ class MyWidget(QtWidgets.QWidget):
             self.initial_x = int(self.arguments[0])
             self.initial_y = int(self.arguments[1])
         except:
-            self.initial_x = None
-            self.initial_y = None
+            self.initial_x = int(1920/2)
+            self.initial_y = int(800)
         if len(self.arguments) >= 3:
             self.device_name_hint = True
             self.initial_device_name_hint = self.arguments[2]
@@ -483,17 +482,17 @@ class MyWidget(QtWidgets.QWidget):
                 self.error_handler(e)
         elif sender_name.lower() == 'pb_esc':
             try:
-                self.on_pb_ese()
+                self.start_thread(self.on_pb_ese)
             except Exception as e:
                 self.error_handler(e)
         elif sender_name.lower() == 'pb_a':
             try:
-                self.on_pb_a()
+                self.start_thread(self.on_pb_a)
             except Exception as e:
                 self.error_handler(e)
         elif sender_name.lower() == 'pb_b':
             try:
-                self.on_pb_b()
+                self.start_thread(self.on_pb_b)
             except Exception as e:
                 self.error_handler(e)
         else:
@@ -509,6 +508,25 @@ class MyWidget(QtWidgets.QWidget):
                 self.error(f"Exception:{e}. in on_button_clicked. Btn Clicked: {btn_text}")
                 found = False
             return found
+    def open_settings(self):
+        cur_pos = self.mapToGlobal(self.geometry().topLeft())
+        print(f"Setting cur position: {cur_pos}")
+        self.init_setting_gui()
+        self.setting_dialog.set_position(cur_pos)
+        self.setting_dialog.exec_()
+    def set_foreground(self):
+        try:
+            win32gui.SetForegroundWindow(self.window_hwnd)
+        except Exception as e:
+            print(e)
+            window_hwnd = self.cb_window_hwnd.currentText()
+            try:
+                win32gui.SetForegroundWindow(window_hwnd)
+            except Exception as e:
+                print(e)
+    def start_thread(self, target_function):
+        target_thread = threading.Thread(target=target_function)
+        target_thread.start()
     def on_pb_ese(self):
         my_device = self.my_dev
         my_device.input_keyevent(3)
@@ -526,6 +544,7 @@ class MyWidget(QtWidgets.QWidget):
         my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
         time.sleep(1)
         my_device.input_tap(300, 80)
+        self.set_foreground()
     def on_pb_b(self):
         self.device_mode = 'B'
         self.cb_gui_mode.setCurrentText('B')
@@ -536,6 +555,7 @@ class MyWidget(QtWidgets.QWidget):
         my_device.shell("am force-stop com.square_enix.android_googleplay.WOTVffbeww")
         time.sleep(1)
         my_device.input_tap(600, 80)
+        self.set_foreground()
     def on_cb_operation_text_changed(self, text):
         cur_text = self.pb_operation.text()
         try:
@@ -592,6 +612,8 @@ class MyWidget(QtWidgets.QWidget):
         else:
             self.operation_status_checker = osc.OperationStatusChecker()
             self.automator = ffbe_automator.Automator()
+            self.automator.convert_to_A = self.on_pb_a
+            self.automator.convert_to_B = self.on_pb_b
             self.automator.set_msg_handlers(log=self.log, debug=self.debug, error=self.error)
             self.automator.set_window_and_device(window_name=self.window_name, window_hwnd=self.window_hwnd, device_type=self.device_type, device_serial=self.device_serial)
             self.automator.set_job(job=job)
@@ -686,11 +708,6 @@ class MyWidget(QtWidgets.QWidget):
         connection.commit()
         cursor.close()
         connection.close()
-    def open_settings(self):
-        cur_pos = self.mapToGlobal(self.geometry().topLeft())
-        self.setting_dialog.set_position(cur_pos)
-        self.init_setting_gui()
-        self.setting_dialog.exec_()
     def error_handler(self, msg=None):
         caller = inspect.currentframe().f_back.f_code.co_name
         if msg:

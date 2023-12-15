@@ -41,6 +41,8 @@ class Automator:
         self.log = print
         self.debug = print
         self.error = print
+        self.convert_to_A = None
+        self.convert_to_B = None
         # Define all internal variables
         self.device_type = None
         self.job = None
@@ -213,6 +215,7 @@ class Automator:
     def play_quest(self):
         option1 = self.automator_paras.operation_option1
         option2 = self.automator_paras.operation_option2
+        finish_button = self.finish_button
         print(f"option1:{option1}")
         print(f"option2:{option2}")
         if option1 == '이벤트':
@@ -223,6 +226,8 @@ class Automator:
             self.play_quest_event_with_different_party(inCall=True)
         else:
             self.play_quest_plain(inCall=True)
+        if finish_button:
+            self.finish_button.click()
     def play_quest_event(self, inCall=False):
         self.running = True
         self.locator.confidence = 0.95
@@ -658,7 +663,7 @@ class Automator:
             finish_button.click()
         kc_for_raid.close()
         sc.close()
-    def whim_store(self):
+    def whim_store(self, inCall=False):
         self.locator.confidence = 0.95
         finish_button = self.finish_button
         self.running = True
@@ -667,12 +672,13 @@ class Automator:
         self.log(f"path: {self.automation_path}")
         cnt = 0
         kc = Keep_Clicker(self)
+        kc.set_automation_path("./a_orders/whim_store")
         kc.start_keep_clicks()
         while (not self.locator.locate("cmd_later_popup_store")) and self.running:
             time.sleep(1)
         cnt += 1
         print("Succeed to find whim store")
-        if self.running:
+        if self.running and (not inCall):
             finish_button.click()
         kc.close()
         # sc.close()
@@ -701,15 +707,16 @@ class Automator:
             if not self.running:
                 break
         print("Skip battle until whim store")
-        kc = Keep_Clicker(self)
-        kc.start_keep_clicks()
-        while (not self.locator.locate("cmd_later_popup_store")) and self.running:
-            time.sleep(1)
-        cnt += 1
+        # kc = Keep_Clicker(self)
+        # kc.start_keep_clicks()
+        # while (not self.locator.locate("cmd_later_popup_store")) and self.running:
+        #     time.sleep(1)
+        # cnt += 1
+        self.whim_store(inCall=True)
         print("Succeed to find whim store")
         if self.running:
             finish_button.click()
-        kc.close()
+        # kc.close()
         sc.close()
     def reincarnation(self):
         self.locator.confidence = 0.95
@@ -888,11 +895,29 @@ class Automator:
         if keep_clicker:
             keep_clicker.start_keep_click()
     def daily_work(self):
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
+        finish_button = self.finish_button
+        print(f"option1:{option1}")
+        print(f"option2:{option2}")
+        if option1 == 'A and B':
+            self.convert_to_A()
+            self.log("Starting Daily Work automation for A")
+            self.daily_work_plain(inCall=True)
+            self.convert_to_B()
+            self.log("Starting Daily Work automation for B")
+            self.daily_work_plain(inCall=False)
+        else:
+            self.daily_work_plain(inCall=False)
+        if finish_button and self.running:
+            self.finish_button.click()
+    def daily_work_plain(self, inCall=False):
         self.running = True
         cnt = 0
         self.log("Starting Daily Work automation")
         print("Starting Daily Work automation")
         kc = Keep_Clicker(self)
+        kc.set_automation_path('daily_work')
         kc.set_operation_status_checker(self.operation_status_checker)
         kc.start_keep_clicks()
         to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
@@ -941,8 +966,9 @@ class Automator:
                         time.sleep(3)
                     kc.start_keep_click()
                 elif dw == '멀티클라':
-                    print("멀티클라")
-                    self.play_multi_client_any(inCall=True)
+                    if inCall == False:
+                        print("멀티클라")
+                        self.play_multi_client_any(inCall=True)
                 elif dw.lower() == 'pvp':
                     print(f"Testing: {self.checked_rbs['DW']}")
                     if 'pvp1회' in self.checked_rbs['DW']:
@@ -965,6 +991,8 @@ class Automator:
                         sc.start_serial_click_thread(sc_name='스토리no하드')
                     else:
                         sc.start_serial_click_thread(sc_name=dw)
+                elif dw == '백그라운드반복':
+                    sc.start_serial_click_thread(sc_name=dw, click_interval=0.2)
                 else:
                     try:
                         sc.start_serial_click_thread(sc_name=dw)
@@ -982,7 +1010,7 @@ class Automator:
             time.sleep(1)
         self.log("Func. Daily Work finished")
         print("Func. Daily Work finished")
-        if self.running:
+        if self.running and (not inCall):
             self.finish_button.click()
         kc.close()
         sc.close()
@@ -1067,7 +1095,10 @@ class Keep_Clicker:
         self.my_device = automator.my_device
         self.running = True
     def set_automation_path(self, automation_path):
-        self.automation_path = automation_path
+        if 'a_orders' in automation_path:
+            self.automation_path = automation_path
+        else:
+            self.automation_path = os.path.join("./a_orders", automation_path)
     def set_target_file(self, kc_file_name=None, kc_cond_file_name=None):
         if kc_file_name:
             self.kc_file_name = kc_file_name
@@ -1090,7 +1121,7 @@ class Keep_Clicker:
             self.kc_file_name = 'kc.txt'
             kc_path = os.path.join(self.automation_path, 'kc.txt')
         if not self.load_kc_from_text(kc_path):
-            print("Error in def, start_keep_clicks")
+            print(f"Error in def, start_keep_clicks with path: {kc_path}")
             return False
         self.debug(self.kc_list)
         for kc in self.kc_list:
