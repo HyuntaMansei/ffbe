@@ -5,3 +5,6 @@ option2_list = 백그라운드,체력회복, 초코보, 소환, 상점, 길드, 
 [퀘스트]
 option1_list = 파티별, 이벤트, 이벤트(파티별)
 option2_list =
+[변덕런]
+option1_list = 변덕런(풀), 초코보, 초코보(풀)
+option2_list =

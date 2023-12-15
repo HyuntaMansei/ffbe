@@ -1,3 +1,10 @@
+[from_is_to_menu]
+1600
+cmd_close_popup_is_premium_goods
+icon_x_popup_is_sp1
+icon_x_popup_is_sp2
+icon_x_popup_is_sp3
+
 [bg_rep]
 1600
 cmd_bg_rep
@@ -24,6 +31,9 @@ cmd_close_popup_open_char_quest
 1600 / 1771
 cmd_ok_popup_result_point
 [DW]
+1600
+pic_arrow_down_is_sp_w
+pic_arrow_down_is_sp_m
 882 / 890 / 1600
 x_popup_hardquest
 882 / 890

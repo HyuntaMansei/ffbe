@@ -935,26 +935,32 @@ class Automator:
         kc.set_automation_path('daily_work')
         kc.set_operation_status_checker(self.operation_status_checker)
         kc.start_keep_clicks()
-        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
+        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"
+                         'cmd_close_popup_is_premium_goods', 'icon_x_popup_is_sp1', 'icon_x_popup_is_sp2', 'icon_x_popup_is_sp3']
         while (not (self.locator.locate("menu_mogri_store#0.99") or self.locator.locate("menu_present#0.99"))) and self.running:
             for t in to_is_targets:
                 self.locator.locate_and_click(t)
                 time.sleep(1)
         print("Arrived to menu screen")
+        kc.close()
     def daily_work_plain(self, inCall=False):
         self.running = True
         cnt = 0
         self.log("Starting Daily Work automation")
         print("Starting Daily Work automation")
+
+        self.from_is_to_menu()
+        # to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
+        # while (not (self.locator.locate("menu_mogri_store#0.99") or self.locator.locate("menu_present#0.99"))) and self.running:
+        #     for t in to_is_targets:
+        #         self.locator.locate_and_click(t)
+        #         time.sleep(1)
+
         kc = Keep_Clicker(self)
         kc.set_automation_path('daily_work')
         kc.set_operation_status_checker(self.operation_status_checker)
         kc.start_keep_clicks()
-        to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
-        while (not (self.locator.locate("menu_mogri_store#0.99") or self.locator.locate("menu_present#0.99"))) and self.running:
-            for t in to_is_targets:
-                self.locator.locate_and_click(t)
-                time.sleep(1)
+
         sc = Serial_Clicker(self)
         sc.set_path_and_file(sc_file_name="sc.txt")
         sc.set_operation_status_checker(self.operation_status_checker)
