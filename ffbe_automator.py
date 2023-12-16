@@ -956,6 +956,7 @@ class Automator:
         #         self.locator.locate_and_click(t)
         #         time.sleep(1)
 
+        self.operation_status_checker.reset()
         kc = Keep_Clicker(self)
         kc.set_automation_path('daily_work')
         kc.set_operation_status_checker(self.operation_status_checker)
