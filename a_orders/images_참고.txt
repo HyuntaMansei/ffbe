@@ -6,7 +6,7 @@ icon_x_popup_is_sp2
 icon_x_popup_is_sp3
 
 [bg_rep]
-1600
+890/1600
 cmd_bg_rep
 cmd_start_measure_popup_bg_rep
 cmd_yes_popup_empty_slot
@@ -26,13 +26,16 @@ cmd_give_up_popup_quest
 890 / 1600 / 1771
 cmd_back_top_left
 [다양]
-1600
+882/1600
 cmd_close_popup_open_char_quest
+882
+text_open_char_quest_popup
 1600 / 1771
 cmd_ok_popup_result_point
 [DW]
-1600
+882/1600
 pic_arrow_down_is_sp_w
+1600
 pic_arrow_down_is_sp_m
 882 / 890 / 1600
 x_popup_hardquest
