@@ -213,8 +213,7 @@ class Automator:
             self.play_quest_event_with_different_party(inCall=True)
         else:
             self.play_quest_plain(inCall=True)
-        if finish_button:
-            self.finish_button.click()
+        self.close()
     def play_quest_event(self, inCall=False):
         self.running = True
         self.locator.confidence = 0.95
@@ -251,9 +250,9 @@ class Automator:
             self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
             if cnt >= rep_time:
                 break
-        if (finish_button != None) and self.running and inCall==False:
-            self.log("Automaiton completed.")
-            finish_button.click()
+        if not inCall:
+            self.log("Automation completed.")
+            self.close()
         self.debug("Quit automation.")
         keep_clicker.close()
     def play_quest_event_with_different_party(self, inCall=False):
@@ -950,11 +949,6 @@ class Automator:
         print("Starting Daily Work automation")
 
         self.from_is_to_menu()
-        # to_is_targets = ["pic_is", "pic_rank_dark1", "pic_arrow_down_is", "pic_arrow_down_is2", "pic_arrow_down_is_sp_w", "pic_arrow_down_is_sp_m"]
-        # while (not (self.locator.locate("menu_mogri_store#0.99") or self.locator.locate("menu_present#0.99"))) and self.running:
-        #     for t in to_is_targets:
-        #         self.locator.locate_and_click(t)
-        #         time.sleep(1)
 
         self.operation_status_checker.reset()
         kc = Keep_Clicker(self)
@@ -1097,6 +1091,10 @@ class Automator:
         win32gui.SetForegroundWindow(self.my_hwnd)
     def close(self):
         self.running = False
+        if self.finish_button:
+            btn_text = self.finish_button.text()
+            if 'on' in btn_text:
+                self.finish_button.click()
 class Keep_Clicker:
     def __init__(self, automator:Automator=None):
         self.log = print
