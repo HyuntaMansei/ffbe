@@ -7,7 +7,6 @@ cmd_later_popup_is_premium_package
 icon_x_popup_is_sp1
 icon_x_popup_is_sp2
 icon_x_popup_is_sp3
-
 [bg_rep]
 890/1600
 cmd_bg_rep
@@ -29,9 +28,9 @@ cmd_give_up_popup_quest
 890 / 1600 / 1771
 cmd_back_top_left
 [다양]
-882/1600
+882/890/1600
 cmd_close_popup_open_char_quest
-882
+882/890
 text_open_char_quest_popup
 1600 / 1771
 cmd_ok_popup_result_point
