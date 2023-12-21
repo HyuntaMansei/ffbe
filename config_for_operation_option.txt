@@ -8,3 +8,6 @@ option2_list =
 [변덕런]
 option1_list = 변덕런(풀), 초코보, 초코보(풀)
 option2_list =
+[초코보반복]
+option1_list = 2시간, 5시간, 10시간
+option2_list =

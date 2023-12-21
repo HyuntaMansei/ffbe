@@ -102,6 +102,9 @@ class Automator:
             self.error(f"No such device type: {device_type}")
             return False
         return True
+    def set_automation_path(self, work_name):
+        self.automation_path = os.path.join('./a_orders', work_name)
+        print(f"Setting automation_path as :{self.automation_path}")
     def init_automation_list(self):
         # Need to add code when add new automation
         self.automation_by_job = {}
@@ -185,6 +188,14 @@ class Automator:
         # Need to add code to handle special case
         self.pre_automation_processing()
         self.automation_by_job[job]()
+    def finish_automation(self):
+        if self.finish_button and self.running:
+            print(f"Finishing Automation")
+            self.finish_button.click()
+        elif not self.running:
+            print(f"Automation already stopped")
+        elif not self.finish_button:
+            print(f"No finish button. Unable to stop")
     def stop(self):
         self.running = False
     def elapsed_time(self):
@@ -667,15 +678,7 @@ class Automator:
             self.whim_store_full(inCall=True, target='chocobo')
         else:
             self.whim_store_plain(inCall=True)
-        self.finishing_automation()
-    def finishing_automation(self):
-        if self.finish_button and self.running:
-            print(f"Finishing Automation")
-            self.finish_button.click()
-        elif not self.running:
-            print(f"Automation already stopped")
-        elif not self.finish_button:
-            print(f"No finish button. Unable to stop")
+        self.finish_automation()
     def whim_store_plain(self, inCall=False, target='whim_store'):
         self.locator.confidence = 0.95
         finish_button = self.finish_button
@@ -729,6 +732,53 @@ class Automator:
         if self.running and (not inCall):
             finish_button.click()
         sc.close()
+    def play_chocobo_run(self):
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
+
+        # if option1 == '2hour':
+        #     pass
+        # elif option1 == '5hour':
+        #     pass
+        # else:
+
+        ticket_hour = option1
+        self.play_chocobo_run_plain(ticket_hour=ticket_hour)
+
+    def play_chocobo_run_plain(self, ticket_hour='2hour'):
+        self.locator.confidence = 0.95
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
+        rep_time = self.automator_paras.rep_time
+
+        self.running = True
+        self.log("Starting Sample Automation")
+
+        cnt_chocobo = 0
+        chocobo_sc = Serial_Clicker(self)
+        chocobo_sc.set_path_and_file(automation_path='chocobo', sc_file_name='chocobo_sc.txt')
+        if '10' in ticket_hour:
+            ticket_target = 'cmd_10hour_popup_speedy_expedition'
+        elif '5' in ticket_hour:
+            ticket_target = 'cmd_5hour_popup_speedy_expedition'
+        else:
+            ticket_target = 'cmd_2hour_popup_speedy_expedition'
+        click_targets = [ticket_target, 'cmd_ok_popup_excess_fragment']
+        while self.running:
+            if cnt_chocobo >= rep_time:
+                break
+            chocobo_sc.start_serial_click_thread(sc_name='speedy_expedition', click_interval=1)
+            if self.locator.locate('cmd_retrieve_speedy_expedition'):
+                while (not self.locator.locate_and_click('cmd_retrieve_speedy_expedition#0.99')) and self.running:
+                    self.locator.locate_and_click(click_targets)
+                    time.sleep(1)
+                cnt_chocobo += 1
+            self.locator.locate_and_click(ticket_target)
+            time.sleep(1)
+
+        self.log(f"Chocobo Automation Completed")
+        self.finish_automation()
+        chocobo_sc.close()
     def reincarnation(self):
         self.locator.confidence = 0.95
         rep_time = self.automator_paras.rep_time
@@ -783,7 +833,7 @@ class Automator:
         finish_button = self.finish_button
 
         self.running = True
-        self.log("Starting SampleAutomation")
+        self.log("Starting Sample Automation")
 
         cnt_reincarnation = 0
         template_kc = Keep_Clicker(self)
@@ -795,8 +845,7 @@ class Automator:
             if cnt_reincarnation >= rep_time:
                 break
         self.log(f"SampleAutomation Completed")
-        if self.running:
-            finish_button.click()
+        self.finish_automation()
         template_kc.close()
     def skip_battle(self, rep_time=None, in_call=False):
         self.locator.confidence = 0.95
@@ -1045,9 +1094,6 @@ class Automator:
             self.finish_button.click()
         kc.close()
         sc.close()
-    def set_automation_path(self, work_name):
-        self.automation_path = os.path.join('./a_orders', work_name)
-        print(f"Setting automation_path as :{self.automation_path}")
     def test(self):
         self.running = True
         cnt = 0

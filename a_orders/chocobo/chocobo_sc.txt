@@ -1,0 +1,6 @@
+[speedy_expedition]
+cmd_speedy_expedition_chocobo
+cmd_yes_popup_speedy_expedition
+cmd_decide_popup_speedy_expedition
+cmd_retrieve_items_speedy_expedition
+cmd_speedy_expedition_chocobo

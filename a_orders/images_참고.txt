@@ -1,3 +1,14 @@
+[chocobo]
+882
+cmd_speedy_expedition_chocobo
+text_excess_xp_popup_speedy_expedition
+cmd_yes_popup_speedy_expedition
+cmd_2hour_popup_speedy_expedition
+cmd_5hour_popup_speedy_expedition
+cmd_10hour_popup_speedy_expedition
+cmd_decide_popup_speedy_expedition
+cmd_retrieve_items_speedy_expedition
+cmd_retrieve_speedy_expedition
 [banner for 2x]
 1600
 banner_for_2x
