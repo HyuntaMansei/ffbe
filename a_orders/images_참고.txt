@@ -9,6 +9,7 @@ cmd_10hour_popup_speedy_expedition
 cmd_decide_popup_speedy_expedition
 cmd_retrieve_items_speedy_expedition
 cmd_retrieve_speedy_expedition
+cmd_ok_popup_excess_fragment
 [banner for 2x]
 1600
 banner_for_2x

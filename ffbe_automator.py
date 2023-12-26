@@ -768,11 +768,13 @@ class Automator:
             if cnt_chocobo >= rep_time:
                 break
             chocobo_sc.start_serial_click_thread(sc_name='speedy_expedition', click_interval=1)
-            if self.locator.locate('cmd_retrieve_speedy_expedition'):
-                while (not self.locator.locate_and_click('cmd_retrieve_speedy_expedition#0.99')) and self.running:
-                    self.locator.locate_and_click(click_targets)
-                    time.sleep(1)
-                cnt_chocobo += 1
+            while (not self.locator.locate('cmd_retrieve_speedy_expedition')) and self.running:
+                time.sleep(2)
+            self.locator.locate_and_click('cmd_retrieve_speedy_expedition#0.99')
+            time.sleep(1)
+            self.locator.locate_and_click(click_targets)
+            time.sleep(1)
+            cnt_chocobo += 1
             self.locator.locate_and_click(ticket_target)
             time.sleep(1)
 
@@ -1423,7 +1425,7 @@ class Serial_Clicker():
         args = (sc_name, click_interval)
         thread_to_run = threading.Thread(target=target_thread, args=args)
         thread_to_run.start()
-    def start_serial_click(self, sc_name=None, click_interval=2):
+    def start_serial_click(self, sc_name=None, click_interval=2, back_search_depth = 1):
         while (not self.serial_click_finished) and self.running:
             time.sleep(3)
         self.serial_click_finished = False
@@ -1470,21 +1472,24 @@ class Serial_Clicker():
                 pprev_target = sc_targets[i-2]
                 ppprev_target = sc_targets[i-3]
                 target = sc_targets[i]
-            print(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
+            print('-'*80)
+            print(f"For {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
+            self.debug('-'*80)
             self.debug(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
             if self.serial_click_running:
                 cs_cnt = 0
                 while self.running and self.serial_click_running:
+                    cs_cnt+=1
                     if prev_target:
-                        if (cs_cnt>5) and ppprev_target:
+                        if (cs_cnt>6) and ppprev_target and back_search_depth>=3:
                             if locator_sc.locate_and_click(ppprev_target):
                                 time.sleep(click_interval)
-                        if (cs_cnt>2) and pprev_target:
+                        if (cs_cnt>3) and pprev_target and back_search_depth>=2:
                             if locator_sc.locate_and_click(pprev_target):
                                 time.sleep(click_interval)
                         if locator_sc.locate_and_click(prev_target):
                             time.sleep(click_interval)
-                    cs_cnt+=1
+                    time.sleep(click_interval)
                     if locator_sc.locate(target):
                         break
             if not self.running:
