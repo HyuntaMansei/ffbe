@@ -470,7 +470,7 @@ class MyWidget(QtWidgets.QWidget):
             print("Auto initiating")
             self.set_device_name_and_type()
             self.pb_operation.setText(self.cb_operation.currentText())
-            return True
+            # return True
         elif sender_name.lower() == 'pb_pause':
             try:
                 self.operation_status_checker.pause()
