@@ -1425,7 +1425,7 @@ class Serial_Clicker():
         args = (sc_name, click_interval)
         thread_to_run = threading.Thread(target=target_thread, args=args)
         thread_to_run.start()
-    def start_serial_click(self, sc_name=None, click_interval=2, back_search_depth = 1):
+    def start_serial_click(self, sc_name=None, click_interval=2, back_search_depth = 3):
         while (not self.serial_click_finished) and self.running:
             time.sleep(3)
         self.serial_click_finished = False
