@@ -1,7 +1,7 @@
 [백그라운드]
 icon_background_repetition
 next_popup_background_repetition|x_popup_background_repetition
-ok_popup_background_repetition
+cmd_ok_popup_background_repetition
 icon_plus_stamina
 [체력회복]
 icon_plus_stamina|cmd_ok_popup_background#0.8

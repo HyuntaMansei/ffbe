@@ -6,6 +6,7 @@ cmd_ok_popup_download
 cmd_ok_popup_fragment
 cmd_ok_popup_guild_medal
 cmd_ok_popup_skip_battle
+ok_popup_background_repetition
 cmd_close_popup_character_quest
 cmd_close_popup_open_char_quest
 cmd_next_popup_skip_battle

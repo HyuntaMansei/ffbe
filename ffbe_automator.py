@@ -584,8 +584,12 @@ class Automator:
         num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
         print(self.automator_paras.test_para)
-        if self.automator_paras.test_para:
-            quest_to_play = self.automator_paras.test_para.lower()
+        # if self.automator_paras.test_para:
+        #     quest_to_play = self.automator_paras.test_para.lower()
+        # else:
+        #     quest_to_play = None
+        if self.automator_paras.operation_option1:
+            quest_to_play = self.automator_paras.operation_option1.lower()
         else:
             quest_to_play = None
         self.running = True
@@ -593,8 +597,10 @@ class Automator:
         raid_loop_cnt = 0
         cnt = 0
         kc_for_raid = Keep_Clicker(self)
+        kc_for_raid.set_operation_status_checker(self.operation_status_checker)
         kc_for_raid.set_target_file(kc_file_name='kc_for_raid.txt', kc_cond_file_name='kc_cond_for_raid.txt')
         sc = Serial_Clicker(self)
+        sc.set_operation_status_checker(self.operation_status_checker)
 
         while self.running:
             # 첫화면은 레이드 출격 전 화면 또는 스토리 출격 전 화면
@@ -626,11 +632,17 @@ class Automator:
                 if raid_loop_cnt >= rep_time:
                     break
                 print("Let's go to quest")
+                # quest_by_para = {
+                #     'fire':'to_quest_fire_stone', 'wind':'to_quest_wind_stone', 'water':'to_quest_water_stone',
+                #     'ice':'to_quest_ice_stone','earth':'to_quest_earth_stone','dark':'to_quest_dark_stone',
+                #     'lightning':'to_quest_lightning_stone','light':'to_quest_light_stone',
+                #     'gold':'to_quest_golden_room'
+                # }
                 quest_by_para = {
-                    'fire':'to_quest_fire_stone', 'wind':'to_quest_wind_stone', 'water':'to_quest_water_stone',
-                    'ice':'to_quest_ice_stone','earth':'to_quest_earth_stone','dark':'to_quest_dark_stone',
-                    'lightning':'to_quest_lightning_stone','light':'to_quest_light_stone',
-                    'gold':'to_quest_golden_room'
+                    '화':'to_quest_fire_stone', '풍':'to_quest_wind_stone', '수':'to_quest_water_stone',
+                    '빙':'to_quest_ice_stone','토':'to_quest_earth_stone','암':'to_quest_dark_stone',
+                    '뇌':'to_quest_lightning_stone','명':'to_quest_light_stone',
+                    '골드':'to_quest_golden_room'
                 }
                 if quest_to_play:
                     try:
@@ -1001,7 +1013,6 @@ class Automator:
 
         self.from_is_to_menu()
 
-        self.operation_status_checker.reset()
         kc = Keep_Clicker(self)
         kc.set_automation_path('daily_work')
         kc.set_operation_status_checker(self.operation_status_checker)
@@ -1188,7 +1199,9 @@ class Keep_Clicker:
         if kc_cond_file_name:
             self.kc_cond_file_name = kc_cond_file_name
     def set_operation_status_checker(self, operation_status_checker):
-        self.operation_status_checker = operation_status_checker
+        if operation_status_checker:
+            self.operation_status_checker = operation_status_checker
+            self.operation_status_checker.reset()
     def start_keep_clicks(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
@@ -1419,7 +1432,9 @@ class Serial_Clicker():
         if sc_file_name:
             self.sc_file_name = sc_file_name
     def set_operation_status_checker(self, operation_status_checker):
-        self.operation_status_checker = operation_status_checker
+        if operation_status_checker:
+            self.operation_status_checker = operation_status_checker
+            self.operation_status_checker.reset()
     def start_serial_click_thread(self, sc_name=None, click_interval=2):
         target_thread = self.start_serial_click
         args = (sc_name, click_interval)
