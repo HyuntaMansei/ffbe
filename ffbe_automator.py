@@ -9,6 +9,8 @@ import threading
 import os
 import re
 import pandas as pd
+
+import operation_status_checker
 import setting_gui
 import operation_status_checker as osc
 from typing import Type
@@ -47,6 +49,8 @@ class Automator:
         self.finish_button = None
         self.operation_status_checker: Type[osc.OperationStatusChecker] = None
         self.running = False
+        self.kc_list = []
+        self.sc_list = []
         self.keep_click_running = False
         self.stop_keep_click_index = 1
         self.checked_cbs = {}
@@ -188,16 +192,29 @@ class Automator:
         # Need to add code to handle special case
         self.pre_automation_processing()
         self.automation_by_job[job]()
-    def finish_automation(self):
-        if self.finish_button and self.running:
-            print(f"Finishing Automation")
-            self.finish_button.click()
-        elif not self.running:
-            print(f"Automation already stopped")
-        elif not self.finish_button:
-            print(f"No finish button. Unable to stop")
+        return self.operation_status_checker
+    def finish_automation(self, inCall=False, osc=False):
+        for kc in self.kc_list:
+            kc.close()
+        for sc in self.sc_list:
+            sc.close()
+        if not osc:
+            osc = self.operation_status_checker
+        if not inCall:
+            if self.finish_button and osc.isRunning():
+                print(f"Finishing Automation with clicking button")
+                self.finish_button.click()
+            elif osc.isRunning():
+                print(f"Finishing Automation without clicking button")
+                self.close()
+            elif not self.operation_status_checker.isRunning():
+                print(f"Automation already stopped")
+            elif not self.finish_button:
+                print(f"No finish button. Unable to stop")
     def stop(self):
+        print("Try to stop automation")
         self.running = False
+        self.close()
     def elapsed_time(self):
         return time.time() - self.start_time
     def init_time(self):
@@ -403,10 +420,13 @@ class Automator:
         for i in range(3):
             self.locator.locate_and_click('pic_scroll_up_select_party')
             time.sleep(1)
+        self.debug(f"Party List in Order: {party_list}")
+        self.debug(f"Selected Party: {selected_party}")
         for party in party_list:
             if not self.running:
                 break
             if not (party in selected_party):
+                self.debug(f"{party} is not in {selected_party}")
                 continue
             self.locator.confidence = 0.80
             select_next_party = img_for_party_dic[party]
@@ -440,7 +460,7 @@ class Automator:
             self.debug("The Quest ended")
             while (not self.locator.locate(sorties)) and self.running:
                 print("In while loop of ... ")
-                self.locator.locate_and_click('cmd_back_to_sortie_popup_quest')
+                self.locator.locate_and_click(['cmd_back_to_sortie_popup_quest'])
                 if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
                     self.locator.locate_and_click('yes')
@@ -550,11 +570,11 @@ class Automator:
                 print(f"Limit_timer: {limit_time}")
                 if limit_time > 600:
                     self.debug("In exit code")
-                    keep_clicker_for_PMCA.stop_keep_click()
+                    keep_clicker_for_PMCA.pause_keep_click()
                     while (not self.locator.locate(exit_finish)) and (not self.locator.locate('auto')) and self.running:
                         self.locator.locate_and_click(exit_targets)
                         time.sleep(3)
-                    keep_clicker_for_PMCA.start_keep_click()
+                    keep_clicker_for_PMCA.resume_keep_click()
                     self.limit_timer.restart()
             self.debug("In battle stage.")
             while (not self.locator.locate('cancel_ready')) and self.running:
@@ -626,7 +646,7 @@ class Automator:
                         break
                     time.sleep(5)
                 print("All raid finished.")
-                kc_for_raid.stop_keep_click()
+                kc_for_raid.pause_keep_click()
                 raid_loop_cnt += 1
                 self.log(f"Raid finished for {raid_loop_cnt} * 10 time(s), {rep_time-raid_loop_cnt} time(s) left.")
                 if raid_loop_cnt >= rep_time:
@@ -748,27 +768,19 @@ class Automator:
         option1 = self.automator_paras.operation_option1
         option2 = self.automator_paras.operation_option2
 
-        # if option1 == '2hour':
-        #     pass
-        # elif option1 == '5hour':
-        #     pass
-        # else:
-
         ticket_hour = option1
         self.play_chocobo_run_plain(ticket_hour=ticket_hour)
-
     def play_chocobo_run_plain(self, ticket_hour='2hour'):
         self.locator.confidence = 0.95
         option1 = self.automator_paras.operation_option1
         option2 = self.automator_paras.operation_option2
         rep_time = self.automator_paras.rep_time
+        osc = self.operation_status_checker
 
-        self.running = True
-        self.log("Starting Sample Automation")
+        self.log("Starting Chocobo Automation")
 
         cnt_chocobo = 0
-        chocobo_sc = Serial_Clicker(self)
-        chocobo_sc.set_path_and_file(automation_path='chocobo', sc_file_name='chocobo_sc.txt')
+        chocobo_sc = self.make_sc(sc_path='chocobo', sc_file_name='chocobo_sc.txt', osc=osc)
         if '10' in ticket_hour:
             ticket_target = 'cmd_10hour_popup_speedy_expedition'
         elif '5' in ticket_hour:
@@ -776,11 +788,22 @@ class Automator:
         else:
             ticket_target = 'cmd_2hour_popup_speedy_expedition'
         click_targets = [ticket_target, 'cmd_ok_popup_excess_fragment']
-        while self.running:
+        while True:
+            if osc.isFinished():
+                break
             if cnt_chocobo >= rep_time:
                 break
+            while not self.locator.locate(ticket_target):
+                if osc.isFinished():
+                    break
+                if self.locator.locate_and_click('cmd_speedy_expedition_chocobo'):
+                    break
+                time.sleep(1)
             chocobo_sc.start_serial_click_thread(sc_name='speedy_expedition', click_interval=1)
-            while (not self.locator.locate('cmd_retrieve_speedy_expedition')) and self.running:
+            while not self.locator.locate('cmd_retrieve_speedy_expedition'):
+                if osc.isFinished():
+                    break
+                self.locator.locate_and_click(ticket_target)
                 time.sleep(2)
             self.locator.locate_and_click('cmd_retrieve_speedy_expedition#0.99')
             time.sleep(1)
@@ -837,49 +860,33 @@ class Automator:
         if self.running:
             finish_button.click()
         # kc_for_reincarnation.close()
-    def template_automation(self):
-        self.locator.confidence = 0.95
-        option1 = self.automator_paras.operation_option1
-        option2 = self.automator_paras.operation_option2
-        rep_time = self.automator_paras.rep_time
-        num_of_players = self.automator_paras.num_of_players
-        test_para = self.automator_paras.test_para
-        finish_button = self.finish_button
-
-        self.running = True
-        self.log("Starting Sample Automation")
-
-        cnt_reincarnation = 0
-        template_kc = Keep_Clicker(self)
-        template_kc.set_target_file(kc_file_name='template_kc.txt')
-        template_sc = Serial_Clicker(self)
-        template_sc.set_path_and_file(automation_path='template', sc_file_name='template_sc')
-
-        while self.running:
-            if cnt_reincarnation >= rep_time:
-                break
-        self.log(f"SampleAutomation Completed")
-        self.finish_automation()
-        template_kc.close()
     def skip_battle(self, rep_time=None, in_call=False):
         self.locator.confidence = 0.95
         if not rep_time:
             rep_time = self.automator_paras.rep_time
         num_of_players = self.automator_paras.num_of_players
         finish_button = self.finish_button
-        self.running = True
+        osc = self.operation_status_checker
+        # self.running = True
 
-        kc = Keep_Clicker(self)
-        kc.set_automation_path("./a_orders/skip_battle")
+        # kc = Keep_Clicker(self)
+        # self.set_osc(kc)
+        # kc.set_automation_path("./a_orders/skip_battle")
+        path = "./a_orders/skip_battle"
+        kc = self.make_kc(kc_path=path, osc=osc)
         kc.start_keep_clicks()
 
         self.log("Starting skip battle automation")
         print("Starting skip battle automation")
         self.log(f"path: {self.automation_path}")
         cnt = 0
-        while self.running:
+        while True:
+            if osc.isFinished():
+                break
             targets = ["cmd_skip_battle", "cmd_skip_battle_quest"]
-            while (not self.locator.locate("cmd_end_of_quest_skip_battle")) and self.running:
+            while not self.locator.locate("cmd_end_of_quest_skip_battle"):
+                if osc.isFinished():
+                    break
                 self.locator.locate_and_click(targets)
                 targets_for_no_stamina = ['text_short_of_stamina', 'select_chapter','pic_common_is']
                 if self.locator.locate(targets_for_no_stamina):
@@ -889,7 +896,9 @@ class Automator:
             cnt += 1
             self.log(f"Battle Skipped. {cnt} times. {rep_time - cnt} left.")
             targets2 = ["cmd_end_of_quest_skip_battle"]
-            while (not self.locator.locate(targets)) and self.running:
+            while not self.locator.locate(targets):
+                if osc.isFinished():
+                    break
                 self.locator.locate_and_click(targets2)
                 targets_for_no_stamina2 = ['text_short_of_stamina', 'select_chapter','pic_common_is']
                 if self.locator.locate(targets_for_no_stamina2):
@@ -912,10 +921,13 @@ class Automator:
         kc.sleep_mul=3
         kc.start_keep_clicks()
         cnt = 0
+        # menu_summon_10_for_mil
+        summon_target = "menu_summon_100"
         while self.running:
             while (not self.locator.locate('cmd_summon_popup_confirm')) and self.running:
                 print("In while loop, processing")
-                time.sleep(3)
+                self.locator.locate_and_click(summon_target)
+                time.sleep(1)
             if self.locator.locate_and_click('cmd_summon_popup_confirm'):
                 time.sleep(3)
                 cnt += 1
@@ -928,26 +940,38 @@ class Automator:
     def recover_stamina(self, keep_clicker=None, recover_cnt=8):
         # Recovering
         self.debug("---Start recovering stamina---")
+        osc = self.operation_status_checker
         if keep_clicker:
-            keep_clicker.stop_keep_click()
+            keep_clicker.pause_keep_click()
         time.sleep(1)
 
-        while self.running and (self.locator.locate('text_short_of_stamina')):
+        while self.locator.locate('text_short_of_stamina'):
+            if osc.isFinished():
+                break
             self.locator.locate_and_click('cmd_no_popup_short_of_stamina')
 
         if recover_cnt >= 8:
-            sc = Serial_Clicker(self)
-            sc.set_path_and_file(automation_path='./a_orders/', sc_file_name="sc_for_recover_stamina.txt")
+            sc = self.make_sc(sc_path='./a_orders/', sc_file_name="sc_for_recover_stamina.txt", osc=osc)
+
+            # sc = Serial_Clicker(self)
+            # sc.set_path_and_file(automation_path='./a_orders/', sc_file_name="sc_for_recover_stamina.txt")
 
             sc.start_serial_click_thread(sc_name='체력회복')
-            while self.running and (not sc.serial_click_finished):
+            # print(f"OSC: {osc} and {self.operation_status_checker}")
+            while not sc.serial_click_finished:
+                if osc.isFinished():
+                    break
                 time.sleep(1)
             for i in range(3):
+                if osc.isFinished():
+                    break
                 self.locator.locate_and_click("cmd_close_popup_stamina|cmd_ok_popup_recover_stamina|cmd_cancel_popup_recover_stamina")
                 time.sleep(1)
         else:
             targets = 'yes|item|icon_plus_stamina'
-            while (not self.locator.locate('recover_amount')) and self.running:
+            while not self.locator.locate('recover_amount'):
+                if osc.isFinished():
+                    break
                 self.locator.locate_and_click(targets)
                 time.sleep(0.5)
             time.sleep(2)
@@ -955,12 +979,16 @@ class Automator:
             # self.my_device.shell("input swipe 900 600 900 300 1000")
             # time.sleep(2)
             for cnt in range(recover_cnt):
+                if osc.isFinished():
+                    break
                 self.locator.locate_and_click('120')
                 time.sleep(0.5)
             # while (not self.locator.locate('sortie')) and self.running:
             time.sleep(2)
             recover_targets = ["recover", "ok_recover",'cmd_ok_popup_recover_stamina']
-            while (self.locator.locate(['ok_recover', 'recover_amount','cmd_ok_popup_recover_stamina'])) and self.running:
+            while self.locator.locate(['ok_recover', 'recover_amount','cmd_ok_popup_recover_stamina']):
+                if osc.isFinished():
+                    break
                 self.locator.locate_and_click(recover_targets)
                 time.sleep(1)
             # for c in range(2):
@@ -970,7 +998,7 @@ class Automator:
 
         self.debug("Finished recovering")
         if keep_clicker:
-            keep_clicker.start_keep_click()
+            keep_clicker.resume_keep_click()
     def daily_work(self):
         option1 = self.automator_paras.operation_option1
         option2 = self.automator_paras.operation_option2
@@ -1053,11 +1081,11 @@ class Automator:
                         continue
                 elif dw == '체력회복':
                     time.sleep(2)
-                    kc.stop_keep_click()
+                    kc.pause_keep_click()
                     sc.start_serial_click_thread(sc_name=dw)
                     while (not sc.serial_click_finished) and self.running:
                         time.sleep(3)
-                    kc.start_keep_click()
+                    kc.resume_keep_click()
                 elif dw == '멀티클라':
                     if inCall == False:
                         print("멀티클라")
@@ -1107,15 +1135,82 @@ class Automator:
             self.finish_button.click()
         kc.close()
         sc.close()
-    def test(self):
-        self.running = True
+    def play_raid_client(self, inCall=False):
+        self.locator.confidence = 0.95
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
+        rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
+        test_para = self.automator_paras.test_para
+        finish_button = self.finish_button
+        osc = self.operation_status_checker
+        osc.reset()
+
+        automation_name = "raid_client"
+        self.log(f"Starting '{automation_name}' Automation")
         cnt = 0
-        self.log("Testing!!")
-        self.recover_stamina(recover_cnt=2)
-        # self.skip_battle(rep_time=2, in_call=True)
-        print("Func. test finished")
-        if self.running:
-            self.finish_button.click()
+
+        automation_path = automation_name
+        kc_file_name = 'kc_for_'+automation_name+'.txt'
+        kc_cond_file_name = 'kc_cond_for_'+automation_name+'.txt'
+        sc_file_name = 'sc_for_'+automation_name+'.txt'
+
+        print('-' * 70)
+        print("Starting keep_clicks()")
+        kc = self.make_kc(kc_path=automation_path, kc_file_name=kc_file_name, kc_cond_file_name=kc_cond_file_name, osc=osc)
+        # sc = self.make_sc(sc_path=automation_path, sc_file_name=sc_file_name, osc=osc)
+        kc.start_keep_clicks()
+        # kc.start_keep_clicks_conditional()
+        # sc.start_serial_click()
+
+        while True:
+            if osc.isFinished():
+                break
+            if cnt >= rep_time:
+                break
+            time.sleep(1)
+
+        self.log(f"{automation_name} Automation Completed.")
+        self.finish_automation()
+    def template_automation(self, inCall=False):
+        self.locator.confidence = 0.95
+        option1 = self.automator_paras.operation_option1
+        option2 = self.automator_paras.operation_option2
+        rep_time = self.automator_paras.rep_time
+        num_of_players = self.automator_paras.num_of_players
+        test_para = self.automator_paras.test_para
+        finish_button = self.finish_button
+        osc = self.operation_status_checker
+        osc.reset()
+
+        automation_name = "Sample"
+        self.log(f"Starting {automation_name} Automation")
+        cnt = 0
+
+
+        automation_path = automation_name
+        kc_file_name = 'kc_for_'+automation_name+'.txt'
+        kc_cond_file_name = 'kc_cond_for_'+automation_name+'.txt'
+        sc_file_name = 'sc_for_'+automation_name+'.txt'
+
+        kc = self.make_kc(kc_path=automation_path, kc_file_name=kc_file_name, kc_cond_file_name=kc_cond_file_name, osc=osc)
+        sc = self.make_sc(sc_path=automation_path, sc_file_name=sc_file_name, osc=osc)
+
+        print('-' * 70)
+        print(f"Starting keep_clicks() for {automation_name}")
+        kc.start_keep_clicks()
+        kc.start_keep_clicks_conditional()
+        sc.start_serial_click()
+
+        while True:
+            if osc.isFinished():
+                break
+            if cnt >= rep_time:
+                break
+            time.sleep(1)
+
+        self.log(f"{automation_name} Automation Completed.")
+        self.finish_automation()
     def test2(self):
         self.running = True
         cnt = 0
@@ -1148,12 +1243,53 @@ class Automator:
         print(method_names)
     def pre_automation_processing(self):
         win32gui.SetForegroundWindow(self.my_hwnd)
+        if not self.operation_status_checker:
+            self.operation_status_checker = osc.OperationStatusChecker()
+    def set_osc(self, clicker):
+        if self.operation_status_checker:
+            clicker.set_operation_status_checker(self.operation_status_checker)
+        else:
+            print("No OSC present")
+    def make_kc(self, kc_path=None, kc_file_name=None, kc_cond_file_name=None, osc=None):
+        kc = Keep_Clicker(self)
+        if not osc:
+            # self.set_osc(kc)
+            kc.set_operation_status_checker(self.operation_status_checker)
+        else:
+            kc.set_operation_status_checker(osc)
+        if kc_path:
+            kc.set_automation_path(kc_path)
+        if kc_file_name:
+            kc.set_target_file(kc_file_name=kc_file_name)
+        if kc_cond_file_name:
+            kc.set_target_file(kc_cond_file_name=kc_cond_file_name)
+        self.kc_list.append(kc)
+        return kc
+    def make_sc(self, sc_path=None, sc_file_name=None, osc=None):
+        sc = Serial_Clicker(self)
+        if not osc:
+            sc.set_operation_status_checker(self.operation_status_checker)
+        else:
+            sc.set_operation_status_checker(osc)
+        if sc_file_name:
+            sc.set_path_and_file(automation_path=sc_path, sc_file_name=sc_file_name)
+        else:
+            sc.set_path_and_file(automation_path=sc_path)
+        self.sc_list.append(sc)
+        return sc
     def close(self):
-        self.running = False
+        print("Closing automation")
+        # self.running = False
         if self.finish_button:
             btn_text = self.finish_button.text()
             if 'on' in btn_text:
                 self.finish_button.click()
+        else:
+            if self.operation_status_checker:
+                self.operation_status_checker.finish()
+            else:
+                print("No OSC, self.running set to FALSE")
+                self.running = False
 class Keep_Clicker:
     def __init__(self, automator:Automator=None):
         self.log = print
@@ -1201,13 +1337,14 @@ class Keep_Clicker:
     def set_operation_status_checker(self, operation_status_checker):
         if operation_status_checker:
             self.operation_status_checker = operation_status_checker
-            self.operation_status_checker.reset()
+            # self.operation_status_checker.reset()
     def start_keep_clicks(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
                 sleep_mul = self.sleep_mul
             else:
                 sleep_mul = 1
+        print(f"Sleep mul: {sleep_mul}")
         target_thread = self.keep_click_on_text
         thread_list = []
         # Load kc.txt
@@ -1230,7 +1367,7 @@ class Keep_Clicker:
         for t in thread_list:
             t.start()
         self.start_keep_clicks_conditional()
-        self.start_keep_click()
+        self.resume_keep_click()
     def start_keep_clicks_conditional(self, sleep_mul=None):
         if sleep_mul == None:
             if self.sleep_mul != None:
@@ -1298,23 +1435,23 @@ class Keep_Clicker:
             if locator_kc.locate(start_list):
                 self.debug(f"Keep_click_conditional:{start_list} with {sleep_time} sl_time in operation. Stop keep_click.")
                 print(f"Keep_click_conditional:{start_list} with {sleep_time} sl_time in operation. Stop keep_click.")
-                self.stop_keep_click()
+                self.pause_keep_click()
                 time.sleep(3)
                 while self.running and (not locator_kc.locate(finish_list)):
                     print(f"Locating {target_list} in keep_click_conditional")
                     locator_kc.locate_and_click(target_list)
                     time.sleep(sleep_time)
-                self.start_keep_click()
+                self.resume_keep_click()
                 self.debug(
                     f"Keep_click_conditional:{start_list} with {sleep_time} sl_time finished. keep_click_index:{self.stop_keep_click_index}.")
                 print(f"Keep_click_conditional:{start_list} with {sleep_time} sl_time finished. keep_click_index:{self.stop_keep_click_index}.")
             time.sleep(sleep_time * 2)
-    def start_keep_click(self):
+    def resume_keep_click(self):
         self.stop_keep_click_index -= 1
         if self.stop_keep_click_index <= 0:
             print(f"Starting keep click. stop_keep_click_index={self.stop_keep_click_index}.")
             self.keep_click_running = True
-    def stop_keep_click(self):
+    def pause_keep_click(self):
         self.stop_keep_click_index += 1
         if self.keep_click_running == True:
             self.keep_click_running = False
@@ -1388,9 +1525,7 @@ class Keep_Clicker:
             print(f"Stopping keep_clicker for [{self.kc_file_name}] in {self.automation_path}")
         self.running = False
         self.keep_click_running = False
-        if self.operation_status_checker:
-            self.operation_status_checker.stop()
-class Serial_Clicker():
+class Serial_Clicker:
     def __init__(self, automator:Automator=None):
         self.log = print
         self.debug = print
@@ -1441,7 +1576,10 @@ class Serial_Clicker():
         thread_to_run = threading.Thread(target=target_thread, args=args)
         thread_to_run.start()
     def start_serial_click(self, sc_name=None, click_interval=2, back_search_depth = 3):
-        while (not self.serial_click_finished) and self.running:
+        osc = self.operation_status_checker
+        while (not self.serial_click_finished):
+            if osc.isFinished():
+                break
             time.sleep(3)
         self.serial_click_finished = False
         if self.sc_file_name:
@@ -1467,6 +1605,8 @@ class Serial_Clicker():
         if not ('gpg' in self.device_type):
             locator_sc.connect_click_method(self.my_device.input_tap)
         for i, t in enumerate(sc_targets):
+            if osc.isFinished():
+                break
             if i == 0:
                 prev_target = None
                 pprev_target = None
@@ -1492,16 +1632,24 @@ class Serial_Clicker():
             self.debug('-'*80)
             self.debug(f"for {i}, target = {target}, prev_targets = {prev_target, pprev_target}")
             if self.serial_click_running:
+                if osc.isFinished():
+                    break
                 cs_cnt = 0
-                while self.running and self.serial_click_running:
+                while self.serial_click_running:
+                    if osc.isFinished():
+                        break
                     cs_cnt+=1
                     if prev_target:
                         if (cs_cnt>6) and ppprev_target and back_search_depth>=3:
                             if locator_sc.locate_and_click(ppprev_target):
                                 time.sleep(click_interval)
+                        if osc.isFinished():
+                            break
                         if (cs_cnt>3) and pprev_target and back_search_depth>=2:
                             if locator_sc.locate_and_click(pprev_target):
                                 time.sleep(click_interval)
+                        if osc.isFinished():
+                            break
                         if locator_sc.locate_and_click(prev_target):
                             time.sleep(click_interval)
                     time.sleep(click_interval)

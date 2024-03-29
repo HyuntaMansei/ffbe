@@ -29,6 +29,7 @@ class OperationStatusChecker:
     def stop(self):
         self.running = False
     def finish(self):
+        print("Finishing OSC")
         self.running = False
         self.finished = True
     def pause(self):

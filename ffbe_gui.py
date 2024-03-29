@@ -501,7 +501,6 @@ class MyWidget(QtWidgets.QWidget):
             try:
                 if 'on' in self.pb_pause.text().lower():
                     self.sender().setText('Pause:Off')
-                self.operation_status_checker.reset()
                 self.start_automator(sender_name=sender_name, btn_text=btn_text)
                 found = True
             except Exception as e:
@@ -599,18 +598,20 @@ class MyWidget(QtWidgets.QWidget):
     def on_le_test_para_text_finished(self, text):
         self.test_para = text
         print(text)
-    def start_automator(self, sender_name=None, btn_text=None):
+    def start_automator(self, sender_name=None, btn_text=None, operation_type=""):
         operation_description = self.cb_operation.currentText()
         base_text = operation_description
         on_text = base_text + ': on'
         off_text = base_text + ': off'
         job = self.operation_function_name[operation_description]
         print(f"Starting automator. Sender name:{sender_name}, btn_text:{btn_text}, on_text:{on_text}, off_text:{off_text}, job:{job}")
-        if 'on' == btn_text.split()[-1]:
-            self.automator.stop()
+        if 'on' == btn_text.split()[-1] or operation_type.lower() == 'off':
             self.sender().setText(off_text)
+            self.automator.stop()
+
         else:
             self.operation_status_checker = osc.OperationStatusChecker()
+            self.operation_status_checker.reset()
             self.automator = ffbe_automator.Automator()
             self.automator.convert_to_A = self.on_pb_a
             self.automator.convert_to_B = self.on_pb_b

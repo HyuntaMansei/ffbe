@@ -1,3 +1,22 @@
+[raid_multi_client]
+882
+cmd_rescue_raid_client
+cmd_try_raid_client
+cmd_try_raid_client2
+cmd_try_raid_client3
+cmd_try_exclamation _raid_client
+cmd_ok_fail_to_enter_raid_client
+cmd_ready_first_try_raid_client
+cmd_exit_room_raid_client
+cmd_unready_raid_client
+cmd_next_raid_client
+cmd_end_of_quest_raid_client
+cmd_get_reward_and_try_again_raid_client
+cmd_get_reward_raid_client
+cmd_ok_get_rewards_raid_client
+cmd_ok_unable_to_join_raid_client
+cmd_drop_battle_raid_client
+
 [chocobo]
 882
 cmd_speedy_expedition_chocobo

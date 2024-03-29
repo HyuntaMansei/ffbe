@@ -1,7 +1,7 @@
 [1]
 go_back.png
 skip_video.png
-not_auto.png
+not_auto.png#0.99
 cancel.png
 menu_cancel.png
 cmd_later_popup_store

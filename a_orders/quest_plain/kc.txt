@@ -15,6 +15,6 @@ x.png
 yes
 [2]
 cmd_close_popup_open_char_quest
+cmd_close_popup_char_quest
 cmd_later_popup_store
 cmd_later_popup_chocobo
-cmd_close_popup_char_quest
