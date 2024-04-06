@@ -1077,6 +1077,8 @@ class Automator:
                     time.sleep(5)
                     if self.locator.locate("icon_background_repetition"):
                         sc.start_serial_click_thread(sc_name=dw)
+                    elif self.locator.locate("menu_mogri_store"):
+                        break
                     else:
                         continue
                 elif dw == '체력회복':
