@@ -676,8 +676,8 @@ class Automator:
                 sc.start_serial_click_thread(to_quest_string)
                 while self.running:
                     if self.locator.locate('cmd_ok_popup_skip_battle'):
-                        print("Try to skip battle for 10 times")
-                        self.skip_battle(10, in_call=True)
+                        print("Try to skip battle for 20 times")
+                        self.skip_battle(20, in_call=True)
                         print("Skip battle finished.")
                         break
                     time.sleep(5)
@@ -949,6 +949,7 @@ class Automator:
             if osc.isFinished():
                 break
             self.locator.locate_and_click('cmd_no_popup_short_of_stamina')
+            time.sleep(1)
 
         if recover_cnt >= 8:
             sc = self.make_sc(sc_path='./a_orders/', sc_file_name="sc_for_recover_stamina.txt", osc=osc)

@@ -2,7 +2,9 @@
 cmd_sortie_raid
 cmd_sortie_popup_confirm
 cmd_next_popup_after_raid
+cmd_next_popup_after_quest
 cmd_end_of_quest_after_raid
+cmd_end_of_quest_after_quest
 cmd_get_reward_and_try_next_raid
 cmd_ok_popup_get_rewards|cmd_ok_popup_get_rewards2
 cmd_retry_failed_raid
