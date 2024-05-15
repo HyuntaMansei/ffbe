@@ -109,9 +109,14 @@ class Locator:
         # Split the file_name by '_'
         parts = file_name.split('_', 2)
 
+        # If there is only one underscore (two parts), handle this case
+        if len(parts) < 2:
+            return [file_name]
+        
         # Construct the prefix based on available parts
-        prefix = f"{parts[0]}_{parts[1]}"
-
+        # Join parts except the last one to create the prefix
+        prefix = '_'.join(parts[:-1])
+        
         # Get related files
         related_files = [
             filename for filename in os.listdir(self.img_path)
