@@ -122,7 +122,7 @@ class Locator:
             filename for filename in os.listdir(self.img_path)
             if filename.startswith(prefix)
         ]
-        
+        print("Cmd related files: ", related_files)
         return related_files
     def locate_and_click(self, t_str, target=None, confidence=None):
         """
