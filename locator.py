@@ -194,7 +194,7 @@ class Locator:
         # especially for list of images
         if type(t_str) == list:
             for image in t_str:
-                result = self.locate(image, confidence=confidence)
+                result = self.locate(image, confidence=confidence, cmd_related=cmd_related)
                 time.sleep(0.5)
                 if result:
                     self.debug(f"Successfully located: [{os.path.join(self.img_path,image)}] at {result} in list")
@@ -204,7 +204,7 @@ class Locator:
         if res["confidence"]:
             confidence = res["confidence"]
         if type(res["target"]) == list:
-            return self.locate(res["target"], confidence)
+            return self.locate(res["target"], confidence, cmd_related=cmd_related)
         #cmd로 시작하는 파일명 처리
         targets = []
         if not cmd_related:
