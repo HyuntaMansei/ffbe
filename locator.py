@@ -210,7 +210,7 @@ class Locator:
         if not cmd_related:
             targets = self.get_cmd_related_files(res["target"])
         if len(targets) > 1:
-            self.locate(targets, confidence, cmd_related=True)
+            return self.locate(targets, confidence, cmd_related=True)
         else:
             img = self.sct.grab(self.rect)
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
