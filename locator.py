@@ -11,6 +11,9 @@ import configparser
 import operation_status_checker as osc
 from typing import Type
 
+class Exit_exception(Exception):
+    pass
+
 class Locator:
     def __init__(self, hwnd:str=None, automation_path='./a_orders', img_path='./images/', confidence=0.95, debug=print, log=print, error=print):
         print("---Initiating Locator---")
@@ -21,6 +24,7 @@ class Locator:
         self.xys = {}
         self.operation_status_checker: Type[osc.OperationStatusChecker] = None
         self.sct = mss.mss()
+        self.exit_event = None
         self.basic_init(automation_path, img_path, confidence)
         if hwnd != None:
             self.size_init(hwnd)
@@ -31,6 +35,8 @@ class Locator:
         self.operation_status_checker = operation_status_checker
         print('-'*100)
         print(f"OSC made: {self.operation_status_checker}")
+    def set_exit_event(self, exit_event:threading.Event):
+        self.exit_event = exit_event
     def basic_init(self, automation_path, img_path, confidence=0.95):
         print("In basic_init of Locator")
         self.confidence = confidence
@@ -149,6 +155,9 @@ class Locator:
                         self.debug(f"Suc. to located [{when}] and clicked target: [{t_str_target}]")
                     return c_res
                 return None
+    def check_exit_event(self):
+        if self.exit_event.is_set():
+            raise Exit_exception
     def locate(self, t_str, confidence=None):
         """
         이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
@@ -156,6 +165,7 @@ class Locator:
         :param t_str: 단일 이미지 이름 | list of 이미지이름
         :return: window 기준 중심 좌표
         """
+        self.check_exit_event()
         if not self.shouldLocate():
             time.sleep(3)
             return None
@@ -304,3 +314,5 @@ class Locator:
             return self.operation_status_checker.shouldLocate()
         else:
             return True
+if __name__ == '__main__':
+    print("AAA")
