@@ -173,11 +173,10 @@ class Locator:
                         self.debug(f"Suc. to located [{when}] and clicked target: [{t_str_target}]")
                     return c_res
                 return None
-    def locate(self, t_str, confidence=None, cmd_related=False):
     def check_exit_event(self):
         if self.exit_event.is_set():
             raise Exit_exception
-    def locate(self, t_str, confidence=None):
+    def locate(self, t_str, confidence=None, cmd_related=False):
         """
         이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
         리스트에 대해서는 순차대로 검색 후, 첫번째 일치 좌표를 리턴한다.
