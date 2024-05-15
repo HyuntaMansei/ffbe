@@ -95,6 +95,24 @@ class Locator:
             self.error(f"No such file: {img_path}")
             return False
         return img_path
+    def get_cmd_related_files(self, file_name):
+        # Check if the file name starts with "cmd_"
+        if not file_name.startswith("cmd_"):
+            return [file_name]
+        
+        # Split the file_name by '_'
+        parts = file_name.split('_', 2)
+
+        # Construct the prefix based on available parts
+        prefix = f"{parts[0]}_{parts[1]}"
+
+        # Get related files
+        related_files = [
+            filename for filename in os.listdir(self.img_path)
+            if filename.startswith(prefix)
+        ]
+        
+        return related_files
     def locate_and_click(self, t_str, target=None, confidence=None):
         """
         검색할 이미지와 클릭할 타겟을 받아서, 이미지가 검색될 경우 타켓을 클릭.
@@ -149,12 +167,13 @@ class Locator:
                         self.debug(f"Suc. to located [{when}] and clicked target: [{t_str_target}]")
                     return c_res
                 return None
-    def locate(self, t_str, confidence=None):
+    def locate(self, t_str, confidence=None, cmd_related=False):
         """
         이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
         리스트에 대해서는 순차대로 검색 후, 첫번째 일치 좌표를 리턴한다.
         :param t_str: 단일 이미지 이름 | list of 이미지이름
         :return: window 기준 중심 좌표
+        cmd_xxx로 시작하는 경우, cmd_xxx_xxx 등의 모든 것들에 대해서 검색하여 모두를 서치해준다.
         """
         if not self.shouldLocate():
             time.sleep(3)
@@ -176,27 +195,34 @@ class Locator:
             confidence = res["confidence"]
         if type(res["target"]) == list:
             return self.locate(res["target"], confidence)
-        img = self.sct.grab(self.rect)
-        pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
-        loc = None
-        try:
-            img_path = self.get_path(res["target"])
-        except Exception as e:
-            print(f"Exception in A: {e} with t_str:{t_str} in locate")
-        try:
-            if img_path:
-                if confidence:
-                    loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
-                elif self.confidence:
-                    loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
-                else:
-                    loc = pyautogui.locate(img_path, pil_img)
-        except pyautogui.ImageNotFoundException:
-            pass
-        if loc:
-            center = (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
-            return center
-        return None
+        #cmd로 시작하는 파일명 처리
+        targets = []
+        if not cmd_related:
+            targets = self.get_cmd_related_files(res["target"])
+        if len(targets) > 1:
+            self.locate(targets, confidence, cmd_related=True)
+        else:
+            img = self.sct.grab(self.rect)
+            pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")
+            loc = None
+            try:
+                img_path = self.get_path(res["target"])
+            except Exception as e:
+                print(f"Exception in A: {e} with t_str:{t_str} in locate")
+            try:
+                if img_path:
+                    if confidence:
+                        loc = pyautogui.locate(img_path, pil_img, confidence=confidence)
+                    elif self.confidence:
+                        loc = pyautogui.locate(img_path, pil_img, confidence=self.confidence)
+                    else:
+                        loc = pyautogui.locate(img_path, pil_img)
+            except pyautogui.ImageNotFoundException:
+                pass
+            if loc:
+                center = (loc[0]+int(loc[2]/2), loc[1]+int(loc[3]/2))
+                return center
+            return None
     def click_on_screen(self, target):
         """
         click_on_client와 동일한 기능으로 이해하면 됨.

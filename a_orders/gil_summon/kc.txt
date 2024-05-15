@@ -1,4 +1,5 @@
 [1]
+cmd_summon_gil_summon
 cmd_gil_summon_once_again
 cmd_ok_popup_fragment
 cmd_skip_ani_summon
