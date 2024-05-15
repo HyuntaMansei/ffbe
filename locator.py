@@ -107,7 +107,7 @@ class Locator:
             return [file_name]
         
         # Split the file_name by '_'
-        parts = file_name.split('_', 2)
+        parts = file_name.split('_')
 
         # If there is only one underscore (two parts), handle this case
         if len(parts) < 2:
@@ -122,7 +122,7 @@ class Locator:
             filename for filename in os.listdir(self.img_path)
             if filename.startswith(prefix)
         ]
-        print("Cmd related files: ", related_files)
+        print(f"{file_name} related files: ", related_files)
         return related_files
     def locate_and_click(self, t_str, target=None, confidence=None):
         """
