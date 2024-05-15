@@ -16,6 +16,9 @@ import operation_status_checker as osc
 from typing import Type
 from ffbe_gui import AutomatorParas
 import copy
+class Exit_exception(Exception):
+    pass
+
 def print_for_debug():
     print('*'*100)
 class Timer:
@@ -36,7 +39,7 @@ class Timer:
         self.elap_times = []
         self.start_time = time.time()
 class Automator:
-    def __init__(self):
+    def __init__(self, exit_event:threading.Event):
         print("Creating Automator.")
         self.log = print
         self.debug = print
@@ -55,6 +58,7 @@ class Automator:
         self.stop_keep_click_index = 1
         self.checked_cbs = {}
         self.checked_rbs = {}
+        self.exit_event = exit_event
         self.automator_paras = AutomatorParas()
         self.init_internal_vars()
         self.init_other()
@@ -176,6 +180,7 @@ class Automator:
                 print(f"Error!! No image path for {img_path}")
         self.automation_path = os.path.join(self.automation_path, job.replace('play_', ''))
         self.locator = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
+        self.locator.set_exit_event(self.exit_event)
         self.locator.load_conf(self.device_type)
         if self.operation_status_checker:
             self.locator.set_operation_status_checker(self.operation_status_checker)
@@ -183,6 +188,9 @@ class Automator:
         self.time_limit = 300
         if not 'gpg' in self.device_type:
             self.locator.connect_click_method(self.my_device.input_tap)
+    def check_exit_event(self):
+        if self.exit_event.is_set():
+            raise 
     def start_automation(self):
         # Suppose all variables in fit.
         self.debug(f"Starting: def start_automation. Job: {self.job}")
@@ -623,6 +631,8 @@ class Automator:
         sc.set_operation_status_checker(self.operation_status_checker)
 
         while self.running:
+            if self.exit_event.is_set():
+                break
             # 첫화면은 레이드 출격 전 화면 또는 스토리 출격 전 화면
             # skip battle이 있으면 스토리, 없으면 레이드
             if self.locator.locate("cmd_skip_battle_quest"):
@@ -1313,6 +1323,7 @@ class Keep_Clicker:
         self.running = True
         self.keep_click_running = False
         self.stop_keep_click_index = 1
+        self.exit_event = automator.exit_event
         if automator:
             self.set_variables(automator=automator)
     def set_variables(self, automator:Automator):
@@ -1400,6 +1411,7 @@ class Keep_Clicker:
         if sleep_time == None:
             sleep_time = 1
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
+        locator_kc.set_exit_event(self.exit_event)
         locator_kc.load_conf(self.device_type)
         if self.operation_status_checker:
             locator_kc.set_operation_status_checker(self.operation_status_checker)
@@ -1428,6 +1440,7 @@ class Keep_Clicker:
         if sleep_time == None:
             sleep_time = 1
         locator_kc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
+        locator_kc.set_exit_event(self.exit_event)
         locator_kc.load_conf(self.device_type)
         if self.operation_status_checker:
             locator_kc.set_operation_status_checker(self.operation_status_checker)
@@ -1560,6 +1573,7 @@ class Serial_Clicker:
         self.confidence = automator.confidence
         self.device_type = automator.device_type
         self.my_device = automator.my_device
+        self.exit_event = automator.exit_event
         self.running = True
     def set_path_and_file(self, automation_path=None, sc_file_name=None):
         if automation_path:
@@ -1601,6 +1615,7 @@ class Serial_Clicker:
             return False
         self.debug(f"-----Start SC for {sc_name}-----")
         locator_sc = locator.Locator(self.my_hwnd, self.automation_path, self.img_path, error=self.error)
+        locator_sc.set_exit_event(self.exit_event)
         locator_sc.load_conf(self.device_type)
         if self.operation_status_checker:
             locator_sc.set_operation_status_checker(self.operation_status_checker)

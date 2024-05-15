@@ -11,6 +11,9 @@ import configparser
 import operation_status_checker as osc
 from typing import Type
 
+class Exit_exception(Exception):
+    pass
+
 class Locator:
     def __init__(self, hwnd:str=None, automation_path='./a_orders', img_path='./images/', confidence=0.95, debug=print, log=print, error=print):
         print("---Initiating Locator---")
@@ -21,6 +24,7 @@ class Locator:
         self.xys = {}
         self.operation_status_checker: Type[osc.OperationStatusChecker] = None
         self.sct = mss.mss()
+        self.exit_event = None
         self.basic_init(automation_path, img_path, confidence)
         if hwnd != None:
             self.size_init(hwnd)
@@ -31,6 +35,8 @@ class Locator:
         self.operation_status_checker = operation_status_checker
         print('-'*100)
         print(f"OSC made: {self.operation_status_checker}")
+    def set_exit_event(self, exit_event:threading.Event):
+        self.exit_event = exit_event
     def basic_init(self, automation_path, img_path, confidence=0.95):
         print("In basic_init of Locator")
         self.confidence = confidence
@@ -168,6 +174,10 @@ class Locator:
                     return c_res
                 return None
     def locate(self, t_str, confidence=None, cmd_related=False):
+    def check_exit_event(self):
+        if self.exit_event.is_set():
+            raise Exit_exception
+    def locate(self, t_str, confidence=None):
         """
         이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
         리스트에 대해서는 순차대로 검색 후, 첫번째 일치 좌표를 리턴한다.
@@ -175,6 +185,7 @@ class Locator:
         :return: window 기준 중심 좌표
         cmd_xxx로 시작하는 경우, cmd_xxx_xxx 등의 모든 것들에 대해서 검색하여 모두를 서치해준다.
         """
+        self.check_exit_event()
         if not self.shouldLocate():
             time.sleep(3)
             return None
@@ -330,3 +341,5 @@ class Locator:
             return self.operation_status_checker.shouldLocate()
         else:
             return True
+if __name__ == '__main__':
+    print("AAA")

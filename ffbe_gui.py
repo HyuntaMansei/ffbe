@@ -607,12 +607,14 @@ class MyWidget(QtWidgets.QWidget):
         print(f"Starting automator. Sender name:{sender_name}, btn_text:{btn_text}, on_text:{on_text}, off_text:{off_text}, job:{job}")
         if 'on' == btn_text.split()[-1] or operation_type.lower() == 'off':
             self.sender().setText(off_text)
+            self.exit_event.set()
             self.automator.stop()
 
         else:
             self.operation_status_checker = osc.OperationStatusChecker()
             self.operation_status_checker.reset()
-            self.automator = ffbe_automator.Automator()
+            self.exit_event = threading.Event()
+            self.automator = ffbe_automator.Automator(self.exit_event)
             self.automator.convert_to_A = self.on_pb_a
             self.automator.convert_to_B = self.on_pb_b
             self.automator.set_msg_handlers(log=self.log, debug=self.debug, error=self.error)
@@ -625,8 +627,11 @@ class MyWidget(QtWidgets.QWidget):
             print("Starting automator thread")
             target = self.automator.start_automation
             self.automator_thread = threading.Thread(target=target)
-            self.automator_thread.start()
             self.sender().setText(on_text)
+            try:
+                self.automator_thread.start()
+            except:
+                pass
     def set_params(self):
         self.window_name = self.cb_window_name.currentText()
         self.window_hwnd = self.cb_window_hwnd.currentText()
