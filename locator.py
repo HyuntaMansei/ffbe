@@ -103,26 +103,26 @@ class Locator:
         return img_path
     def get_cmd_related_files(self, file_name):
         # Check if the file name starts with "cmd_"
-        if not file_name.startswith("cmd_"):
-            return [file_name]
+        # if not file_name.startswith("cmd_"):
+        #     return [file_name]
         
         # Split the file_name by '_'
         parts = file_name.split('_')
 
         # If there is only one underscore (two parts), handle this case
-        if len(parts) < 2:
+        if len(parts) != 2:
             return [file_name]
         
         # Construct the prefix based on available parts
         # Join parts except the last one to create the prefix
-        prefix = '_'.join(parts[:-1])
+        prefix = '_'.join(parts[0:2])
         
         # Get related files
         related_files = [
             filename for filename in os.listdir(self.img_path)
             if filename.startswith(prefix)
         ]
-        print(f"{file_name} related files: ", related_files)
+        # print(f"{file_name} related files: ", related_files)
         return related_files
     def locate_and_click(self, t_str, target=None, confidence=None):
         """

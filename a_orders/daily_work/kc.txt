@@ -1,12 +1,8 @@
 [2]
 cmd_skip_ani_summon
-cmd_ok_summon
-cmd_ok_duel
-cmd_ok_popup_download
-cmd_ok_popup_fragment
-cmd_ok_popup_guild_medal
-cmd_ok_popup_skip_battle
-ok_popup_background_repetition
+cmd_completeQuest
+cmd_ok
+cmd_end
 cmd_close_popup_character_quest
 cmd_close_popup_open_char_quest
 cmd_next_popup_skip_battle

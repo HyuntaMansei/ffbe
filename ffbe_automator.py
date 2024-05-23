@@ -256,7 +256,7 @@ class Automator:
         self.log(f"Starting event quest automation.")
         rep_time = self.automator_paras.rep_time
         finish_button = self.finish_button
-        is_imgs = ["pic_common_is", "cmd_select_chapter"]
+        is_imgs = ["pic_common_is", "cmd_selectChapter"]
         is_for_tor = ["cmd_normal_tor", "cmd_hard_tor"]
         self.set_automation_path('quest_event')
         keep_clicker = Keep_Clicker(self)
@@ -269,16 +269,16 @@ class Automator:
                 banner_for_new_quest = ['banner_new_quest|']
                 if self.locator.locate_and_click(is_imgs, target=banner_for_new_quest):
                     time.sleep(2)
-                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_party']):
+                if not self.locator.locate(['cmd_sortie', 'common', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
                     time.sleep(2)
             self.debug("In battle stage")
-            while (not self.locator.locate('end_of_quest')) and self.running:
+            while (not self.locator.locate('cmd_endOfQuest')) and self.running:
                 time.sleep(5)
             self.debug("Battle Ended.")
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
-            while (not (self.locator.locate(is_imgs) or self.locator.locate(['sortie', 'sortie_eq']) or self.locator.locate(is_for_tor))) and self.running:
-                self.locator.locate_and_click('end_of_quest')
+            while (not (self.locator.locate(is_imgs) or self.locator.locate('cmd_sortie') or self.locator.locate(is_for_tor))) and self.running:
+                self.locator.locate_and_click('cmd_endOfQuest')
                 if not self.locator.locate(is_imgs):
                     self.locator.click_on_screen('story_skip1')
                     time.sleep(5)
@@ -308,7 +308,7 @@ class Automator:
             self.debug("Before battle, trying to click sortie")
             banner_for_new_quest = ['banner_new_quest|pic_scroll_down_daily|pic_scroll_down_daily2']
             cnt_for_eq = 0
-            while (not self.locator.locate(['sortie', 'sortie_eq', 'select_party'])) and self.running:
+            while (not self.locator.locate(['cmd_sortie', 'select_party'])) and self.running:
                 if self.locator.locate_and_click(banner_for_new_quest):
                     time.sleep(2)
                 cnt_for_eq += 1
@@ -339,7 +339,7 @@ class Automator:
         self.log(f"Starting quest automation.")
         rep_time = self.automator_paras.rep_time
         finish_button = self.finish_button
-        is_imgs = ["pic_common_is", "cmd_select_chapter"]
+        is_imgs = ["pic_common_is", "cmd_selectChapter"]
         is_for_tor = ["cmd_normal_tor", "cmd_hard_tor"]
         # self.start_keep_clicks()
         self.set_automation_path('quest_plain')
@@ -351,7 +351,6 @@ class Automator:
             self.debug("Before battle, trying to click sortie")
             while (not self.locator.locate('auto')) and self.running:
                 if self.locator.locate(is_imgs) or self.locator.locate(is_for_tor):
-                    self.debug("A")
                     if self.locator.locate('scene3_selected'):
                         pass
                     elif self.locator.locate_and_click('scene3_unselected'):
@@ -363,7 +362,7 @@ class Automator:
                     if not self.running:
                         break
                     if self.locator.locate('pic_completed_top_quest'):
-                        self.locator.locate_and_click('cmd_select_chapter')
+                        self.locator.locate_and_click('cmd_selectChapter')
                         time.sleep(3)
                         self.locator.locate_and_click('banner_next_chapter|banner_top_chapter')
                         time.sleep(3)
@@ -373,21 +372,20 @@ class Automator:
                 if self.locator.locate_and_click(is_imgs, target='top_quest'):
                     time.sleep(4)
                 elif self.locator.locate_and_click(is_for_tor, target='top_quest_for_tor'):
-                    self.debug("B")
                     time.sleep(4)
                 time.sleep(1)
-                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_party']):
+                if not self.locator.locate(['cmd_sortie', 'common', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
                     time.sleep(5)
             self.debug("In battle stage")
             self.stop_watch()
-            while (not self.locator.locate('end_of_quest')) and self.running:
+            while (not self.locator.locate('cmd_endOfQuest')) and self.running:
                 time.sleep(5)
             self.debug("Battle Ended.")
             self.debug("The quest ended")
             self.debug(f"After battle, until 'select chapter', repeating, ... story skip")
-            while (not (self.locator.locate(is_imgs) or self.locator.locate(['sortie', 'sortie_eq']) or self.locator.locate(is_for_tor))) and self.running:
-                self.locator.locate_and_click('end_of_quest')
+            while (not (self.locator.locate(is_imgs) or self.locator.locate('cmd_sortie') or self.locator.locate(is_for_tor))) and self.running:
+                self.locator.locate_and_click('cmd_endOfQuest')
                 if not self.locator.locate(is_imgs):
                     self.locator.click_on_screen('story_skip1')
                     time.sleep(5)
@@ -453,25 +451,25 @@ class Automator:
             time.sleep(2)
             self.locator.confidence = 0.95
             # 출격
-            sorties = ["sortie", "sortie_quest", "sortie_eq", "sortie_12", "sortie_confirm"]
+            sorties = "cmd_sortie"
             while (not self.locator.locate('auto')) and self.running:
                 self.locator.locate_and_click(sorties)
-                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
+                if not self.locator.locate(['cmd_sortie', 'common', 'cmd_selectChapter', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
                     time.sleep(5)
             self.debug("In battle stage")
             self.stop_watch()
-            while (not self.locator.locate('cmd_end_of_quest_popup_quest')) and self.running:
+            while (not self.locator.locate('cmd_EndOfQuest')) and self.running:
                 if self.locator.locate(sorties):
                     break
                 time.sleep(5)
             self.debug("The Quest ended")
             while (not self.locator.locate(sorties)) and self.running:
                 print("In while loop of ... ")
-                self.locator.locate_and_click(['cmd_back_to_sortie_popup_quest'])
-                if not self.locator.locate(['sortie', 'sortie_eq', 'common', 'select_chapter', 'select_party']):
+                self.locator.locate_and_click(['cmd_backToSortie'])
+                if not self.locator.locate(['cmd_sortie', 'common', 'select_chapter', 'select_party']):
                     self.locator.click_on_screen('story_skip1')
-                    self.locator.locate_and_click('yes')
+                    self.locator.locate_and_click('cmd_yes')
                     time.sleep(5)
             cnt += 1
             self.log(f"Completed: {cnt} and {rep_time - cnt} left.")
