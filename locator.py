@@ -107,12 +107,16 @@ class Locator:
         #     return [file_name]
         
         # Split the file_name by '_'
+        # if file_name.startswith("cmd_"):
+        #     print(f"file_name: {file_name}")
         parts = file_name.split('_')
 
-        # If there is only one underscore (two parts), handle this case
+        # cmd_xx의 형태가 아니면 정확히 그것만 처리하도록 한다.
         if len(parts) != 2:
             return [file_name]
         
+        if parts[0] != "cmd":
+            return [file_name]
         # Construct the prefix based on available parts
         # Join parts except the last one to create the prefix
         prefix = '_'.join(parts[0:2])
@@ -122,7 +126,7 @@ class Locator:
             filename for filename in os.listdir(self.img_path)
             if filename.startswith(prefix)
         ]
-        # print(f"{file_name} related files: ", related_files)
+        print(f"{file_name} related files: ", related_files)
         return related_files
     def locate_and_click(self, t_str, target=None, confidence=None):
         """
@@ -181,7 +185,7 @@ class Locator:
     def check_exit_event(self):
         if self.exit_event.is_set():
             raise Exit_exception
-    def locate(self, t_str, confidence=None, cmd_related=False):
+    def locate(self, t_str, confidence=None, cmd_related_self_loop=False):
         """
         이미지 서치 후 Window 기준 중심 좌표를 리턴한다.
         리스트에 대해서는 순차대로 검색 후, 첫번째 일치 좌표를 리턴한다.
@@ -199,7 +203,7 @@ class Locator:
         # especially for list of images
         if type(t_str) == list:
             for image in t_str:
-                result = self.locate(image, confidence=confidence, cmd_related=cmd_related)
+                result = self.locate(image, confidence=confidence, cmd_related_self_loop=cmd_related_self_loop)
                 time.sleep(0.5)
                 if result:
                     self.debug(f"Successfully located: [{os.path.join(self.img_path,image)}] at {result} in list")
@@ -209,13 +213,15 @@ class Locator:
         if res["confidence"]:
             confidence = res["confidence"]
         if type(res["target"]) == list:
-            return self.locate(res["target"], confidence, cmd_related=cmd_related)
+            return self.locate(res["target"], confidence, cmd_related_self_loop=cmd_related_self_loop)
         #cmd로 시작하는 파일명 처리
         targets = []
-        if not cmd_related:
+        if not cmd_related_self_loop:
             targets = self.get_cmd_related_files(res["target"])
         if len(targets) > 1:
-            return self.locate(targets, confidence, cmd_related=True)
+            return self.locate(targets, confidence, cmd_related_self_loop=True)
+        elif len(targets) == 1:
+            return self.locate(targets[0], confidence, cmd_related_self_loop=True)
         else:
             img = self.sct.grab(self.rect)
             pil_img = Image.frombytes("RGB", img.size, img.bgra, "raw", "BGRX")

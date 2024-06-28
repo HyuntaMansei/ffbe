@@ -14,7 +14,6 @@ import operation_status_checker
 import setting_gui
 import operation_status_checker as osc
 from typing import Type
-from ffbe_gui import AutomatorParas
 import copy
 class Exit_exception(Exception):
     pass
@@ -38,6 +37,21 @@ class Timer:
         self.is_running = True
         self.elap_times = []
         self.start_time = time.time()
+
+class AutomatorParas:
+    def __init__(self):
+        self.rep_time = None
+        self.num_of_players = None
+        self.sleep_multiple = None
+        self.operation_option1 = None
+        self.operation_option2 = None
+        self.test_para = None
+    def show_yourself(self):
+        print('='*50)
+        print(f"rep_time:{self.rep_time}, num_of_players:{self.num_of_players}, sleep_multiple:{self.sleep_multiple}")
+        print(f"operation_option1:{self.operation_option1}, operation_option2:{self.operation_option2}, test_para:{self.test_para}")
+        print('=' * 50)
+
 class Automator:
     def __init__(self, exit_event:threading.Event):
         print("Creating Automator.")
@@ -494,25 +508,28 @@ class Automator:
         keep_clicker = Keep_Clicker(self)
         keep_clicker.start_keep_clicks()
 
-        sorties = ['sortie','sortie_6','sortie_12','sortie_18','sortie_multi']
+        # sorties = ['sortie','sortie_6','sortie_12','sortie_18','sortie_multi']
         while self.running:
             self.init_time()
             self.debug(f"Before battle stage.")
             while (not self.locator.locate('auto')) and self.running:
                 num_of_party = None
                 # Check the number of party.
-                if self.locator.locate("party_four"):
+                if self.locator.locate("quartet_4"):
+                    print(f"Quartet 4 is located")
                     num_of_party = 4
-                elif self.locator.locate("party_three"):
+                elif self.locator.locate("quartet_3"):
+                    print(f"Quartet 3 is located")
                     num_of_party = 3
-                elif self.locator.locate("party_two"):
+                elif self.locator.locate("quartet_2"):
+                    print(f"Quartet 2 is located")
                     num_of_party = 2
                 else:
                     num_of_party = 1
                 if num_of_party >= num_of_players:
                     self.debug(
                         f"Trying to click sortie, # of players: {num_of_players}, elap. time: {int(self.elapsed_time())} sec")
-                    self.locator.locate_and_click(sorties)
+                    self.locator.locate_and_click('cmd_embark')
                 if (self.elapsed_time() > 500) and (self.locator.get_path("checking_the_result")):
                     while (self.locator.locate('checking_the_result')) and self.running:
                         self.debug("Kicking someone checking the result!")
@@ -527,9 +544,8 @@ class Automator:
                             self.init_time()
                 if (self.elapsed_time() > self.time_limit) and (self.locator.get_path("kick_out")):
                     self.debug("Kicking all out!")
-                    while (not self.locator.locate('party_one')) and self.running:
-                        self.locator.locate_and_click('kick_out')
-                        self.locator.locate_and_click('expel')
+                    while (not self.locator.locate('quartet_1')) and self.running:
+                        self.locator.locate_and_click('cmd_kick')
                     self.init_time()
                 # Recover Stamina if needed
                 if self.locator.locate(['short_of_stamina', 'item']):
@@ -537,9 +553,8 @@ class Automator:
                 time.sleep(self.automator_paras.sleep_multiple)
             self.debug("\n'Auto' is located. In battle stage")
             self.timer.restart()
-            targets = ['organize']
-            cancels = ["cancel", "cancel_friend", "cancel_multi", "cmd_cancel_popup_multi"]
-            while (not self.locator.locate(targets)) and self.running:
+            cancels = 'cmd_cancel'
+            while (not self.locator.locate('cmd_disbandRoom')) and self.running:
                 self.locator.locate_and_click(cancels)
                 time.sleep(self.automator_paras.sleep_multiple * 5)
             # after battle stage
@@ -565,8 +580,8 @@ class Automator:
             keep_clicker_for_PMCA.set_automation_path('a_orders\multi_client_any')
         keep_clicker_for_PMCA.start_keep_clicks()
         cnt = 0
-        exit_targets = ['cancel_ready','exit_room','ok','ok_multi','x','x_multi','next']
-        exit_finish = ['refresh','recruit_list', 'auto', 'cancel', 'cancel_multi']
+        exit_targets = ['cmd_cancelpreparations.png','cmd_leaveRoom','cmd_ok', 'cmd_x', 'cmd_next']
+        exit_finish = ['cmd_update_recruiting','text_recruitingList', 'auto', 'cancel', 'cancel_multi']
         while self.running:
             self.timer.restart()
             self.limit_timer.restart()

@@ -1,11 +1,8 @@
 [1]
-give_up.png
-go_back.png
-cmd_go_back_popup_multi
-next.png
+cmd_next
+cmd_return
 cmd_next_popup_multi
-ok.png
-sortie_confirm.png
-yes.png
+cmd_okcmd_confirm
+cmd_yes.png
 cmd_cancel_popup_multi
 not_auto#0.99

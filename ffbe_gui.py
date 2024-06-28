@@ -21,6 +21,8 @@ import configparser
 import inspect
 from typing import Type
 import operation_status_checker as osc
+from ffbe_automator import AutomatorParas
+
 def get_window_rect(hwnd):
     rect = win32gui.GetWindowRect(hwnd)
     x, y, width, height = rect
@@ -72,19 +74,7 @@ def close_all_apps(device):
 class MsgEvent(QEvent):
     def __init__(self):
         super().__init__(QEvent.User)
-class AutomatorParas:
-    def __init__(self):
-        self.rep_time = None
-        self.num_of_players = None
-        self.sleep_multiple = None
-        self.operation_option1 = None
-        self.operation_option2 = None
-        self.test_para = None
-    def show_yourself(self):
-        print('='*50)
-        print(f"rep_time:{self.rep_time}, num_of_players:{self.num_of_players}, sleep_multiple:{self.sleep_multiple}")
-        print(f"operation_option1:{self.operation_option1}, operation_option2:{self.operation_option2}, test_para:{self.test_para}")
-        print('=' * 50)
+
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
