@@ -1,5 +1,5 @@
 [체력회복]
-icon_plus_stamina|cmd_ok_popup_background
+icon_plus_stamina|cmd_ok_popup_background|text_restoreNRG
 pic_item_popup_stamina
 icon_plus_recover_stamina|icon_plus_off_recover_stamina
 icon_plus_off_recover_stamina
