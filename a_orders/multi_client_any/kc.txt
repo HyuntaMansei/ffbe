@@ -3,14 +3,13 @@ cmd_ok
 cmd_ready
 cmd_return
 cancel_multi.png
+host_any_3x.png
 [2]
 cmd_next
-host_any_3x.png
+host_any.png
 yes.png
 cmd_recruitingList#0.99
 not_auto#0.99
-[3]
-host_any_2x.png
 [5]
 host_any.png
 cmd_giveup
