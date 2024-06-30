@@ -78,7 +78,7 @@ class MsgEvent(QEvent):
 class MyWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.macro_version = '0.32'
+        self.macro_version = '0.37'
         self.is_automator_initiated = None
         self.adb_devices = None
         self.my_dev = None
@@ -131,7 +131,6 @@ class MyWidget(QtWidgets.QWidget):
         self.ip = ""
     def init_preparation(self):
         # variable settings
-        self.macro_version = '0.312'
         self.is_automator_initiated = False
         self.device_names = ['leonis','jchoi82kor','initiator', 'terminator', "facebook", "boringstock2", "SM-N950N", "SM-G950N", "SM-A826S", "SM-A826S"]
         self.device_types = ['nox_1920_1080', 'android', 'nox_1280_720', 'android_q2', 'blue_1280_720', 'gpg_3840_2160', 'gpg_1920_1080']
@@ -186,17 +185,17 @@ class MyWidget(QtWidgets.QWidget):
                 self.connected_device_name_and_handle.append((window.title, window._hWnd))
         # print("Connected Devices: ", self.connected_device_name_and_handle)
         # Connect to the ADB server
-        try:
-            adb = AdbClient(host="127.0.0.1", port=5037)
-            # adb.remote_connect(host="127.0.0.1", port=59666)
-            # Get the device list
-            self.adb_devices = adb.devices()
-            # Print the serial numbers and names of connected devices
-            for device in self.adb_devices:
-                device_name = device.shell("getprop ro.product.model").strip()
-                self.connected_device_name_and_serial.append((device_name, device.serial, device))
-        except Exception as e:
-            print(f"Exception:{e}")
+        # try:
+        #     adb = AdbClient(host="127.0.0.1", port=5037)
+        #     # adb.remote_connect(host="127.0.0.1", port=59666)
+        #     # Get the device list
+        #     self.adb_devices = adb.devices()
+        #     # Print the serial numbers and names of connected devices
+        #     for device in self.adb_devices:
+        #         device_name = device.shell("getprop ro.product.model").strip()
+        #         self.connected_device_name_and_serial.append((device_name, device.serial, device))
+        # except Exception as e:
+        #     print(f"Exception:{e}")
         # for Google Play Games
         gpg_hwnds = self.get_hwnd_by_process_name("crosvm.exe")
         if gpg_hwnds:
@@ -313,7 +312,7 @@ class MyWidget(QtWidgets.QWidget):
         self.cb_window_name.currentTextChanged.connect(self.on_cb_window_name_text_changed)
         self.cb_operation.currentTextChanged.connect(self.on_cb_operation_text_changed)
         self.le_rep.setText("300")
-        self.le_players.setText("4")
+        self.le_players.setText("1")
         self.le_sleep_multiple.setText("3")
         self.cb_gui_mode.addItem('E')
         self.cb_gui_mode.addItem('A')
