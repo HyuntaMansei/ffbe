@@ -1064,7 +1064,8 @@ class Automator:
         print("Starting Daily Work automation")
 
         self.from_is_to_menu()
-
+        print("Arrived to menu screen")
+        
         kc = Keep_Clicker(self)
         kc.set_automation_path('daily_work')
         kc.set_operation_status_checker(self.operation_status_checker)
