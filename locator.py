@@ -119,12 +119,12 @@ class Locator:
             return [file_name]
         # Construct the prefix based on available parts
         # Join parts except the last one to create the prefix
-        prefix = '_'.join(parts[0:2])
+        prefix = '_'.join(parts[0:2]) + '_'
         
         # Get related files
         related_files = [
             filename for filename in os.listdir(self.img_path)
-            if filename.startswith(prefix)
+            if filename.startswith(prefix) or filename == file_name
         ]
         print(f"{file_name} related files: ", related_files)
         return related_files
